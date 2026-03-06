@@ -1,0 +1,124 @@
+# ─────────────────────────────────────────────────────────────
+# PReminder — Dependency Security Audit
+# ─────────────────────────────────────────────────────────────
+# Runs:
+#   • Every Monday at 09:00 UTC (weekly sweep)
+#   • On any push to main that changes pnpm-lock.yaml or package.json
+#   • Manually via workflow_dispatch
+#
+# Reports audit results as a job summary.
+# Opens a GitHub issue automatically if high/critical vulns are found on main.
+# ─────────────────────────────────────────────────────────────
+
+name: Security Audit
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Every Monday 09:00 UTC
+  push:
+    branches: [main]
+    paths:
+      - pnpm-lock.yaml
+      - package.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write # Required to open a GitHub issue on vulnerability detection
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+
+jobs:
+  audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Run the audit and capture exit code separately so we can write the
+      # summary before failing the job.
+      - name: Run pnpm audit
+        id: audit
+        run: |
+          set +e
+          pnpm audit --audit-level=high 2>&1 | tee /tmp/audit-output.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          set -e
+
+      - name: Write audit summary
+        if: always()
+        run: |
+          echo "## Security Audit" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/audit-output.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      # Open a GitHub issue when high/critical vulnerabilities are found on main.
+      # Deduplicates: skips if an open issue with the same title already exists.
+      - name: Open issue for high/critical vulnerabilities
+        if: steps.audit.outputs.exit_code != '0' && github.ref == 'refs/heads/main'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '⚠️ High/critical npm vulnerabilities detected';
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'security',
+            });
+
+            if (existing.data.some(i => i.title === title)) {
+              console.log('Issue already open — skipping creation');
+              return;
+            }
+
+            const fs = require('fs');
+            const auditOutput = fs.readFileSync('/tmp/audit-output.txt', 'utf8');
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              labels: ['security'],
+              body: [
+                '**Automated security scan** found high or critical vulnerabilities in `pnpm-lock.yaml`.',
+                '',
+                `**Workflow run:** ${runUrl}`,
+                '',
+                '### Audit Output',
+                '```',
+                auditOutput.slice(0, 8000),
+                '```',
+                '',
+                '**To resolve:** run `pnpm audit --fix` locally and open a PR.',
+              ].join('\n'),
+            });
+
+      # Fail the job after writing the summary and opening any issue.
+      - name: Fail on vulnerabilities
+        if: steps.audit.outputs.exit_code != '0'
+        run: |
+          echo "::error::High or critical vulnerabilities found. See the job summary for details."
+          exit 1

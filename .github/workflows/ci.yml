@@ -1,0 +1,239 @@
+# ─────────────────────────────────────────────────────────────
+# PReminder — CI Pipeline
+# ─────────────────────────────────────────────────────────────
+# Runs on every push to main and every pull request targeting main.
+#
+# Jobs (parallel where possible):
+#   lint   → ESLint + Prettier + TypeScript type check
+#   test   → Vitest unit tests + v8 coverage + step summary
+#   build  → Next.js production build (needs lint + test to pass)
+#
+# Secrets required for the build job (set in repo Settings → Secrets):
+#   NEXTAUTH_SECRET      — AUTH_SECRET alias (min 32 chars)
+#   GITHUB_CLIENT_ID     — OAuth App client ID
+#   GITHUB_CLIENT_SECRET — OAuth App client secret
+#   GITHUB_ORG           — Target GitHub org slug
+#   ENCRYPTION_KEY       — 64-char hex AES-256-GCM key
+# ─────────────────────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel redundant in-flight runs for the same branch/PR.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Minimal permissions — principle of least privilege.
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+
+jobs:
+  # ──────────────────────────────────────────────────────────
+  # Job 1 — Lint & Type Check
+  # Fast feedback (~2 min). Runs in parallel with test job.
+  # ──────────────────────────────────────────────────────────
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: ESLint + Prettier
+        run: pnpm lint
+
+      - name: TypeScript type check
+        run: pnpm typecheck
+
+  # ──────────────────────────────────────────────────────────
+  # Job 2 — Unit Tests + Coverage
+  # All external services (GitHub API, DB, Teams) are mocked.
+  # No real network calls or DB connections are made.
+  # ──────────────────────────────────────────────────────────
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Minimal env vars needed to satisfy module-level Zod validation.
+    # Nothing real — every service is mocked in tests.
+    env:
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: ci-placeholder-secret-at-least-32-characters
+      GITHUB_CLIENT_ID: ci-placeholder-client-id
+      GITHUB_CLIENT_SECRET: ci-placeholder-client-secret
+      GITHUB_ORG: placeholder-org
+      DB_HOST: localhost
+      DB_PORT: '5432'
+      DB_USER: preminder
+      DB_PASSWORD: preminder
+      DB_NAME: preminder
+      ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Run tests with coverage
+        run: pnpm test:coverage
+
+      # Upload the full coverage HTML report as a downloadable artifact.
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-${{ github.run_id }}
+          path: coverage/
+          retention-days: 14
+
+      # Write a coverage summary table into the GitHub Actions job summary
+      # so reviewers can check coverage without downloading the artifact.
+      - name: Write coverage summary
+        if: always()
+        run: |
+          if [ ! -f coverage/coverage-summary.json ]; then
+            echo "coverage-summary.json not found — skipping summary" >&2
+            exit 0
+          fi
+
+          echo "## Coverage Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          node --input-type=module << 'EOF' >> "$GITHUB_STEP_SUMMARY"
+            import { readFileSync } from 'fs';
+            const { total: s } = JSON.parse(readFileSync('coverage/coverage-summary.json', 'utf8'));
+            const icon = (pct) => pct >= 80 ? '✅' : '❌';
+            const row = (name, v) =>
+              `| ${name.padEnd(12)} | ${v.covered}/${v.total} | ${v.pct.toFixed(1)}% | ${icon(v.pct)} |`;
+            const lines = [
+              '| Metric       | Covered/Total | Pct    | Status |',
+              '|--------------|---------------|--------|--------|',
+              row('Statements',  s.statements),
+              row('Branches',    s.branches),
+              row('Functions',   s.functions),
+              row('Lines',       s.lines),
+            ];
+            process.stdout.write(lines.join('\n') + '\n');
+          EOF
+
+  # ──────────────────────────────────────────────────────────
+  # Job 3 — Production Build
+  # Only runs after lint and test both pass.
+  # Uses SKIP_ENV_VALIDATION so Next.js can build without real
+  # runtime secrets — env vars are validated at server start.
+  # ──────────────────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint, test]
+
+    env:
+      # Use repository secrets when available; fall back to safe CI placeholders
+      # so the workflow is runnable in forks without secrets configured.
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'ci-placeholder-secret-at-least-32-characters' }}
+      GITHUB_CLIENT_ID: ${{ secrets.GITHUB_CLIENT_ID || 'ci-placeholder-client-id' }}
+      GITHUB_CLIENT_SECRET: ${{ secrets.GITHUB_CLIENT_SECRET || 'ci-placeholder-client-secret' }}
+      GITHUB_ORG: ${{ secrets.GITHUB_ORG || 'placeholder-org' }}
+      DB_HOST: localhost
+      DB_PORT: '5432'
+      DB_USER: preminder
+      DB_PASSWORD: preminder
+      DB_NAME: preminder
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY || '0000000000000000000000000000000000000000000000000000000000000000' }}
+      # Skip Zod env validation at build time — validated at runtime instead.
+      SKIP_ENV_VALIDATION: '1'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # Cache Next.js incremental build output to speed up subsequent builds.
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          # Bust cache when lockfile or any source file changes.
+          key: nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**/*.{ts,tsx,scss}') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            nextjs-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Build (Next.js)
+        run: pnpm build
+
+      - name: Write build summary
+        if: always()
+        run: |
+          echo "## Build" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Production build passed." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "❌ Production build failed — check the step logs above." >> "$GITHUB_STEP_SUMMARY"
+          fi

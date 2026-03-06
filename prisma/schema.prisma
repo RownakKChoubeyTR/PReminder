@@ -1,0 +1,173 @@
+// ─────────────────────────────────────────────────────────────
+// PReminder — Prisma Schema
+// ─────────────────────────────────────────────────────────────
+// To switch databases:
+//   1. Change `provider` below (postgresql, sqlite, mysql, etc.)
+//   2. Update DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME
+//      in .env.local
+//   3. Run: pnpm db:migrate
+//
+// NOTE: env("DATABASE_URL") below is required by Prisma's schema
+// format. The actual URL is composed at runtime from individual
+// env vars (DB_HOST, DB_PORT, …). For CLI commands, the wrapper
+// script `scripts/prisma-cli.mjs` composes and injects it.
+// ─────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Users ──────────────────────────────────────────────────
+
+model User {
+  id          String   @id @default(cuid())
+  githubId    Int      @unique
+  username    String   @unique
+  email       String?
+  name        String?
+  avatarUrl   String?
+  accessToken String   // Encrypted at application layer (AES-256-GCM)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  templates          MessageTemplate[]
+  integrationConfigs IntegrationConfig[]
+  reminderLogs       ReminderLog[]
+  emailMappings      EmailMapping[]
+  notificationPrefs  NotificationPreference?
+
+  @@map("users")
+}
+
+// ── Message Templates ──────────────────────────────────────
+
+enum TemplateType {
+  TEAMS_DM
+  TEAMS_CHANNEL
+  EMAIL
+}
+
+model MessageTemplate {
+  id        String       @id @default(cuid())
+  userId    String
+  name      String       // Display name: "Friendly Reminder"
+  type      TemplateType // Which delivery method this template is for
+  subject   String?      // Email subject line (null for Teams templates)
+  body      String       // Template body with {variable} placeholders
+  isDefault Boolean      @default(false)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reminderLogs ReminderLog[]
+
+  @@unique([userId, name, type])
+  @@index([userId, type])
+  @@map("message_templates")
+}
+
+// ── Integration Configs ────────────────────────────────────
+
+enum IntegrationType {
+  POWER_AUTOMATE_DM // Power Automate flow URL for Teams DMs
+  TEAMS_WEBHOOK     // Incoming Webhook URL for channel posts
+}
+
+model IntegrationConfig {
+  id             String          @id @default(cuid())
+  userId         String
+  type           IntegrationType
+  label          String          // "Frontend Channel", "My PA Flow"
+  encryptedValue String          // AES-256-GCM encrypted URL/token
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@map("integration_configs")
+}
+
+// ── Reminder Logs ──────────────────────────────────────────
+
+enum ReminderMethod {
+  TEAMS_DM_POWER_AUTOMATE
+  TEAMS_DM_DEEPLINK
+  TEAMS_CHANNEL_WEBHOOK
+  EMAIL_GRAPH
+  EMAIL_MAILTO
+}
+
+enum ReminderStatus {
+  SENT    // Successfully dispatched
+  FAILED  // Error during send
+  OPENED  // Mailto/deeplink opened (no delivery guarantee)
+  QUEUED  // Waiting for retry
+}
+
+model ReminderLog {
+  id             String         @id @default(cuid())
+  userId         String
+  prNumber       Int
+  repo           String
+  owner          String
+  prTitle        String?
+  reviewerGithub String
+  reviewerEmail  String?
+  method         ReminderMethod
+  templateId     String?
+  status         ReminderStatus @default(SENT)
+  errorMessage   String?
+  sentAt         DateTime       @default(now())
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template MessageTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@index([userId, sentAt(sort: Desc)])
+  @@index([reviewerGithub, prNumber, repo])
+  @@index([userId, prNumber, repo, reviewerGithub])
+  @@map("reminder_logs")
+}
+
+// ── Email Mappings ─────────────────────────────────────────
+// Maps GitHub usernames to corporate emails (for Teams DM + email)
+
+model EmailMapping {
+  id             String   @id @default(cuid())
+  userId         String
+  githubUsername String
+  email          String
+  displayName    String?
+  source         String   @default("manual") // "manual", "github-profile", "github-commits"
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, githubUsername])
+  @@index([userId])
+  @@map("email_mappings")
+}
+
+// ── Notification Preferences ───────────────────────────────
+
+model NotificationPreference {
+  id                String  @id @default(cuid())
+  userId            String  @unique
+  enabled           Boolean @default(false)
+  checkIntervalMins Int     @default(60)  // 15, 30, 60, 120, 240
+  staleThresholdHrs Int     @default(4)   // 1, 2, 4, 8, 24
+  soundEnabled      Boolean @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
+}

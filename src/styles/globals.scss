@@ -1,0 +1,142 @@
+// ─────────────────────────────────────────────────────────────
+// PReminder — Global Styles
+// ─────────────────────────────────────────────────────────────
+// Resets, base styles, and CSS Custom Property definitions for
+// the theme system. Tailwind is loaded from a separate
+// tailwind.css file (required by Tailwind v4 + SCSS coexistence).
+// ─────────────────────────────────────────────────────────────
+
+@use 'variables' as *;
+@use 'themes/light';
+@use 'themes/dark';
+
+// ── CSS Reset ──────────────────────────────────────────────
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: $font-family-sans;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+  transition:
+    color $transition-theme,
+    background-color $transition-theme;
+}
+
+// ── Typography ─────────────────────────────────────────────
+// Base defaults only — Tailwind utility classes take precedence
+// for component-level styling.
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+}
+
+code,
+pre {
+  font-family: $font-family-mono;
+}
+
+code {
+  font-size: 0.9em;
+  padding: $space-1 $space-2;
+  background-color: var(--color-bg-tertiary);
+  border-radius: $radius-sm;
+  color: var(--color-text-primary);
+}
+
+// ── Interactive Elements ───────────────────────────────────
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: $radius-sm;
+  }
+}
+
+input,
+textarea,
+select {
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+  padding: $space-2 $space-3;
+  transition:
+    border-color $transition-fast,
+    box-shadow $transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-subtle);
+  }
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+}
+
+// ── Utility Classes ────────────────────────────────────────
+// .sr-only is provided by Tailwind — removed duplicate.
+
+// ── Scrollbar ──────────────────────────────────────────────
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: $radius-full;
+
+  &:hover {
+    background: var(--color-text-muted);
+  }
+}
+
+// ── Selection ──────────────────────────────────────────────
+
+::selection {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+}

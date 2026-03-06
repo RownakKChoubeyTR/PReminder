@@ -1,0 +1,26 @@
+@use '../../styles/variables' as *;
+
+// ─────────────────────────────────────────────────────────────
+// Dashboard Page
+// ─────────────────────────────────────────────────────────────
+
+.page {
+  max-width: $max-content-width;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: $space-6;
+}
+
+.pageTitle {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: var(--color-text-primary);
+  margin-bottom: $space-1;
+}
+
+.pageDescription {
+  font-size: $font-size-sm;
+  color: var(--color-text-muted);
+}

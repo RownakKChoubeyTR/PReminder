@@ -1,0 +1,192 @@
+@use '../../styles/variables' as *;
+
+// ─────────────────────────────────────────────────────────────
+// Template List — Card list of message templates
+// ─────────────────────────────────────────────────────────────
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+.createButton {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-3 $space-4;
+  border: 2px dashed var(--color-border);
+  border-radius: $radius-md;
+  background: transparent;
+  color: var(--color-primary);
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  svg {
+    width: 18px;
+    height: 18px;
+      flex-shrink: 0;
+  }
+
+  &:hover {
+    background: var(--color-primary-subtle);
+    border-color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+  background: var(--color-bg-primary);
+  cursor: pointer;
+  transition: all $transition-fast;
+  text-align: left;
+  width: 100%;
+  // Resets for div[role=button] (no inherited button UA styles needed)
+  user-select: none;
+
+  &:hover {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-primary);
+  }
+
+  &.active {
+    background: var(--color-primary-subtle);
+    border-color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.cardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-md;
+  background: var(--color-bg-tertiary);
+  flex-shrink: 0;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-secondary);
+  }
+}
+
+.cardContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.cardName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: var(--color-text-primary);
+  @include truncate;
+}
+
+.defaultBadge {
+  display: inline-flex;
+  padding: $space-0-5 $space-1-5;
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  border-radius: $radius-sm;
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.cardType {
+  font-size: $font-size-xs;
+  color: var(--color-text-muted);
+}
+
+.deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-sm;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all $transition-fast;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    background: var(--color-danger-subtle);
+    color: var(--color-danger);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+// ── Loading / Empty ────────────────────────────────────────
+
+.skeleton {
+  height: 56px;
+  @include skeleton;
+}
+
+.error {
+  padding: $space-4;
+  text-align: center;
+  color: var(--color-danger);
+  font-size: $font-size-sm;
+}
+
+.retryButton {
+  margin-top: $space-2;
+  font-size: $font-size-sm;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.empty {
+  padding: $space-6;
+  text-align: center;
+
+  p {
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
+  }
+}

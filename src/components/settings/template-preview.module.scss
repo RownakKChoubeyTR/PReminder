@@ -1,0 +1,110 @@
+@use '../../styles/variables' as *;
+
+// ─────────────────────────────────────────────────────────────
+// Template Preview — Live rendered preview
+// ─────────────────────────────────────────────────────────────
+
+.preview {
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: var(--color-bg-primary);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-3 $space-4;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.content {
+  padding: $space-4;
+}
+
+.subject {
+  display: flex;
+  align-items: baseline;
+  gap: $space-2;
+  padding-bottom: $space-3;
+  margin-bottom: $space-3;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.subjectLabel {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.subjectText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: var(--color-text-primary);
+}
+
+.body {
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: var(--color-text-primary);
+
+  p {
+    margin-bottom: $space-0-5;
+  }
+}
+
+.sampleNote {
+  display: flex;
+  align-items: center;
+  gap: $space-1-5;
+  padding: $space-2 $space-4;
+  background: var(--color-bg-tertiary);
+  border-top: 1px solid var(--color-border);
+  font-size: $font-size-xs;
+  color: var(--color-text-muted);
+
+  svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+}
+
+// ── Empty state ────────────────────────────────────────────
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space-3;
+  padding: $space-12;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  text-align: center;
+
+  svg {
+    width: 32px;
+    height: 32px;
+    color: var(--color-text-muted);
+    opacity: 0.4;
+  }
+
+  p {
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
+  }
+}

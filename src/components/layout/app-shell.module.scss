@@ -1,0 +1,28 @@
+@use '../../styles/variables' as *;
+
+// ─────────────────────────────────────────────────────────────
+// App Shell — Layout wrapper
+// ─────────────────────────────────────────────────────────────
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+}
+
+.main {
+  flex: 1;
+  margin-left: $sidebar-width;
+  margin-top: $header-height;
+  padding: $space-6;
+  transition: margin-left $transition-base;
+  min-width: 0; // prevent flex overflow
+
+  &.sidebarCollapsed {
+    margin-left: $sidebar-width-collapsed;
+  }
+
+  @media (max-width: #{$breakpoint-md - 1}) {
+    margin-left: 0;
+  }
+}

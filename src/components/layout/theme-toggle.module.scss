@@ -1,0 +1,29 @@
+@use '../../styles/variables' as *;
+
+// ─────────────────────────────────────────────────────────────
+// Theme Toggle
+// ─────────────────────────────────────────────────────────────
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-md;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  @include interactive;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-strong);
+  }
+}

@@ -1,0 +1,15 @@
+/* ─────────────────────────────────────────────────────────────
+ * PReminder — Tailwind CSS v4 Entry Point
+ * ─────────────────────────────────────────────────────────────
+ * This file is the Tailwind CSS entry point, processed by the
+ * @tailwindcss/postcss plugin. It is imported separately from
+ * globals.scss in the root layout to avoid @use/@tailwind
+ * ordering conflicts in SCSS.
+ *
+ * The @config directive loads the v3-compatible config file
+ * which maps Tailwind colors → CSS Custom Properties from the
+ * existing theme system (see src/styles/themes/).
+ * ────────────────────────────────────────────────────────────── */
+
+@import "tailwindcss";
+@config "../../tailwind.config.ts";

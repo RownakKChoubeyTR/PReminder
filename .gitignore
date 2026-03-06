@@ -1,0 +1,54 @@
+# ── Dependencies ──
+node_modules/
+.pnpm-store/
+
+# ── Next.js ──
+.next/
+out/
+
+# ── Build ──
+dist/
+build/
+
+# ── Environment ──
+.env.local
+.env.staging
+.env.production
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ── Database ──
+*.db
+*.db-journal
+prisma/migrations/**/migration_lock.toml
+
+# ── IDE ──
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Testing ──
+coverage/
+*.lcov
+
+# ── Docker ──
+docker/pgdata/
+
+# ── Logs ──
+logs/
+
+# ── Misc ──
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.tsbuildinfo
+next-env.d.ts

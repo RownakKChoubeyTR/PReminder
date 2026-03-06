@@ -1,0 +1,405 @@
+@use '../../styles/variables' as *;
+
+// ─────────────────────────────────────────────────────────────
+// PR Detail Modal — Overlay with rich PR information
+// ─────────────────────────────────────────────────────────────
+
+// ── Backdrop ───────────────────────────────────────────────
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: $z-modal-backdrop;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  animation: fadeIn $transition-fast;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// ── Modal ──────────────────────────────────────────────────
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: $z-modal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-6;
+}
+
+.modalContent {
+  width: 100%;
+  max-width: 780px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: $radius-xl;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  box-shadow: $shadow-xl;
+  animation: scaleIn $transition-base;
+  overflow: hidden;
+
+  @media (max-width: #{$breakpoint-md - 1}) {
+    max-width: 100%;
+    max-height: 90vh;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+// ── Header ─────────────────────────────────────────────────
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-4;
+  padding: $space-5 $space-6;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.headerLeft {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: var(--color-text-primary);
+  line-height: $line-height-tight;
+  margin-bottom: $space-2;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  flex-wrap: wrap;
+  font-size: $font-size-sm;
+  color: var(--color-text-muted);
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+}
+
+.metaDivider {
+  width: 3px;
+  height: 3px;
+  border-radius: $radius-full;
+  background: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-md;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+// ── Body ───────────────────────────────────────────────────
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space-6;
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+}
+
+// ── Two Column Grid ────────────────────────────────────────
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-6;
+
+  @media (max-width: #{$breakpoint-md - 1}) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+// ── Section ────────────────────────────────────────────────
+
+.sectionTitle {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: $space-1;
+}
+
+// ── Branch Info ────────────────────────────────────────────
+
+.branchInfo {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  flex-wrap: wrap;
+}
+
+.branchName {
+  display: inline-flex;
+  align-items: center;
+  padding: $space-0-5 $space-2;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-sm;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: var(--color-text-primary);
+  max-width: 260px;
+  @include truncate;
+}
+
+.branchArrow {
+  display: flex;
+  color: var(--color-text-muted);
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// ── Info Grid ──────────────────────────────────────────────
+
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+  overflow: hidden;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-2 $space-3;
+  font-size: $font-size-sm;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  &:nth-child(even) {
+    background: var(--color-bg-secondary);
+  }
+}
+
+.infoLabel {
+  color: var(--color-text-muted);
+  font-size: $font-size-sm;
+}
+
+.infoValue {
+  color: var(--color-text-primary);
+  font-weight: $font-weight-medium;
+  font-size: $font-size-sm;
+  text-align: right;
+}
+
+// ── Labels ─────────────────────────────────────────────────
+
+.labelList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-1-5;
+}
+
+.label {
+  display: inline-block;
+  padding: $space-0-5 $space-2;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-base;
+}
+
+// ── Teams ──────────────────────────────────────────────────
+
+.teamList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1-5;
+}
+
+.teamItem {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-3;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: var(--color-text-primary);
+
+  svg {
+    width: 16px;
+    height: 16px;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+}
+
+// ── Requested Reviewers ────────────────────────────────────
+
+.requestedReviewers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+}
+
+.requestedReviewer {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-1-5 $space-3 $space-1-5 $space-1-5;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+  color: var(--color-text-primary);
+
+  img {
+    width: 22px;
+    height: 22px;
+    border-radius: $radius-full;
+  }
+}
+
+// ── Author ─────────────────────────────────────────────────
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-3;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+}
+
+.authorAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+}
+
+.authorInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.authorName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: var(--color-text-primary);
+}
+
+.authorRole {
+  font-size: $font-size-xs;
+  color: var(--color-text-muted);
+}
+
+// ── Footer ─────────────────────────────────────────────────
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $space-3;
+  padding: $space-4 $space-6;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.githubLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-4;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: var(--color-bg-tertiary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
