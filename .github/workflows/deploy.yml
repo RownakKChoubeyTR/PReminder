@@ -67,7 +67,7 @@ jobs:
 
             # Reuse cached Next.js build chunks — speeds up deploy significantly.
             - name: Restore Next.js build cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: .next/cache
                   key: nextjs-deploy-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**/*.{ts,tsx,scss}') }}
