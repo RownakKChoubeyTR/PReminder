@@ -20,16 +20,16 @@ const RESET = '\x1b[0m';
 const SEP = '─'.repeat(69); // matches BOX_WIDTH - 2 in logger.ts
 
 export const dbLogger = {
-  ..._log,
+    ..._log,
 
-  /**
-   * Print a visual divider to the console (dev only).
-   * Groups connection attempt blocks for readability.
-   * Not written to file.
-   */
-  separator(): void {
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`${GREY}   ${SEP}${RESET}\n`);
+    /**
+     * Print a visual divider to the console (dev only).
+     * Groups connection attempt blocks for readability.
+     * Not written to file.
+     */
+    separator(): void {
+        if (process.env.NODE_ENV === 'development') {
+            console.log(`${GREY}   ${SEP}${RESET}\n`);
+        }
     }
-  },
 };

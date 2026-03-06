@@ -5,104 +5,104 @@
 // ─────────────────────────────────────────────────────────────
 
 .page {
-  max-width: $max-content-width;
-  margin: 0 auto;
+    max-width: $max-content-width;
+    margin: 0 auto;
 }
 
 .pageHeader {
-  margin-bottom: $space-6;
+    margin-bottom: $space-6;
 }
 
 .pageTitle {
-  font-size: $font-size-2xl;
-  font-weight: $font-weight-bold;
-  color: var(--color-text-primary);
-  margin-bottom: $space-2;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: var(--color-text-primary);
+    margin-bottom: $space-2;
 }
 
 .pageDescription {
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
 
-  code {
-    font-size: $font-size-xs;
-    padding: $space-0-5 $space-1;
-    background: var(--color-bg-tertiary);
-    border-radius: $radius-sm;
-  }
+    code {
+        font-size: $font-size-xs;
+        padding: $space-0-5 $space-1;
+        background: var(--color-bg-tertiary);
+        border-radius: $radius-sm;
+    }
 }
 
 // ── Two-panel layout ───────────────────────────────────────
 
 .layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: $space-6;
-  align-items: start;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: $space-6;
+    align-items: start;
 
-  @media (max-width: #{$breakpoint-lg - 1}) {
-    grid-template-columns: 1fr;
-  }
+    @media (max-width: #{$breakpoint-lg - 1}) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .sidebar {
-  position: sticky;
-  top: calc(#{$header-height} + #{$space-6});
-  max-height: calc(100vh - #{$header-height} - #{$space-12});
-  overflow-y: auto;
+    position: sticky;
+    top: calc(#{$header-height} + #{$space-6});
+    max-height: calc(100vh - #{$header-height} - #{$space-12});
+    overflow-y: auto;
 }
 
 .main {
-  min-height: 400px;
+    min-height: 400px;
 }
 
 // ── Editor layout (form + preview) ────────────────────────
 
 .editorLayout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $space-6;
-  align-items: start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-6;
+    align-items: start;
 
-  @media (max-width: #{$breakpoint-xl - 1}) {
-    grid-template-columns: 1fr;
-  }
+    @media (max-width: #{$breakpoint-xl - 1}) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .formPanel,
 .previewPanel {
-  min-width: 0;
+    min-width: 0;
 }
 
 // ── Empty state ────────────────────────────────────────────
 
 .emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: $space-3;
-  padding: $space-16;
-  border: 2px dashed var(--color-border);
-  border-radius: $radius-lg;
-  text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $space-3;
+    padding: $space-16;
+    border: 2px dashed var(--color-border);
+    border-radius: $radius-lg;
+    text-align: center;
 
-  svg {
-    width: 48px;
-    height: 48px;
-    color: var(--color-text-muted);
-    opacity: 0.4;
-  }
+    svg {
+        width: 48px;
+        height: 48px;
+        color: var(--color-text-muted);
+        opacity: 0.4;
+    }
 
-  h2 {
-    font-size: $font-size-lg;
-    font-weight: $font-weight-semibold;
-    color: var(--color-text-primary);
-  }
+    h2 {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
+        color: var(--color-text-primary);
+    }
 
-  p {
-    font-size: $font-size-sm;
-    color: var(--color-text-muted);
-    max-width: 360px;
-  }
+    p {
+        font-size: $font-size-sm;
+        color: var(--color-text-muted);
+        max-width: 360px;
+    }
 }

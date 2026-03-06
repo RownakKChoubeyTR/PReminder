@@ -8,82 +8,82 @@ import { create } from 'zustand';
 // chosen channel/template, and flow modal visibility.
 
 interface ReminderFlowState {
-  /** GitHub logins of reviewers selected for reminding. */
-  selectedReviewers: string[];
-  /** Whether the reminder flow modal is open. */
-  flowOpen: boolean;
-  /** Chosen delivery channel. */
-  channel: ReminderChannel;
-  /** Chosen template ID. */
-  templateId: string | null;
-  /** PR context for the current reminder flow. */
-  prContext: {
-    number: number;
-    title: string;
-    url: string;
-    repo: string;
-    branch: string;
-    targetBranch: string;
-    age: number;
-    labels: string[];
-    description: string;
-  } | null;
+    /** GitHub logins of reviewers selected for reminding. */
+    selectedReviewers: string[];
+    /** Whether the reminder flow modal is open. */
+    flowOpen: boolean;
+    /** Chosen delivery channel. */
+    channel: ReminderChannel;
+    /** Chosen template ID. */
+    templateId: string | null;
+    /** PR context for the current reminder flow. */
+    prContext: {
+        number: number;
+        title: string;
+        url: string;
+        repo: string;
+        branch: string;
+        targetBranch: string;
+        age: number;
+        labels: string[];
+        description: string;
+    } | null;
 
-  // Actions
-  toggleReviewer: (login: string) => void;
-  selectAllReviewers: (logins: string[]) => void;
-  deselectReviewers: (logins: string[]) => void;
-  clearReviewers: () => void;
-  openFlow: () => void;
-  closeFlow: () => void;
-  setChannel: (channel: ReminderChannel) => void;
-  setTemplateId: (id: string | null) => void;
-  setPrContext: (ctx: ReminderFlowState['prContext']) => void;
-  reset: () => void;
+    // Actions
+    toggleReviewer: (login: string) => void;
+    selectAllReviewers: (logins: string[]) => void;
+    deselectReviewers: (logins: string[]) => void;
+    clearReviewers: () => void;
+    openFlow: () => void;
+    closeFlow: () => void;
+    setChannel: (channel: ReminderChannel) => void;
+    setTemplateId: (id: string | null) => void;
+    setPrContext: (ctx: ReminderFlowState['prContext']) => void;
+    reset: () => void;
 }
 
 const initialState = {
-  selectedReviewers: [] as string[],
-  flowOpen: false,
-  channel: 'TEAMS_DM' as ReminderChannel,
-  templateId: null as string | null,
-  prContext: null as ReminderFlowState['prContext'],
+    selectedReviewers: [] as string[],
+    flowOpen: false,
+    channel: 'TEAMS_DM' as ReminderChannel,
+    templateId: null as string | null,
+    prContext: null as ReminderFlowState['prContext']
 };
 
-export const useReminderStore = create<ReminderFlowState>((set) => ({
-  ...initialState,
+export const useReminderStore = create<ReminderFlowState>(set => ({
+    ...initialState,
 
-  toggleReviewer: (login) =>
-    set((s) => ({
-      selectedReviewers: s.selectedReviewers.includes(login)
-        ? s.selectedReviewers.filter((l) => l !== login)
-        : [...s.selectedReviewers, login],
-    })),
+    toggleReviewer: login =>
+        set(s => ({
+            selectedReviewers: s.selectedReviewers.includes(login)
+                ? s.selectedReviewers.filter(l => l !== login)
+                : [...s.selectedReviewers, login]
+        })),
 
-  selectAllReviewers: (logins) =>
-    set((s) => {
-      const existing = new Set(s.selectedReviewers);
-      for (const login of logins) existing.add(login);
-      return { selectedReviewers: Array.from(existing) };
-    }),
+    selectAllReviewers: logins =>
+        set(s => {
+            const existing = new Set(s.selectedReviewers);
+            for (const login of logins) existing.add(login);
+            return { selectedReviewers: Array.from(existing) };
+        }),
 
-  deselectReviewers: (logins) =>
-    set((s) => {
-      const toRemove = new Set(logins);
-      return { selectedReviewers: s.selectedReviewers.filter((l) => !toRemove.has(l)) };
-    }),
+    deselectReviewers: logins =>
+        set(s => {
+            const toRemove = new Set(logins);
+            return { selectedReviewers: s.selectedReviewers.filter(l => !toRemove.has(l)) };
+        }),
 
-  clearReviewers: () => set({ selectedReviewers: [] }),
+    clearReviewers: () => set({ selectedReviewers: [] }),
 
-  openFlow: () => set({ flowOpen: true }),
+    openFlow: () => set({ flowOpen: true }),
 
-  closeFlow: () => set({ flowOpen: false }),
+    closeFlow: () => set({ flowOpen: false }),
 
-  setChannel: (channel) => set({ channel }),
+    setChannel: channel => set({ channel }),
 
-  setTemplateId: (id) => set({ templateId: id }),
+    setTemplateId: id => set({ templateId: id }),
 
-  setPrContext: (ctx) => set({ prContext: ctx }),
+    setPrContext: ctx => set({ prContext: ctx }),
 
-  reset: () => set(initialState),
+    reset: () => set(initialState)
 }));

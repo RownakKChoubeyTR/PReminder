@@ -40,9 +40,9 @@ You need a GitHub OAuth App to authenticate users and access the GitHub API on t
 1. Go to **[github.com/settings/developers](https://github.com/settings/developers)**
 2. Click **"OAuth Apps"** → **"New OAuth App"**
 3. Fill in:
-   - **Application name**: `PReminder` (or any name)
-   - **Homepage URL**: `http://localhost:3000`
-   - **Authorization callback URL**: `http://localhost:3000/api/auth/callback/github`
+    - **Application name**: `PReminder` (or any name)
+    - **Homepage URL**: `http://localhost:3000`
+    - **Authorization callback URL**: `http://localhost:3000/api/auth/callback/github`
 4. Click **"Register application"**
 5. Copy the **Client ID** → paste into `.env.local` as `GITHUB_CLIENT_ID`
 6. Click **"Generate a new client secret"** → copy → paste as `GITHUB_CLIENT_SECRET`
@@ -55,8 +55,8 @@ If targeting private repos in a GitHub organization:
    `https://github.com/organizations/<YOUR_ORG>/settings/applications` → **New OAuth App**
 
 2. **Option B**: Register under your personal account, then request org access:
-   - After login, users will see a prompt to grant org access
-   - An org admin must approve the OAuth App in org settings
+    - After login, users will see a prompt to grant org access
+    - An org admin must approve the OAuth App in org settings
 
 ### Required Scopes
 
@@ -173,11 +173,11 @@ DB_SSL_MODE=require
 
 1. Update `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` in `.env.local`
 2. If changing database _type_ (e.g., PostgreSQL → SQLite for local dev):
-   - Update `provider` in `prisma/schema.prisma`
-   - Run `pnpm db:migrate`
+    - Update `provider` in `prisma/schema.prisma`
+    - Run `pnpm db:migrate`
 3. If same type (e.g., Supabase → Azure PostgreSQL):
-   - Just update the individual env vars — Prisma handles the rest
-   - Run `pnpm db:migrate:deploy` to apply existing migrations
+    - Just update the individual env vars — Prisma handles the rest
+    - Run `pnpm db:migrate:deploy` to apply existing migrations
 
 ---
 
@@ -253,36 +253,36 @@ Sends automated 1:1 Teams messages as yourself. No admin consent needed.
 2. In the left sidebar, click **"+ Create"**
 3. Select **"Instant cloud flow"**
 4. In the dialog:
-   - **Flow name**: `PReminder - Send Teams DM`
-   - **Choose how to trigger this flow**: scroll down and select **"When an HTTP request is received"**
-   - Click **"Create"**
+    - **Flow name**: `PReminder - Send Teams DM`
+    - **Choose how to trigger this flow**: scroll down and select **"When an HTTP request is received"**
+    - Click **"Create"**
 
 **2. Configure the HTTP trigger**
 
 5. You'll see the trigger card **"When an HTTP request is received"**. Click on it to expand.
 6. Click **"Use sample payload to generate schema"**
 7. In the popup, paste this JSON and click **"Done"**:
-   ```json
-   {
-     "recipientEmail": "john.doe@company.com",
-     "subject": "PR Review Reminder",
-     "message": "Hi John, PR #123 needs your review: https://github.com/..."
-   }
-   ```
-   The schema will auto-generate with `recipientEmail`, `subject`, and `message` fields.
+    ```json
+    {
+        "recipientEmail": "john.doe@company.com",
+        "subject": "PR Review Reminder",
+        "message": "Hi John, PR #123 needs your review: https://github.com/..."
+    }
+    ```
+    The schema will auto-generate with `recipientEmail`, `subject`, and `message` fields.
 
 **3. Add the Teams action**
 
 8. Click **"+ New step"** (or the **+** button below the trigger)
 9. In the **"Choose an operation"** search box, type: **`Post message in a chat or channel`**
 
-   > **Can't find it?** Microsoft has multiple Teams connectors. Try these alternatives:
-   >
-   > - Search for **`Microsoft Teams`** first, click on the connector, then browse its actions
-   > - Look for **"Post message in a chat or channel (V2)"** — this is the newer version
-   > - If you see **"Chat or channel"** as a category, expand it
-   > - Try searching for just **`chat`** or **`Teams`** and scroll through results
-   > - If you're on the new Power Automate designer (2024+), click **"Add an action"** → type **`Teams`** → look under **"Microsoft Teams"** connector → select **"Post message in a chat or channel"**
+    > **Can't find it?** Microsoft has multiple Teams connectors. Try these alternatives:
+    >
+    > - Search for **`Microsoft Teams`** first, click on the connector, then browse its actions
+    > - Look for **"Post message in a chat or channel (V2)"** — this is the newer version
+    > - If you see **"Chat or channel"** as a category, expand it
+    > - Try searching for just **`chat`** or **`Teams`** and scroll through results
+    > - If you're on the new Power Automate designer (2024+), click **"Add an action"** → type **`Teams`** → look under **"Microsoft Teams"** connector → select **"Post message in a chat or channel"**
 
 10. Once you find and select the action, configure it:
 
@@ -339,8 +339,8 @@ If you still can't find the chat action, search for this exact name instead:
 
 - **`Post a message as the Flow bot to a user`** (under Microsoft Teams connector)
 - This is a simpler action with only two fields:
-  - **Recipient**: ⚡ `recipientEmail`
-  - **Message**: ⚡ `message`
+    - **Recipient**: ⚡ `recipientEmail`
+    - **Message**: ⚡ `message`
 - It always posts as the Flow bot — no "Post as" choice needed
 
 #### Testing
@@ -406,8 +406,8 @@ Sends emails as yourself through Outlook. Requires Azure AD app registration.
 7. Copy **Directory (tenant) ID** → `AZURE_AD_TENANT_ID`
 8. Go to **Certificates & secrets** → **New client secret** → Copy value → `AZURE_AD_CLIENT_SECRET`
 9. Go to **API permissions** → **Add a permission** → **Microsoft Graph** → **Delegated permissions** → Add:
-   - `Mail.Send` — Send mail as user
-   - `User.Read` — Sign in and read user profile
+    - `Mail.Send` — Send mail as user
+    - `User.Read` — Sign in and read user profile
 10. If you don't have admin: click **"Grant admin consent"** — if greyed out, ask an admin, or the app will prompt users individually for consent.
 
 #### Enable in `.env.local`

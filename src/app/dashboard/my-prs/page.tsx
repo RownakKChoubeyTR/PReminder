@@ -9,18 +9,18 @@ import styles from './page.module.scss';
 // ─────────────────────────────────────────────────────────────
 
 export default function MyPRsPage() {
-  return (
-    <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>My PRs</h1>
-        <p className={styles.pageDescription}>
-          All pull requests across the organisation where you are the author, reviewer, assignee, or
-          have been mentioned.
-        </p>
-      </div>
+    return (
+        <div className={styles.page}>
+            <div className={styles.pageHeader}>
+                <h1 className={styles.pageTitle}>My PRs</h1>
+                <p className={styles.pageDescription}>
+                    All pull requests across the organisation where you are the author, reviewer, assignee, or have been
+                    mentioned.
+                </p>
+            </div>
 
-      <MyPRsTable />
-      <PRDetailModal />
-    </div>
-  );
+            <MyPRsTable />
+            <PRDetailModal />
+        </div>
+    );
 }

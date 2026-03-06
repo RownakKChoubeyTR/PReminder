@@ -5,276 +5,276 @@
 // ─────────────────────────────────────────────────────────────
 
 .wrapper {
-  width: 100%;
+    width: 100%;
 }
 
 .tableScroll {
-  overflow-x: auto;
-  border: 1px solid var(--color-border);
-  border-radius: $radius-lg;
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: $radius-lg;
 }
 
 .table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: $font-size-sm;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: $font-size-sm;
 }
 
 .table thead {
-  background: var(--color-bg-secondary);
+    background: var(--color-bg-secondary);
 }
 
 .table th {
-  padding: $space-3 $space-4;
-  text-align: left;
-  font-weight: $font-weight-semibold;
-  color: var(--color-text-secondary);
-  font-size: $font-size-xs;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  border-bottom: 1px solid var(--color-border);
+    padding: $space-3 $space-4;
+    text-align: left;
+    font-weight: $font-weight-semibold;
+    color: var(--color-text-secondary);
+    font-size: $font-size-xs;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .table tbody tr {
-  border-bottom: 1px solid var(--color-border);
-  transition: background-color $transition-fast;
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color $transition-fast;
 
-  &:last-child {
-    border-bottom: none;
-  }
+    &:last-child {
+        border-bottom: none;
+    }
 
-  &:hover {
-    background: var(--color-bg-secondary);
-  }
+    &:hover {
+        background: var(--color-bg-secondary);
+    }
 }
 
 .table td {
-  padding: $space-3 $space-4;
-  color: var(--color-text-primary);
-  vertical-align: middle;
+    padding: $space-3 $space-4;
+    color: var(--color-text-primary);
+    vertical-align: middle;
 }
 
 // ── Cell styles ────────────────────────────────────────────
 
 .reviewer {
-  font-weight: $font-weight-medium;
-  font-family: $font-family-mono;
-  font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    font-family: $font-family-mono;
+    font-size: $font-size-xs;
 }
 
 .prNumber {
-  font-family: $font-family-mono;
-  font-size: $font-size-xs;
-  color: var(--color-text-muted);
-  margin-right: $space-1-5;
+    font-family: $font-family-mono;
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
+    margin-right: $space-1-5;
 }
 
 .prTitle {
-  font-size: $font-size-sm;
-  color: var(--color-text-primary);
-  @include truncate;
-  max-width: 200px;
-  display: inline-block;
-  vertical-align: middle;
+    font-size: $font-size-sm;
+    color: var(--color-text-primary);
+    @include truncate;
+    max-width: 200px;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .repo {
-  font-size: $font-size-sm;
-  color: var(--color-text-secondary);
-  @include truncate;
-  max-width: 150px;
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    @include truncate;
+    max-width: 150px;
 }
 
 .method {
-  display: inline-flex;
-  padding: $space-0-5 $space-2;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  border-radius: $radius-full;
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-secondary);
+    display: inline-flex;
+    padding: $space-0-5 $space-2;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    border-radius: $radius-full;
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
 }
 
 .status {
-  display: inline-flex;
-  padding: $space-0-5 $space-2;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-semibold;
-  border-radius: $radius-full;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+    display: inline-flex;
+    padding: $space-0-5 $space-2;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    border-radius: $radius-full;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .statusSent {
-  background: var(--color-success-subtle);
-  color: var(--color-success);
+    background: var(--color-success-subtle);
+    color: var(--color-success);
 }
 
 .statusFailed {
-  background: var(--color-danger-subtle);
-  color: var(--color-danger);
+    background: var(--color-danger-subtle);
+    color: var(--color-danger);
 }
 
 .statusOpened {
-  background: var(--color-primary-subtle);
-  color: var(--color-primary);
+    background: var(--color-primary-subtle);
+    color: var(--color-primary);
 }
 
 .statusQueued {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-muted);
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-muted);
 }
 
 .errorMsg {
-  display: block;
-  font-size: $font-size-xs;
-  color: var(--color-danger);
-  margin-top: $space-0-5;
-  @include truncate;
-  max-width: 180px;
+    display: block;
+    font-size: $font-size-xs;
+    color: var(--color-danger);
+    margin-top: $space-0-5;
+    @include truncate;
+    max-width: 180px;
 }
 
 .sentAt {
-  font-size: $font-size-xs;
-  color: var(--color-text-muted);
-  white-space: nowrap;
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
+    white-space: nowrap;
 }
 
 // ── Loading / Empty / Error ────────────────────────────────
 
 .loading {
-  padding: $space-12 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $space-3;
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
+    padding: $space-12 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $space-3;
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
 }
 
 .spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .empty {
-  padding: $space-16 $space-8;
-  text-align: center;
+    padding: $space-16 $space-8;
+    text-align: center;
 
-  svg {
-    width: 48px;
-    height: 48px;
-    color: var(--color-text-muted);
-    margin: 0 auto $space-4;
-    opacity: 0.4;
-  }
+    svg {
+        width: 48px;
+        height: 48px;
+        color: var(--color-text-muted);
+        margin: 0 auto $space-4;
+        opacity: 0.4;
+    }
 }
 
 .emptyTitle {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  color: var(--color-text-primary);
-  margin-bottom: $space-2;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: var(--color-text-primary);
+    margin-bottom: $space-2;
 }
 
 .emptyDescription {
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
-  max-width: 360px;
-  margin: 0 auto;
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
+    max-width: 360px;
+    margin: 0 auto;
 }
 
 .error {
-  padding: $space-8;
-  text-align: center;
-  color: var(--color-danger);
-  font-size: $font-size-sm;
+    padding: $space-8;
+    text-align: center;
+    color: var(--color-danger);
+    font-size: $font-size-sm;
 }
 
 .retryButton {
-  margin-top: $space-2;
-  font-size: $font-size-sm;
-  color: var(--color-primary);
-  background: none;
-  border: none;
-  text-decoration: underline;
-  cursor: pointer;
+    margin-top: $space-2;
+    font-size: $font-size-sm;
+    color: var(--color-primary);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
 
-  &:hover {
-    color: var(--color-primary-hover);
-  }
+    &:hover {
+        color: var(--color-primary-hover);
+    }
 }
 
 // ── Responsive ─────────────────────────────────────────────
 
 @media (max-width: #{$breakpoint-md - 1}) {
-  .table {
-    th,
-    td {
-      padding: $space-2 $space-3;
+    .table {
+        th,
+        td {
+            padding: $space-2 $space-3;
+        }
     }
-  }
 
-  .prTitle {
-    max-width: none;
-    white-space: normal;
-  }
+    .prTitle {
+        max-width: none;
+        white-space: normal;
+    }
 
-  .repo {
-    max-width: none;
-  }
+    .repo {
+        max-width: none;
+    }
 
-  .errorMsg {
-    max-width: none;
-  }
+    .errorMsg {
+        max-width: none;
+    }
 }
 
 // ── Pagination ─────────────────────────────────────────────
 
 .pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: $space-3;
-  padding: $space-3;
-  border-top: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-3;
+    padding: $space-3;
+    border-top: 1px solid var(--color-border);
 }
 
 .pageButton {
-  padding: $space-1 $space-3;
-  font-size: $font-size-sm;
-  color: var(--color-primary);
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: $radius-sm;
-  cursor: pointer;
-  transition:
-    background $transition-base,
-    color $transition-base;
+    padding: $space-1 $space-3;
+    font-size: $font-size-sm;
+    color: var(--color-primary);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition:
+        background $transition-base,
+        color $transition-base;
 
-  &:hover:not(:disabled) {
-    background: var(--color-bg-hover);
-  }
+    &:hover:not(:disabled) {
+        background: var(--color-bg-hover);
+    }
 
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
 }
 
 .pageInfo {
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
-  user-select: none;
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
+    user-select: none;
 }

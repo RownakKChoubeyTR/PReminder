@@ -19,40 +19,37 @@ const MY_PRS_TTL = 5 * 60 * 1000;
 // ─────────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
-  const authResult = await authenticateUser();
-  if (authResult.error) return authResult.error;
-  const { user } = authResult;
+    const authResult = await authenticateUser();
+    if (authResult.error) return authResult.error;
+    const { user } = authResult;
 
-  const params = request.nextUrl.searchParams;
-  const page = Math.max(1, Number(params.get('page') ?? 1));
-  const perPage = Math.min(100, Math.max(1, Number(params.get('per_page') ?? 30)));
+    const params = request.nextUrl.searchParams;
+    const page = Math.max(1, Number(params.get('page') ?? 1));
+    const perPage = Math.min(100, Math.max(1, Number(params.get('per_page') ?? 30)));
 
-  const key = cacheKey('my-prs', { login: user.githubLogin, page, perPage });
+    const key = cacheKey('my-prs', { login: user.githubLogin, page, perPage });
 
-  try {
-    const data = await githubCache.getOrSet(
-      key,
-      () => listUserPRs(user.accessToken, user.githubLogin, page, perPage),
-      MY_PRS_TTL,
-    );
-    return NextResponse.json(data);
-  } catch (err) {
-    if (isSamlError(err)) {
-      log.warn('SAML SSO required for my-prs', { login: user.githubLogin });
-      return NextResponse.json(
-        {
-          error: 'SAML SSO authorization required',
-          code: 'SAML_REQUIRED',
-          helpUrl: SAML_HELP_URL,
-          notice: SAML_NOTICE,
-        },
-        { status: 403 },
-      );
+    try {
+        const data = await githubCache.getOrSet(
+            key,
+            () => listUserPRs(user.accessToken, user.githubLogin, page, perPage),
+            MY_PRS_TTL
+        );
+        return NextResponse.json(data);
+    } catch (err) {
+        if (isSamlError(err)) {
+            log.warn('SAML SSO required for my-prs', { login: user.githubLogin });
+            return NextResponse.json(
+                {
+                    error: 'SAML SSO authorization required',
+                    code: 'SAML_REQUIRED',
+                    helpUrl: SAML_HELP_URL,
+                    notice: SAML_NOTICE
+                },
+                { status: 403 }
+            );
+        }
+        log.error('Failed to fetch my PRs', err, { login: user.githubLogin, page });
+        return NextResponse.json({ error: 'Failed to fetch your PRs', code: 'GITHUB_ERROR' }, { status: 500 });
     }
-    log.error('Failed to fetch my PRs', err, { login: user.githubLogin, page });
-    return NextResponse.json(
-      { error: 'Failed to fetch your PRs', code: 'GITHUB_ERROR' },
-      { status: 500 },
-    );
-  }
 }

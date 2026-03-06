@@ -1,8 +1,4 @@
-import type {
-  TemplateContext,
-  TemplateValidationResult,
-  TemplateVariable,
-} from '@/types/templates';
+import type { TemplateContext, TemplateValidationResult, TemplateVariable } from '@/types/templates';
 
 // ─────────────────────────────────────────────────────────────
 // Template Engine
@@ -12,34 +8,34 @@ import type {
 
 /** Escape HTML special characters to prevent XSS in HTML contexts. */
 function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 /** Set of all recognized variable names. */
 const KNOWN_VARIABLES: ReadonlySet<TemplateVariable> = new Set([
-  'senderName',
-  'senderLogin',
-  'receiverName',
-  'receiverLogin',
-  'prTitle',
-  'prNumber',
-  'prUrl',
-  'prAge',
-  'repoName',
-  'repoUrl',
-  'reviewStatus',
-  'branchName',
-  'targetBranch',
-  'labelList',
-  'prDescription',
-  'currentDate',
-  'currentTime',
-  'orgName',
+    'senderName',
+    'senderLogin',
+    'receiverName',
+    'receiverLogin',
+    'prTitle',
+    'prNumber',
+    'prUrl',
+    'prAge',
+    'repoName',
+    'repoUrl',
+    'reviewStatus',
+    'branchName',
+    'targetBranch',
+    'labelList',
+    'prDescription',
+    'currentDate',
+    'currentTime',
+    'orgName'
 ]);
 
 /** Regex to match `{variableName}` tokens. */
@@ -56,18 +52,14 @@ const VARIABLE_PATTERN = /\{(\w+)\}/g;
  * @param options  - Optional settings (e.g., HTML escaping for email bodies)
  * @returns        - Rendered string
  */
-export function renderTemplate(
-  template: string,
-  context: TemplateContext,
-  options?: { escapeHtml?: boolean },
-): string {
-  return template.replace(VARIABLE_PATTERN, (match, key: string) => {
-    if (key in context) {
-      const value = String(context[key as keyof TemplateContext]);
-      return options?.escapeHtml ? escapeHtml(value) : value;
-    }
-    return match; // leave unknown variables untouched
-  });
+export function renderTemplate(template: string, context: TemplateContext, options?: { escapeHtml?: boolean }): string {
+    return template.replace(VARIABLE_PATTERN, (match, key: string) => {
+        if (key in context) {
+            const value = String(context[key as keyof TemplateContext]);
+            return options?.escapeHtml ? escapeHtml(value) : value;
+        }
+        return match; // leave unknown variables untouched
+    });
 }
 
 /**
@@ -76,19 +68,19 @@ export function renderTemplate(
  * @returns Array of unique variable names (without braces)
  */
 export function extractVariables(template: string): string[] {
-  const variables = new Set<string>();
-  let match: RegExpExecArray | null;
+    const variables = new Set<string>();
+    let match: RegExpExecArray | null;
 
-  // Reset lastIndex for global regex
-  const regex = new RegExp(VARIABLE_PATTERN.source, 'g');
+    // Reset lastIndex for global regex
+    const regex = new RegExp(VARIABLE_PATTERN.source, 'g');
 
-  while ((match = regex.exec(template)) !== null) {
-    if (match[1]) {
-      variables.add(match[1]);
+    while ((match = regex.exec(template)) !== null) {
+        if (match[1]) {
+            variables.add(match[1]);
+        }
     }
-  }
 
-  return Array.from(variables);
+    return Array.from(variables);
 }
 
 /**
@@ -102,65 +94,65 @@ export function extractVariables(template: string): string[] {
  * @returns Validation result with errors (if any)
  */
 export function validateTemplate(template: string): TemplateValidationResult {
-  const errors: string[] = [];
-  const unknownVariables: string[] = [];
+    const errors: string[] = [];
+    const unknownVariables: string[] = [];
 
-  if (!template.trim()) {
-    errors.push('Template body cannot be empty.');
-    return { valid: false, errors, unknownVariables };
-  }
-
-  // Check for unknown variables
-  const variables = extractVariables(template);
-  for (const v of variables) {
-    if (!KNOWN_VARIABLES.has(v as TemplateVariable)) {
-      unknownVariables.push(v);
+    if (!template.trim()) {
+        errors.push('Template body cannot be empty.');
+        return { valid: false, errors, unknownVariables };
     }
-  }
 
-  if (unknownVariables.length > 0) {
-    errors.push(
-      `Unknown variable(s): ${unknownVariables.map((v) => `{${v}}`).join(', ')}. ` +
-        `Known variables: ${Array.from(KNOWN_VARIABLES).join(', ')}.`,
-    );
-  }
+    // Check for unknown variables
+    const variables = extractVariables(template);
+    for (const v of variables) {
+        if (!KNOWN_VARIABLES.has(v as TemplateVariable)) {
+            unknownVariables.push(v);
+        }
+    }
 
-  // Check for unbalanced braces
-  const openCount = (template.match(/\{/g) ?? []).length;
-  const closeCount = (template.match(/\}/g) ?? []).length;
-  if (openCount !== closeCount) {
-    errors.push('Unbalanced braces — check for unclosed { or extra }.');
-  }
+    if (unknownVariables.length > 0) {
+        errors.push(
+            `Unknown variable(s): ${unknownVariables.map(v => `{${v}}`).join(', ')}. ` +
+                `Known variables: ${Array.from(KNOWN_VARIABLES).join(', ')}.`
+        );
+    }
 
-  return {
-    valid: errors.length === 0,
-    errors,
-    unknownVariables,
-  };
+    // Check for unbalanced braces
+    const openCount = (template.match(/\{/g) ?? []).length;
+    const closeCount = (template.match(/\}/g) ?? []).length;
+    if (openCount !== closeCount) {
+        errors.push('Unbalanced braces — check for unclosed { or extra }.');
+    }
+
+    return {
+        valid: errors.length === 0,
+        errors,
+        unknownVariables
+    };
 }
 
 /**
  * Build a sample context object for template preview.
  */
 export function getSampleContext(): TemplateContext {
-  return {
-    senderName: 'John Smith',
-    senderLogin: 'johnsmith',
-    receiverName: 'Jane Doe',
-    receiverLogin: 'janedoe',
-    prTitle: 'feat: add dark mode toggle',
-    prNumber: 42,
-    prUrl: 'https://github.com/acme/project/pull/42',
-    prAge: 3,
-    repoName: 'project',
-    repoUrl: 'https://github.com/acme/project',
-    reviewStatus: 'Pending',
-    branchName: 'feat/dark-mode',
-    targetBranch: 'main',
-    labelList: 'enhancement, ui',
-    prDescription: 'Adds a theme toggle component with light/dark/system modes.',
-    currentDate: new Date().toLocaleDateString(),
-    currentTime: new Date().toLocaleTimeString(),
-    orgName: 'Acme Corp',
-  };
+    return {
+        senderName: 'John Smith',
+        senderLogin: 'johnsmith',
+        receiverName: 'Jane Doe',
+        receiverLogin: 'janedoe',
+        prTitle: 'feat: add dark mode toggle',
+        prNumber: 42,
+        prUrl: 'https://github.com/acme/project/pull/42',
+        prAge: 3,
+        repoName: 'project',
+        repoUrl: 'https://github.com/acme/project',
+        reviewStatus: 'Pending',
+        branchName: 'feat/dark-mode',
+        targetBranch: 'main',
+        labelList: 'enhancement, ui',
+        prDescription: 'Adds a theme toggle component with light/dark/system modes.',
+        currentDate: new Date().toLocaleDateString(),
+        currentTime: new Date().toLocaleTimeString(),
+        orgName: 'Acme Corp'
+    };
 }

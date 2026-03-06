@@ -9,11 +9,11 @@ import type { ReactNode } from 'react';
 // ─────────────────────────────────────────────────────────────
 
 interface QueryProviderProps {
-  children: ReactNode;
+    children: ReactNode;
 }
 
 export function QueryProvider({ children }: QueryProviderProps) {
-  const queryClient = getQueryClient();
+    const queryClient = getQueryClient();
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }

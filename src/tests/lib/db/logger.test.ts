@@ -13,47 +13,47 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
 beforeEach(() => {
-  logSpy.mockClear();
+    logSpy.mockClear();
 });
 
 describe('dbLogger (db/logger.ts wrapper)', () => {
-  it('exposes info, warn, error and debug methods', () => {
-    expect(typeof dbLogger.info).toBe('function');
-    expect(typeof dbLogger.warn).toBe('function');
-    expect(typeof dbLogger.error).toBe('function');
-    expect(typeof dbLogger.debug).toBe('function');
-  });
-
-  it('exposes separator()', () => {
-    expect(typeof dbLogger.separator).toBe('function');
-  });
-
-  describe('separator()', () => {
-    it('calls console.log in development', () => {
-      vi.stubEnv('NODE_ENV', 'development');
-
-      dbLogger.separator();
-
-      expect(logSpy).toHaveBeenCalledOnce();
-      expect(logSpy.mock.calls[0]![0]).toContain('─');
-
-      vi.unstubAllEnvs();
+    it('exposes info, warn, error and debug methods', () => {
+        expect(typeof dbLogger.info).toBe('function');
+        expect(typeof dbLogger.warn).toBe('function');
+        expect(typeof dbLogger.error).toBe('function');
+        expect(typeof dbLogger.debug).toBe('function');
     });
 
-    it('does not call console.log outside development', () => {
-      vi.stubEnv('NODE_ENV', 'production');
-
-      dbLogger.separator();
-
-      expect(logSpy).not.toHaveBeenCalled();
-
-      vi.unstubAllEnvs();
+    it('exposes separator()', () => {
+        expect(typeof dbLogger.separator).toBe('function');
     });
 
-    it('does not call console.log in test environment', () => {
-      // NODE_ENV='test' is the default in Vitest
-      dbLogger.separator();
-      expect(logSpy).not.toHaveBeenCalled();
+    describe('separator()', () => {
+        it('calls console.log in development', () => {
+            vi.stubEnv('NODE_ENV', 'development');
+
+            dbLogger.separator();
+
+            expect(logSpy).toHaveBeenCalledOnce();
+            expect(logSpy.mock.calls[0]![0]).toContain('─');
+
+            vi.unstubAllEnvs();
+        });
+
+        it('does not call console.log outside development', () => {
+            vi.stubEnv('NODE_ENV', 'production');
+
+            dbLogger.separator();
+
+            expect(logSpy).not.toHaveBeenCalled();
+
+            vi.unstubAllEnvs();
+        });
+
+        it('does not call console.log in test environment', () => {
+            // NODE_ENV='test' is the default in Vitest
+            dbLogger.separator();
+            expect(logSpy).not.toHaveBeenCalled();
+        });
     });
-  });
 });

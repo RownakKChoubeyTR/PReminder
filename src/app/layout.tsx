@@ -9,27 +9,26 @@ import type { Metadata } from 'next';
 // ─────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = {
-  title: {
-    default: 'PReminder — PR Review Reminder',
-    template: '%s | PReminder',
-  },
-  description:
-    'Track open pull requests, nudge reviewers on Teams & email, and keep your code reviews moving.',
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/logo.png',
-    shortcut: '/favicon.ico',
-  },
+    title: {
+        default: 'PReminder — PR Review Reminder',
+        template: '%s | PReminder'
+    },
+    description: 'Track open pull requests, nudge reviewers on Teams & email, and keep your code reviews moving.',
+    icons: {
+        icon: '/favicon.ico',
+        apple: '/logo.png',
+        shortcut: '/favicon.ico'
+    }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Inline script to prevent FOUC — sets data-theme before React hydrates */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+    return (
+        <html lang="en" suppressHydrationWarning>
+            <head>
+                {/* Inline script to prevent FOUC — sets data-theme before React hydrates */}
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `
               (function() {
                 try {
                   var theme = localStorage.getItem('preminder-theme') || 'system';
@@ -40,15 +39,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   document.documentElement.setAttribute('data-theme', resolved);
                 } catch(e) {}
               })();
-            `,
-          }}
-        />
-      </head>
-      <body suppressHydrationWarning>
-        <ThemeProvider>
-          <QueryProvider>{children}</QueryProvider>
-        </ThemeProvider>
-      </body>
-    </html>
-  );
+            `
+                    }}
+                />
+            </head>
+            <body suppressHydrationWarning>
+                <ThemeProvider>
+                    <QueryProvider>{children}</QueryProvider>
+                </ThemeProvider>
+            </body>
+        </html>
+    );
 }
