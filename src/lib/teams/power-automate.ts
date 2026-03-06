@@ -19,15 +19,13 @@ const skipTlsVerify =
 
 // ── SSRF Protection ─────────────────────────────────────────
 
-const BLOCKED_HOSTS = new Set([
-  'localhost', '127.0.0.1', '::1', '0.0.0.0', '[::1]',
-]);
+const BLOCKED_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '0.0.0.0', '[::1]']);
 
 const BLOCKED_HOST_PATTERNS: readonly RegExp[] = [
-  /^10\.\d+\.\d+\.\d+$/,                     // 10.0.0.0/8
-  /^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/,     // 172.16.0.0/12
-  /^192\.168\.\d+\.\d+$/,                     // 192.168.0.0/16
-  /^169\.254\.\d+\.\d+$/,                     // link-local
+  /^10\.\d+\.\d+\.\d+$/, // 10.0.0.0/8
+  /^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/, // 172.16.0.0/12
+  /^192\.168\.\d+\.\d+$/, // 192.168.0.0/16
+  /^169\.254\.\d+\.\d+$/, // link-local
   /\.local$/,
   /\.internal$/,
 ];
@@ -81,7 +79,10 @@ export interface PowerAutomateResult {
  */
 export function normalizeMessageBody(body: string): string {
   // Strip a single wrapping <p ...>…</p> if that's the whole content
-  const stripped = body.trim().replace(/^<p[^>]*>([\s\S]*)<\/p>$/i, '$1').trim();
+  const stripped = body
+    .trim()
+    .replace(/^<p[^>]*>([\s\S]*)<\/p>$/i, '$1')
+    .trim();
   // Convert newlines to <br> for HTML rendering
   const withBreaks = stripped.replace(/\n/g, '<br>');
   // Convert bare URLs to clickable anchor tags (template stores plain text URLs)
@@ -101,11 +102,7 @@ interface HttpsPostResult {
  * This allows setting `rejectUnauthorized` per-request without
  * affecting the global Node.js TLS settings.
  */
-function httpsPost(
-  url: string,
-  jsonBody: string,
-  timeoutMs = 30_000,
-): Promise<HttpsPostResult> {
+function httpsPost(url: string, jsonBody: string, timeoutMs = 30_000): Promise<HttpsPostResult> {
   return new Promise((resolve, reject) => {
     const parsed = new URL(url);
     const req = https.request(

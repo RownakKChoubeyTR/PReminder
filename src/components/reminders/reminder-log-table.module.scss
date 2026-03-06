@@ -163,7 +163,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .empty {
@@ -257,7 +259,9 @@
   border: 1px solid var(--color-border);
   border-radius: $radius-sm;
   cursor: pointer;
-  transition: background $transition-base, color $transition-base;
+  transition:
+    background $transition-base,
+    color $transition-base;
 
   &:hover:not(:disabled) {
     background: var(--color-bg-hover);

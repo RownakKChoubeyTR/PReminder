@@ -34,10 +34,7 @@ const PASSTHROUGH_PREFIXES = ['/_next/', '/favicon.ico', '/sw.js', '/icons/', '/
 const GUEST_ONLY_PATHS = new Set(['/', '/login']);
 
 /** Auth.js v5 session cookie names (HTTP / HTTPS). */
-const SESSION_COOKIES = [
-  'authjs.session-token',
-  '__Secure-authjs.session-token',
-] as const;
+const SESSION_COOKIES = ['authjs.session-token', '__Secure-authjs.session-token'] as const;
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -81,10 +78,7 @@ export function middleware(request: NextRequest) {
   // 3. Protected API routes — return 401 JSON (not a redirect)
   if (pathname.startsWith('/api/')) {
     if (!signedIn) {
-      return NextResponse.json(
-        { error: 'Unauthorized', code: 'AUTH_REQUIRED' },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: 'Unauthorized', code: 'AUTH_REQUIRED' }, { status: 401 });
     }
     return withSecurityHeaders(NextResponse.next());
   }

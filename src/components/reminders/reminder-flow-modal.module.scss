@@ -16,8 +16,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 // ── Modal ──────────────────────────────────────────────────
@@ -47,8 +51,14 @@
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.96) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 // ── Header ─────────────────────────────────────────────────
@@ -106,14 +116,19 @@
   cursor: pointer;
   transition: all $transition-fast;
 
-  svg { width: 16px; height: 16px; }
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 
   &:hover {
     background: var(--color-bg-tertiary);
     color: var(--color-text-primary);
   }
 
-  &:focus-visible { @include focus-ring; }
+  &:focus-visible {
+    @include focus-ring;
+  }
 }
 
 // ── Steps Indicator ────────────────────────────────────────
@@ -207,7 +222,9 @@
     background: var(--color-primary-subtle);
   }
 
-  &:focus-visible { @include focus-ring; }
+  &:focus-visible {
+    @include focus-ring;
+  }
 }
 
 .channelIcon {
@@ -277,7 +294,9 @@
     background: var(--color-primary-subtle);
   }
 
-  &:focus-visible { @include focus-ring; }
+  &:focus-visible {
+    @include focus-ring;
+  }
 }
 
 .templateName {
@@ -405,7 +424,10 @@
   background: transparent;
   border: 1px solid var(--color-border);
   cursor: pointer;
-  transition: color $transition-fast, background $transition-fast, border-color $transition-fast;
+  transition:
+    color $transition-fast,
+    background $transition-fast,
+    border-color $transition-fast;
   text-transform: none;
   letter-spacing: 0;
 
@@ -427,7 +449,9 @@
   line-height: $line-height-relaxed;
   color: var(--color-text-primary);
 
-  p { margin-bottom: $space-0-5; }
+  p {
+    margin-bottom: $space-0-5;
+  }
 }
 
 // ── Cooldown Warning ───────────────────────────────────────
@@ -445,7 +469,9 @@
   font-size: $font-size-sm;
   color: var(--color-text-primary);
 
-  strong { font-weight: $font-weight-semibold; }
+  strong {
+    font-weight: $font-weight-semibold;
+  }
 }
 
 // ── Sending / Result ───────────────────────────────────────
@@ -474,7 +500,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .resultState {
@@ -557,7 +585,9 @@
   color: var(--color-primary);
   text-decoration: underline;
 
-  &:hover { color: var(--color-primary-hover); }
+  &:hover {
+    color: var(--color-primary-hover);
+  }
 }
 
 .errorResult {
@@ -595,7 +625,9 @@
     color: var(--color-text-primary);
   }
 
-  &:focus-visible { @include focus-ring; }
+  &:focus-visible {
+    @include focus-ring;
+  }
 }
 
 .primaryButton {
@@ -621,7 +653,9 @@
     background: var(--color-primary-hover);
   }
 
-  &:focus-visible { @include focus-ring; }
+  &:focus-visible {
+    @include focus-ring;
+  }
 
   &:disabled {
     opacity: 0.5;

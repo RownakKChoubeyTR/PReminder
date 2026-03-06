@@ -44,16 +44,17 @@ export async function POST(request: NextRequest) {
   try {
     rawBody = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: 'Invalid JSON body', code: 'INVALID_BODY' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Invalid JSON body', code: 'INVALID_BODY' }, { status: 400 });
   }
 
   const parsed = createSchema.safeParse(rawBody);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Validation failed', code: 'VALIDATION_ERROR', details: parsed.error.flatten().fieldErrors },
+      {
+        error: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+        details: parsed.error.flatten().fieldErrors,
+      },
       { status: 400 },
     );
   }

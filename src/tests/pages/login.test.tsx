@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('next-auth/react', () => ({
   signIn: vi.fn(),
@@ -10,8 +10,8 @@ vi.mock('next/navigation', () => ({
   useSearchParams: vi.fn(() => new URLSearchParams()),
 }));
 
-import { useSearchParams } from 'next/navigation';
 import LoginPage from '@/app/login/page';
+import { useSearchParams } from 'next/navigation';
 
 describe('LoginPage', () => {
   it('renders sign-in form', () => {

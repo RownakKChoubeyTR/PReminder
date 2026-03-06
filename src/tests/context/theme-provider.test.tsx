@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { ThemeContext, ThemeProvider } from '@/context/theme-provider';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useContext } from 'react';
-import { ThemeProvider, ThemeContext } from '@/context/theme-provider';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // jsdom doesn't provide matchMedia — stub it
 Object.defineProperty(window, 'matchMedia', {
@@ -26,9 +26,15 @@ function ThemeConsumer() {
       <span data-testid="theme">{ctx.theme}</span>
       <span data-testid="resolved">{ctx.resolvedTheme}</span>
       <span data-testid="mounted">{String(ctx.mounted)}</span>
-      <button type="button" onClick={() => ctx.setTheme('dark')}>Set Dark</button>
-      <button type="button" onClick={() => ctx.setTheme('light')}>Set Light</button>
-      <button type="button" onClick={() => ctx.setTheme('system')}>Set System</button>
+      <button type="button" onClick={() => ctx.setTheme('dark')}>
+        Set Dark
+      </button>
+      <button type="button" onClick={() => ctx.setTheme('light')}>
+        Set Light
+      </button>
+      <button type="button" onClick={() => ctx.setTheme('system')}>
+        Set System
+      </button>
     </div>
   );
 }

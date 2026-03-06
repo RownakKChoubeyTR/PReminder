@@ -13,8 +13,8 @@ import { logger } from '@/lib/logger';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-const PULLS_TTL = 2 * 60 * 1000;   // 2 min
-const SEARCH_TTL = 30 * 1000;      // 30 sec
+const PULLS_TTL = 2 * 60 * 1000; // 2 min
+const SEARCH_TTL = 30 * 1000; // 30 sec
 
 // ─────────────────────────────────────────────────────────────
 // GET /api/github/pulls?repo=<name>&page=1&per_page=30&search=<query>
@@ -28,10 +28,7 @@ export async function GET(request: NextRequest) {
   const session = await auth();
 
   if (!session?.accessToken) {
-    return NextResponse.json(
-      { error: 'Unauthorized', code: 'AUTH_REQUIRED' },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: 'Unauthorized', code: 'AUTH_REQUIRED' }, { status: 401 });
   }
 
   const params = request.nextUrl.searchParams;
@@ -76,14 +73,23 @@ export async function GET(request: NextRequest) {
       logger.warn(`SAML restriction for repo=${repo} — Search API fallback`, '/api/github/pulls');
       try {
         const samlKey = cacheKey('pulls:saml', {
-          page, perPage, repo,
+          page,
+          perPage,
+          repo,
           ...(search.length >= 3 ? { q: search.toLowerCase() } : {}),
         });
         const result = await githubCache.getOrSet(
           samlKey,
-          () => search.length >= 3
-            ? searchRepoPullsByQuery(resolveToken(session.accessToken), repo, search, page, perPage)
-            : searchRepoPulls(resolveToken(session.accessToken), repo, page, perPage),
+          () =>
+            search.length >= 3
+              ? searchRepoPullsByQuery(
+                  resolveToken(session.accessToken),
+                  repo,
+                  search,
+                  page,
+                  perPage,
+                )
+              : searchRepoPulls(resolveToken(session.accessToken), repo, page, perPage),
           search.length >= 3 ? SEARCH_TTL : PULLS_TTL,
         );
         return NextResponse.json({ ...result, notice: SAML_NOTICE, helpUrl: SAML_HELP_URL });

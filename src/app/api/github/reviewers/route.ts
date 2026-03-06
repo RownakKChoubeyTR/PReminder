@@ -1,7 +1,14 @@
 import { authenticateUser } from '@/lib/auth-utils';
 import { cacheKey, reviewersCache } from '@/lib/cache';
-import { getPullRequest, isSamlError, listReviews, resolveToken, SAML_HELP_URL, SAML_NOTICE } from '@/lib/github/client';
 import { prisma } from '@/lib/db/prisma';
+import {
+  getPullRequest,
+  isSamlError,
+  listReviews,
+  resolveToken,
+  SAML_HELP_URL,
+  SAML_NOTICE,
+} from '@/lib/github/client';
 import { logger } from '@/lib/logger';
 import type { GitHubReview, GitHubUser, ReviewerInfo, ReviewerStatus } from '@/types/github';
 import type { NextRequest } from 'next/server';
@@ -74,7 +81,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result);
   } catch (err) {
     if (isSamlError(err)) {
-      logger.warn(`SAML restriction for reviewers repo=${repo} pr=${prNumber}`, '/api/github/reviewers');
+      logger.warn(
+        `SAML restriction for reviewers repo=${repo} pr=${prNumber}`,
+        '/api/github/reviewers',
+      );
       return NextResponse.json({
         data: [],
         mode: 'restricted',
@@ -83,7 +93,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    logger.error(`Failed to fetch reviewers for repo=${repo} pr=${prNumber}`, '/api/github/reviewers', err);
+    logger.error(
+      `Failed to fetch reviewers for repo=${repo} pr=${prNumber}`,
+      '/api/github/reviewers',
+      err,
+    );
     return NextResponse.json(
       { error: 'Failed to fetch reviewers', code: 'GITHUB_API_ERROR' },
       { status: 502 },

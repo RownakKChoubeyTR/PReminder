@@ -91,10 +91,7 @@ export function composeDatabaseUrl(): string {
 export function maskDatabaseUrl(url: string): string {
   try {
     // postgresql://user:password@host:port/db?params
-    return url.replace(
-      /\/\/([^:]+):([^@]+)@/,
-      (_, user: string) => `//${user}:****@`,
-    );
+    return url.replace(/\/\/([^:]+):([^@]+)@/, (_, user: string) => `//${user}:****@`);
   } catch {
     return '(unparseable URL)';
   }
@@ -146,9 +143,7 @@ export async function connectWithRetry(
   for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
     try {
       await client.$connect();
-      dbLogger.info(
-        `Connected successfully${attempt > 0 ? ` (after ${attempt} retries)` : ''}`,
-      );
+      dbLogger.info(`Connected successfully${attempt > 0 ? ` (after ${attempt} retries)` : ''}`);
       dbLogger.separator();
       return;
     } catch (err) {
@@ -156,9 +151,7 @@ export async function connectWithRetry(
 
       if (attempt < config.maxRetries) {
         const delay = calculateDelay(attempt, config);
-        dbLogger.warn(
-          `Attempt ${attempt + 1}/${config.maxRetries + 1} failed: ${message}`,
-        );
+        dbLogger.warn(`Attempt ${attempt + 1}/${config.maxRetries + 1} failed: ${message}`);
         dbLogger.info(`Retrying in ${Math.round(delay)}ms...`);
         await sleep(delay);
       } else {

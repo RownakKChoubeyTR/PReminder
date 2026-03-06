@@ -1,7 +1,7 @@
 import { QueryProvider } from '@/context/query-provider';
 import { ThemeProvider } from '@/context/theme-provider';
-import '@/styles/tailwind.css';
 import '@/styles/globals.scss';
+import '@/styles/tailwind.css';
 import type { Metadata } from 'next';
 
 // ─────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 'use client';
 
-import { renderTemplate, getSampleContext } from '@/lib/templates/engine';
+import { getSampleContext, renderTemplate } from '@/lib/templates/engine';
 import { useMemo } from 'react';
 import styles from './template-preview.module.scss';
 
@@ -32,7 +32,15 @@ export function TemplatePreview({ body, subject, type }: TemplatePreviewProps) {
   if (!body.trim()) {
     return (
       <div className={styles.empty}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
@@ -44,7 +52,15 @@ export function TemplatePreview({ body, subject, type }: TemplatePreviewProps) {
   return (
     <div className={styles.preview}>
       <div className={styles.header}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
@@ -69,7 +85,15 @@ export function TemplatePreview({ body, subject, type }: TemplatePreviewProps) {
       </div>
 
       <div className={styles.sampleNote}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <circle cx="12" cy="12" r="10" />
           <path d="M12 16v-4" />
           <path d="M12 8h.01" />

@@ -1,15 +1,18 @@
-﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+﻿import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Mocks ───────────────────────────────────────────────────
 
 vi.mock('next-auth/react', () => ({
   useSession: vi.fn(() => ({
-    data: { user: { name: 'Test User', email: 'test@corp.com', image: null }, githubLogin: 'testuser' },
+    data: {
+      user: { name: 'Test User', email: 'test@corp.com', image: null },
+      githubLogin: 'testuser',
+    },
     status: 'authenticated',
   })),
-}))
+}));
 
 vi.mock('@/hooks/use-reminder-store', () => ({
   useReminderStore: vi.fn(),
@@ -52,11 +55,11 @@ vi.mock('@/lib/templates/engine', () => ({
   })),
 }));
 
-import { useReminderStore } from '@/hooks/use-reminder-store';
-import { useSendReminders, useCooldownCheck } from '@/hooks/use-reminders';
-import { useCreateEmailMapping } from '@/hooks/use-email-mappings';
-import { useTemplates } from '@/hooks/use-templates';
 import { ReminderFlowModal } from '@/components/reminders/reminder-flow-modal';
+import { useCreateEmailMapping } from '@/hooks/use-email-mappings';
+import { useReminderStore } from '@/hooks/use-reminder-store';
+import { useCooldownCheck, useSendReminders } from '@/hooks/use-reminders';
+import { useTemplates } from '@/hooks/use-templates';
 
 function wrapper({ children }: { children: React.ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -87,7 +90,13 @@ const baseStore = {
 };
 
 const templates = [
-  { id: 't1', name: 'Friendly Nudge', body: 'Hey {{receiverName}}, please review', type: 'TEAMS_DM', isDefault: true },
+  {
+    id: 't1',
+    name: 'Friendly Nudge',
+    body: 'Hey {{receiverName}}, please review',
+    type: 'TEAMS_DM',
+    isDefault: true,
+  },
   { id: 't2', name: 'Urgent', body: 'Urgent review needed', type: 'TEAMS_DM', isDefault: false },
 ];
 
@@ -446,7 +455,8 @@ describe('ReminderFlowModal', () => {
   });
 
   it('saves email mapping and retries sending on Save & Retry click', async () => {
-    const sendMutateAsync = vi.fn()
+    const sendMutateAsync = vi
+      .fn()
       .mockResolvedValueOnce({
         sent: 0,
         failed: 1,
@@ -468,10 +478,20 @@ describe('ReminderFlowModal', () => {
         results: [{ login: 'alice', status: 'SENT', channel: 'TEAMS_DM' }],
       });
     const saveMutateAsync = vi.fn().mockResolvedValue({
-      data: { id: '1', githubUsername: 'alice', email: 'alice@corp.com', displayName: 'Alice', source: 'manual', createdAt: '' },
+      data: {
+        id: '1',
+        githubUsername: 'alice',
+        email: 'alice@corp.com',
+        displayName: 'Alice',
+        source: 'manual',
+        createdAt: '',
+      },
     });
 
-    vi.mocked(useSendReminders).mockReturnValue({ mutateAsync: sendMutateAsync, error: null } as never);
+    vi.mocked(useSendReminders).mockReturnValue({
+      mutateAsync: sendMutateAsync,
+      error: null,
+    } as never);
     vi.mocked(useCreateEmailMapping).mockReturnValue({ mutateAsync: saveMutateAsync } as never);
     vi.mocked(useReminderStore).mockReturnValue({
       ...baseStore,
@@ -520,7 +540,10 @@ describe('ReminderFlowModal', () => {
     });
     const saveMutateAsync = vi.fn().mockRejectedValue(new Error('Invalid email address'));
 
-    vi.mocked(useSendReminders).mockReturnValue({ mutateAsync: sendMutateAsync, error: null } as never);
+    vi.mocked(useSendReminders).mockReturnValue({
+      mutateAsync: sendMutateAsync,
+      error: null,
+    } as never);
     vi.mocked(useCreateEmailMapping).mockReturnValue({ mutateAsync: saveMutateAsync } as never);
     vi.mocked(useReminderStore).mockReturnValue({
       ...baseStore,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 // ─────────────────────────────────────────────────────────────
 // useIntegrations — CRUD hooks for integration configs
@@ -48,7 +48,9 @@ async function fetchIntegrations(): Promise<IntegrationsResponse> {
   return res.json();
 }
 
-async function createIntegration(input: CreateIntegrationInput): Promise<{ data: IntegrationConfig }> {
+async function createIntegration(
+  input: CreateIntegrationInput,
+): Promise<{ data: IntegrationConfig }> {
   const res = await fetch('/api/integrations', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -61,7 +63,10 @@ async function createIntegration(input: CreateIntegrationInput): Promise<{ data:
   return res.json();
 }
 
-async function updateIntegration(id: string, input: UpdateIntegrationInput): Promise<{ data: IntegrationConfig }> {
+async function updateIntegration(
+  id: string,
+  input: UpdateIntegrationInput,
+): Promise<{ data: IntegrationConfig }> {
   const res = await fetch(`/api/integrations?id=${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },

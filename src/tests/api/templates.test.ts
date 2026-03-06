@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextResponse } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: /api/templates routes
@@ -28,11 +28,16 @@ vi.mock('@/lib/logger', () => ({
   createLogger: vi.fn(() => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() })),
 }));
 
+import { GET, POST } from '@/app/api/templates/route';
 import { authenticateUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db/prisma';
-import { GET, POST } from '@/app/api/templates/route';
 
-const mockUser = { id: 'user-1', githubLogin: 'testuser', email: 'test@corp.com', accessToken: 'gho_test' };
+const mockUser = {
+  id: 'user-1',
+  githubLogin: 'testuser',
+  email: 'test@corp.com',
+  accessToken: 'gho_test',
+};
 
 beforeEach(() => {
   vi.mocked(authenticateUser).mockResolvedValue({ user: mockUser });

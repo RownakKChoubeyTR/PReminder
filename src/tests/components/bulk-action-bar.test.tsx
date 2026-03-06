@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/hooks/use-reminder-store', () => ({
   useReminderStore: vi.fn(),
 }));
 
-import { useReminderStore } from '@/hooks/use-reminder-store';
 import { BulkActionBar } from '@/components/reminders/bulk-action-bar';
+import { useReminderStore } from '@/hooks/use-reminder-store';
 
 describe('BulkActionBar', () => {
   const clearReviewers = vi.fn();

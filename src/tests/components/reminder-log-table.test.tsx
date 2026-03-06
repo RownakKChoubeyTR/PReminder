@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/hooks/use-reminders', () => ({
   useReminderLogs: vi.fn(),
 }));
 
-import { useReminderLogs } from '@/hooks/use-reminders';
 import { ReminderLogTable } from '@/components/reminders/reminder-log-table';
+import { useReminderLogs } from '@/hooks/use-reminders';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -122,7 +122,19 @@ describe('ReminderLogTable', () => {
   it('shows pagination when hasNextPage', () => {
     vi.mocked(useReminderLogs).mockReturnValue({
       data: {
-        data: [{ id: 'r1', reviewerGithub: 'alice', prNumber: 1, prTitle: 'X', repo: 'r', method: 'TEAMS_DM_POWER_AUTOMATE', status: 'SENT', sentAt: new Date().toISOString(), errorMessage: null }],
+        data: [
+          {
+            id: 'r1',
+            reviewerGithub: 'alice',
+            prNumber: 1,
+            prTitle: 'X',
+            repo: 'r',
+            method: 'TEAMS_DM_POWER_AUTOMATE',
+            status: 'SENT',
+            sentAt: new Date().toISOString(),
+            errorMessage: null,
+          },
+        ],
         hasNextPage: true,
         total: 40,
         page: 1,

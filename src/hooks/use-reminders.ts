@@ -1,7 +1,7 @@
 'use client';
 
 import type { SendReminderPayload, SendReminderResult } from '@/types/reminders';
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 // ─────────────────────────────────────────────────────────────
 // useReminders — Hooks for sending reminders and viewing history
@@ -41,10 +41,7 @@ interface CooldownResponse {
 
 // ── Fetch functions ────────────────────────────────────────
 
-async function fetchReminderLogs(
-  page: number,
-  perPage: number,
-): Promise<ReminderLogResponse> {
+async function fetchReminderLogs(page: number, perPage: number): Promise<ReminderLogResponse> {
   const params = new URLSearchParams({
     page: String(page),
     per_page: String(perPage),
@@ -57,9 +54,7 @@ async function fetchReminderLogs(
   return res.json();
 }
 
-async function sendReminders(
-  payload: SendReminderPayload,
-): Promise<SendReminderResult> {
+async function sendReminders(payload: SendReminderPayload): Promise<SendReminderResult> {
   const res = await fetch('/api/reminders/send', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

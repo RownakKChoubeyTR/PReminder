@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { createQueryWrapper } from '@/tests/test-utils';
 import { usePulls } from '@/hooks/use-pulls';
+import { createQueryWrapper } from '@/tests/test-utils';
+import { renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: usePulls hook
@@ -52,7 +52,9 @@ describe('usePulls', () => {
   it('includes search param for 3+ char search', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: vi.fn().mockResolvedValue({ data: [], total: 0, page: 1, perPage: 30, hasNextPage: false }),
+      json: vi
+        .fn()
+        .mockResolvedValue({ data: [], total: 0, page: 1, perPage: 30, hasNextPage: false }),
     });
 
     const { Wrapper } = createQueryWrapper();
@@ -66,7 +68,9 @@ describe('usePulls', () => {
   it('does not include search param for < 3 char search', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: vi.fn().mockResolvedValue({ data: [], total: 0, page: 1, perPage: 30, hasNextPage: false }),
+      json: vi
+        .fn()
+        .mockResolvedValue({ data: [], total: 0, page: 1, perPage: 30, hasNextPage: false }),
     });
 
     const { Wrapper } = createQueryWrapper();

@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
+﻿import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: Email Resolver — resolveRecipientEmail
@@ -25,8 +25,8 @@ vi.mock('@/lib/logger', () => ({
 }));
 
 import { prisma } from '@/lib/db/prisma';
-import { getUserProfile } from '@/lib/github/client';
 import { resolveRecipientEmail } from '@/lib/email/resolve';
+import { getUserProfile } from '@/lib/github/client';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -129,7 +129,9 @@ describe('resolveRecipientEmail', () => {
 
     expect(result.email).toBeNull();
     expect(result.source).toBeNull();
-    expect('reason' in result && result.reason).toContain('Their GitHub profile has no public email');
+    expect('reason' in result && result.reason).toContain(
+      'Their GitHub profile has no public email',
+    );
   });
 
   it('returns failure when GitHub profile is null (user not found)', async () => {

@@ -46,7 +46,9 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
   // Always initialise with the default theme so server and client
   // produce identical HTML on the first render (no hydration mismatch).
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolveTheme(defaultTheme));
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
+    resolveTheme(defaultTheme),
+  );
   const [mounted, setMounted] = useState(false);
 
   const setTheme = useCallback((newTheme: Theme) => {

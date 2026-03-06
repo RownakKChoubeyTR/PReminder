@@ -92,13 +92,13 @@ The app composes these into a PostgreSQL URL at startup via `src/lib/db/connecti
 
 **In production**, replace the individual vars with values from your secrets manager:
 
-| Provider              | How to inject                                              |
-| --------------------- | ---------------------------------------------------------- |
-| Azure Key Vault       | App Service → Configuration → Key Vault references         |
-| AWS Secrets Manager   | ECS Task Definition → `secrets` field                      |
-| HashiCorp Vault       | Vault Agent sidecar or `vault kv get`                      |
-| Vercel                | Project Settings → Environment Variables (encrypted)       |
-| GitHub Actions        | Repository → Settings → Secrets                            |
+| Provider            | How to inject                                        |
+| ------------------- | ---------------------------------------------------- |
+| Azure Key Vault     | App Service → Configuration → Key Vault references   |
+| AWS Secrets Manager | ECS Task Definition → `secrets` field                |
+| HashiCorp Vault     | Vault Agent sidecar or `vault kv get`                |
+| Vercel              | Project Settings → Environment Variables (encrypted) |
+| GitHub Actions      | Repository → Settings → Secrets                      |
 
 All database credentials are **required** — there is no `DATABASE_URL` fallback. The Prisma CLI uses `scripts/prisma-cli.mjs` to compose the URL from the same individual vars.
 
@@ -291,6 +291,7 @@ Sends automated 1:1 Teams messages as yourself. No admin consent needed.
 11. **Post as**: Choose **"Flow bot"** (sends as a bot — no extra permissions needed) or **"User"** (sends as you — requires Teams permissions)
 
 12. **Post in**: Select **"Chat with Flow bot"**
+
     > This creates a 1:1 chat between the Flow bot and the recipient. If you chose "User" above, select **"Chat with a user"** instead.
 
 13. **Recipient**: Click the field, then click the ⚡ lightning bolt icon (or **"Add dynamic content"**). Select **`recipientEmail`** from the dynamic content list.
@@ -298,8 +299,9 @@ Sends automated 1:1 Teams messages as yourself. No admin consent needed.
 14. **Message**: Click the field, click ⚡ dynamic content, select **`message`**.
 
     > **Optional**: For a richer message, switch to the code view and use HTML:
+    >
     > ```html
-    > <b>PR Review Reminder</b><br/><br/>@{triggerBody()?['message']}
+    > <b>PR Review Reminder</b><br /><br />@{triggerBody()?['message']}
     > ```
 
 **5. Save and get the URL**
@@ -475,12 +477,12 @@ PReminder uses **one env file per environment**, all gitignored. Next.js auto-lo
 
 ### Env File Layout
 
-| File               | Purpose                | Loaded by                                   |
-|--------------------|------------------------|---------------------------------------------|
-| `.env.local`       | Local development      | Next.js (auto), `prisma-cli.mjs` (default)  |
-| `.env.staging`     | Staging deployment     | `prisma-cli.mjs --env-file .env.staging`    |
-| `.env.production`  | Production deployment  | `prisma-cli.mjs --env-file .env.production` |
-| `.env.example`     | Documented template    | Committed to repo — never contains secrets  |
+| File              | Purpose               | Loaded by                                   |
+| ----------------- | --------------------- | ------------------------------------------- |
+| `.env.local`      | Local development     | Next.js (auto), `prisma-cli.mjs` (default)  |
+| `.env.staging`    | Staging deployment    | `prisma-cli.mjs --env-file .env.staging`    |
+| `.env.production` | Production deployment | `prisma-cli.mjs --env-file .env.production` |
+| `.env.example`    | Documented template   | Committed to repo — never contains secrets  |
 
 > All env files except `.env.example` are in `.gitignore`. **Never commit secrets.**
 
@@ -523,6 +525,7 @@ node scripts/prisma-cli.mjs --env-file .env.production studio
 ```
 
 For the running Next.js app, inject env vars via:
+
 - **Vercel** → Project Settings → Environment Variables
 - **Azure App Service** → Configuration → Application Settings
 - **AWS** → Secrets Manager → injected at container start
@@ -545,13 +548,13 @@ cp .env.example .env.staging
 
 ### Summary
 
-| Task                          | Command                                      |
-|-------------------------------|----------------------------------------------|
-| Local dev server              | `pnpm dev`                                   |
-| Migrate local DB              | `pnpm db:migrate`                            |
-| Migrate staging DB            | `pnpm db:migrate:staging`                    |
-| Migrate production DB         | `pnpm db:migrate:production`                 |
-| Any Prisma cmd with env file  | `node scripts/prisma-cli.mjs --env-file <file> <cmd>` |
+| Task                         | Command                                               |
+| ---------------------------- | ----------------------------------------------------- |
+| Local dev server             | `pnpm dev`                                            |
+| Migrate local DB             | `pnpm db:migrate`                                     |
+| Migrate staging DB           | `pnpm db:migrate:staging`                             |
+| Migrate production DB        | `pnpm db:migrate:production`                          |
+| Any Prisma cmd with env file | `node scripts/prisma-cli.mjs --env-file <file> <cmd>` |
 
 ---
 

@@ -1,6 +1,6 @@
 'use client';
 
-import type { PaginatedResponse, GitHubRepo } from '@/types/github';
+import type { GitHubRepo, PaginatedResponse } from '@/types/github';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 // ─────────────────────────────────────────────────────────────

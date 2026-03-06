@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Mocks ───────────────────────────────────────────────────
 
@@ -182,7 +182,7 @@ describe('NextAuth callbacks', () => {
         expiresAt: Math.floor(Date.now() / 1000) + 3600,
       };
 
-      const result = await callbacks.session({ session, token }) as Record<string, unknown>;
+      const result = (await callbacks.session({ session, token })) as Record<string, unknown>;
 
       expect((result.user as Record<string, unknown>).githubLogin).toBe('testuser');
       expect((result.user as Record<string, unknown>).githubId).toBe('456');
@@ -193,7 +193,7 @@ describe('NextAuth callbacks', () => {
       const session = { user: {} };
       const token = { error: 'SessionExpired' };
 
-      const result = await callbacks.session({ session, token }) as Record<string, unknown>;
+      const result = (await callbacks.session({ session, token })) as Record<string, unknown>;
       expect(result.error).toBe('SessionExpired');
     });
   });
@@ -231,7 +231,12 @@ describe('NextAuth events', () => {
   it('upserts user on sign-in', async () => {
     await events.signIn({
       account: { access_token: 'token', providerAccountId: '123' },
-      profile: { login: 'testuser', email: 'test@corp.com', name: 'Test User', avatar_url: 'https://avatar.com/test.png' },
+      profile: {
+        login: 'testuser',
+        email: 'test@corp.com',
+        name: 'Test User',
+        avatar_url: 'https://avatar.com/test.png',
+      },
     });
 
     expect(vi.mocked(prisma.user.upsert)).toHaveBeenCalledWith({

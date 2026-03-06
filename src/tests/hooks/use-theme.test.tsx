@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { ThemeContext, type ThemeContextValue } from '@/context/theme-provider';
+import { useTheme } from '@/hooks/use-theme';
 import { renderHook } from '@testing-library/react';
 import React from 'react';
-import { useTheme } from '@/hooks/use-theme';
-import { ThemeContext, type ThemeContextValue } from '@/context/theme-provider';
+import { describe, expect, it } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: useTheme hook

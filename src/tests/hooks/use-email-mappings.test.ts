@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, waitFor, act } from '@testing-library/react';
-import { createQueryWrapper } from '@/tests/test-utils';
 import {
-  useEmailMappings,
   useCreateEmailMapping,
   useDeleteEmailMapping,
+  useEmailMappings,
 } from '@/hooks/use-email-mappings';
+import { createQueryWrapper } from '@/tests/test-utils';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: useEmailMappings hooks
@@ -26,7 +26,13 @@ describe('useEmailMappings', () => {
   it('fetches all email mappings', async () => {
     const mockData = {
       data: [
-        { id: '1', githubUsername: 'alice', email: 'alice@corp.com', displayName: null, source: 'manual' },
+        {
+          id: '1',
+          githubUsername: 'alice',
+          email: 'alice@corp.com',
+          displayName: null,
+          source: 'manual',
+        },
       ],
     };
     mockFetch.mockResolvedValueOnce({
@@ -73,9 +79,12 @@ describe('useCreateEmailMapping', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     // Verify POST call
-    expect(mockFetch).toHaveBeenCalledWith('/api/email-mappings', expect.objectContaining({
-      method: 'POST',
-    }));
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/api/email-mappings',
+      expect.objectContaining({
+        method: 'POST',
+      }),
+    );
   });
 });
 
@@ -91,8 +100,11 @@ describe('useDeleteEmailMapping', () => {
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(mockFetch).toHaveBeenCalledWith('/api/email-mappings/mapping-1', expect.objectContaining({
-      method: 'DELETE',
-    }));
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/api/email-mappings/mapping-1',
+      expect.objectContaining({
+        method: 'DELETE',
+      }),
+    );
   });
 });

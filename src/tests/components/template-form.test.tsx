@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/hooks/use-templates', () => ({
   useCreateTemplate: vi.fn(() => ({
@@ -20,9 +20,9 @@ vi.mock('@/lib/templates/engine', () => ({
   validateTemplate: vi.fn(() => ({ valid: true, errors: [] })),
 }));
 
+import { TemplateForm } from '@/components/settings/template-form';
 import { useCreateTemplate, useUpdateTemplate } from '@/hooks/use-templates';
 import { validateTemplate } from '@/lib/templates/engine';
-import { TemplateForm } from '@/components/settings/template-form';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -44,8 +44,17 @@ describe('TemplateForm', () => {
   });
 
   it('renders edit form when template is provided', () => {
-    const tmpl = { id: 't1', name: 'Test', type: 'TEAMS_DM' as const, body: 'Hi', subject: '', isDefault: false };
-    render(<TemplateForm template={tmpl as never} onSaved={onSaved} onCancel={onCancel} />, { wrapper });
+    const tmpl = {
+      id: 't1',
+      name: 'Test',
+      type: 'TEAMS_DM' as const,
+      body: 'Hi',
+      subject: '',
+      isDefault: false,
+    };
+    render(<TemplateForm template={tmpl as never} onSaved={onSaved} onCancel={onCancel} />, {
+      wrapper,
+    });
     expect(screen.getByText('Edit Template')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Test')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Hi')).toBeInTheDocument();
@@ -84,7 +93,11 @@ describe('TemplateForm', () => {
 
   it('calls createMutation on valid submit', () => {
     const mutate = vi.fn();
-    vi.mocked(useCreateTemplate).mockReturnValue({ mutate, isPending: false, error: null } as never);
+    vi.mocked(useCreateTemplate).mockReturnValue({
+      mutate,
+      isPending: false,
+      error: null,
+    } as never);
 
     render(<TemplateForm template={null} onSaved={onSaved} onCancel={onCancel} />, { wrapper });
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'My Template' } });
@@ -99,17 +112,27 @@ describe('TemplateForm', () => {
 
   it('calls updateMutation when editing', () => {
     const mutate = vi.fn();
-    vi.mocked(useUpdateTemplate).mockReturnValue({ mutate, isPending: false, error: null } as never);
+    vi.mocked(useUpdateTemplate).mockReturnValue({
+      mutate,
+      isPending: false,
+      error: null,
+    } as never);
 
-    const tmpl = { id: 't1', name: 'Old', type: 'TEAMS_DM' as const, body: 'Old body', subject: '', isDefault: false };
-    render(<TemplateForm template={tmpl as never} onSaved={onSaved} onCancel={onCancel} />, { wrapper });
+    const tmpl = {
+      id: 't1',
+      name: 'Old',
+      type: 'TEAMS_DM' as const,
+      body: 'Old body',
+      subject: '',
+      isDefault: false,
+    };
+    render(<TemplateForm template={tmpl as never} onSaved={onSaved} onCancel={onCancel} />, {
+      wrapper,
+    });
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Updated' } });
     fireEvent.click(screen.getByText('Update Template'));
 
-    expect(mutate).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 't1' }),
-      expect.any(Object),
-    );
+    expect(mutate).toHaveBeenCalledWith(expect.objectContaining({ id: 't1' }), expect.any(Object));
   });
 
   it('calls onCancel when Cancel is clicked', () => {
@@ -125,7 +148,11 @@ describe('TemplateForm', () => {
   });
 
   it('shows pending state', () => {
-    vi.mocked(useCreateTemplate).mockReturnValue({ mutate: vi.fn(), isPending: true, error: null } as never);
+    vi.mocked(useCreateTemplate).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: true,
+      error: null,
+    } as never);
     render(<TemplateForm template={null} onSaved={onSaved} onCancel={onCancel} />, { wrapper });
     expect(screen.getByText('Saving\u2026')).toBeInTheDocument();
   });

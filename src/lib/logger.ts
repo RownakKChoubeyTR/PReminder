@@ -42,7 +42,7 @@ interface LogEntry {
   level: LogLevel;
   ctx: string;
   msg: string;
-  caller?: string;         // file:line  fn  — captured from call stack
+  caller?: string; // file:line  fn  — captured from call stack
   data?: Record<string, unknown>;
   err?: string;
   stack?: string;
@@ -84,15 +84,15 @@ const ANSI = {
 
 const LEVEL_COLOUR: Record<LogLevel, string> = {
   DEBUG: ANSI.magenta,
-  INFO:  ANSI.cyan,
-  WARN:  ANSI.yellow,
+  INFO: ANSI.cyan,
+  WARN: ANSI.yellow,
   ERROR: ANSI.red,
 };
 
 const LEVEL_CONSOLE: Record<LogLevel, (...args: unknown[]) => void> = {
   DEBUG: (...a) => console.debug(...a),
-  INFO:  (...a) => console.info(...a),
-  WARN:  (...a) => console.warn(...a),
+  INFO: (...a) => console.info(...a),
+  WARN: (...a) => console.warn(...a),
   ERROR: (...a) => console.error(...a),
 };
 
@@ -105,7 +105,7 @@ function captureCallerInfo(): string | undefined {
   if (!raw) return undefined;
 
   const lines = raw.split('\n');
-  const cwd   = (typeof process !== 'undefined' ? process.cwd() : '').replace(/\\/g, '/');
+  const cwd = (typeof process !== 'undefined' ? process.cwd() : '').replace(/\\/g, '/');
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -118,7 +118,8 @@ function captureCallerInfo(): string | undefined {
       trimmed.includes('node:') ||
       trimmed.includes('webpack-internal') ||
       trimmed.includes('<anonymous>')
-    ) continue;
+    )
+      continue;
 
     // Parse:  at FnName (file:line:col)  OR  at file:line:col
     const withParens = /^at (.+?) \((.+?):(\d+):\d+\)/.exec(trimmed);
@@ -129,12 +130,12 @@ function captureCallerInfo(): string | undefined {
     let lineNum = '';
 
     if (withParens) {
-      fnName   = withParens[1] ?? '';
+      fnName = withParens[1] ?? '';
       filePath = withParens[2] ?? '';
-      lineNum  = withParens[3] ?? '';
+      lineNum = withParens[3] ?? '';
     } else if (withoutParens) {
       filePath = withoutParens[1] ?? '';
-      lineNum  = withoutParens[2] ?? '';
+      lineNum = withoutParens[2] ?? '';
     } else {
       continue;
     }
@@ -145,9 +146,7 @@ function captureCallerInfo(): string | undefined {
       filePath = filePath.slice(cwd.length + 1);
     }
     // Strip common Next.js noise prefixes
-    filePath = filePath
-      .replace(/^.*webpack-internal:\/+/, '')
-      .replace(/^.*\.next\/server\//, '');
+    filePath = filePath.replace(/^.*webpack-internal:\/+/, '').replace(/^.*\.next\/server\//, '');
 
     // Clean up function name (drop Object. prefix, async prefix)
     fnName = fnName
@@ -168,16 +167,16 @@ const BOX_WIDTH = 72;
 
 function prettyConsole(entry: LogEntry): void {
   const colour = LEVEL_COLOUR[entry.level];
-  const c      = colour;
-  const R      = ANSI.reset;
+  const c = colour;
+  const R = ANSI.reset;
 
   // ── Header line ─────────────────────────────────────────────
-  const time    = entry.ts.slice(11, 23);                 // HH:mm:ss.mmm
-  const ctxStr  = entry.ctx ? ` [${entry.ctx}]` : '';
-  const badge   = ` ${entry.level.padEnd(5)}${ctxStr}  ${time} `;
+  const time = entry.ts.slice(11, 23); // HH:mm:ss.mmm
+  const ctxStr = entry.ctx ? ` [${entry.ctx}]` : '';
+  const badge = ` ${entry.level.padEnd(5)}${ctxStr}  ${time} `;
   const fillLen = Math.max(2, BOX_WIDTH - badge.length - 3); // 3 = '╭─' + '╮'
-  const top     = `╭─${badge}${'─'.repeat(fillLen)}╮`;
-  const bar     = `${c}│${R}`;
+  const top = `╭─${badge}${'─'.repeat(fillLen)}╮`;
+  const bar = `${c}│${R}`;
 
   // ── Body lines ───────────────────────────────────────────────
   const body: string[] = [];
@@ -206,18 +205,14 @@ function prettyConsole(entry: LogEntry): void {
   let bottom: string;
   if (entry.caller) {
     const callerLabel = ` ${entry.caller} `;
-    const innerWidth  = BOX_WIDTH - 2; // between ╰ and ╯
-    const dashLen     = Math.max(0, innerWidth - callerLabel.length);
+    const innerWidth = BOX_WIDTH - 2; // between ╰ and ╯
+    const dashLen = Math.max(0, innerWidth - callerLabel.length);
     bottom = `${c}╰${'─'.repeat(dashLen)}${ANSI.dim}${callerLabel}${R}${c}╯${R}`;
   } else {
     bottom = `${c}╰${'─'.repeat(BOX_WIDTH - 1)}╯${R}`;
   }
 
-  const lines = [
-    `${c}${ANSI.bold}${top}${R}`,
-    ...body,
-    bottom,
-  ].join('\n');
+  const lines = [`${c}${ANSI.bold}${top}${R}`, ...body, bottom].join('\n');
 
   LEVEL_CONSOLE[entry.level](lines);
 }
@@ -287,18 +282,22 @@ function emit(
   data?: Record<string, unknown>,
   logFile?: string,
 ): void {
-  const errMessage = err instanceof Error ? err.message : (err !== undefined ? String(err) : undefined);
-  const stack      = err instanceof Error && err.stack ? err.stack.split('\n').slice(1, 4).join(' | ').trim() : undefined;
+  const errMessage =
+    err instanceof Error ? err.message : err !== undefined ? String(err) : undefined;
+  const stack =
+    err instanceof Error && err.stack
+      ? err.stack.split('\n').slice(1, 4).join(' | ').trim()
+      : undefined;
 
   const entry: LogEntry = {
-    ts:    new Date().toISOString(),
+    ts: new Date().toISOString(),
     level,
     ctx,
     msg,
     caller: IS_DEV ? captureCallerInfo() : undefined,
     ...(data && Object.keys(data).length ? { data } : {}),
-    ...(errMessage                        ? { err: errMessage } : {}),
-    ...(stack                             ? { stack } : {}),
+    ...(errMessage ? { err: errMessage } : {}),
+    ...(stack ? { stack } : {}),
   };
 
   // Console — dev only
@@ -331,10 +330,18 @@ function emit(
 export function createLogger(context: string, options?: LoggerOptions): Logger {
   const { logFile } = options ?? {};
   return {
-    debug(msg, data)       { emit('DEBUG', context, msg, undefined, data, logFile); },
-    info(msg, data)        { emit('INFO',  context, msg, undefined, data, logFile); },
-    warn(msg, data)        { emit('WARN',  context, msg, undefined, data, logFile); },
-    error(msg, err, data)  { emit('ERROR', context, msg, err,       data, logFile); },
+    debug(msg, data) {
+      emit('DEBUG', context, msg, undefined, data, logFile);
+    },
+    info(msg, data) {
+      emit('INFO', context, msg, undefined, data, logFile);
+    },
+    warn(msg, data) {
+      emit('WARN', context, msg, undefined, data, logFile);
+    },
+    error(msg, err, data) {
+      emit('ERROR', context, msg, err, data, logFile);
+    },
   };
 }
 

@@ -3,14 +3,14 @@
 import { BulkActionBar } from '@/components/reminders/bulk-action-bar';
 import { ReminderFlowModal } from '@/components/reminders/reminder-flow-modal';
 import { useDashboardStore } from '@/hooks/use-dashboard-store';
-import { usePulls } from '@/hooks/use-pulls';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { usePulls } from '@/hooks/use-pulls';
 import { useReminderStore } from '@/hooks/use-reminder-store';
 import type { GitHubPullRequest } from '@/types/github';
 import { useCallback, useEffect, useRef } from 'react';
-import { StatusBadge } from './status-badge';
-import { ReviewerList } from './reviewer-list';
 import styles from './pr-detail-modal.module.scss';
+import { ReviewerList } from './reviewer-list';
+import { StatusBadge } from './status-badge';
 
 // ─────────────────────────────────────────────────────────────
 // PR Detail Modal — Overlay with comprehensive PR information
@@ -39,9 +39,13 @@ function calculateAge(createdAt: string): string {
 function getContrastColor(hex: string): string {
   // Strip leading '#' and handle 3-char shorthand
   const clean = hex.replace(/^#/, '');
-  const full = clean.length === 3
-    ? clean.split('').map((c) => c + c).join('')
-    : clean;
+  const full =
+    clean.length === 3
+      ? clean
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : clean;
   if (!/^[0-9a-fA-F]{6}$/.test(full)) return '#000000';
 
   const r = parseInt(full.slice(0, 2), 16);
@@ -52,11 +56,8 @@ function getContrastColor(hex: string): string {
 }
 
 export function PRDetailModal() {
-  const {
-    selectedRepo, selectedPR, selectPR,
-    prSearch, prPage,
-    myPrSelected, setMyPrSelected,
-  } = useDashboardStore();
+  const { selectedRepo, selectedPR, selectPR, prSearch, prPage, myPrSelected, setMyPrSelected } =
+    useDashboardStore();
   const { setPrContext, clearReviewers } = useReminderStore();
   const debouncedSearch = useDebouncedValue(prSearch, 600);
   const { data } = usePulls(selectedRepo, prPage, 30, debouncedSearch);
@@ -154,11 +155,7 @@ export function PRDetailModal() {
   return (
     <>
       {/* Backdrop */}
-      <div
-        className={styles.backdrop}
-        onClick={handleClose}
-        aria-hidden="true"
-      />
+      <div className={styles.backdrop} onClick={handleClose} aria-hidden="true" />
 
       {/* Modal */}
       <div
@@ -179,7 +176,15 @@ export function PRDetailModal() {
               </h2>
               <div className={styles.meta}>
                 <span className={styles.metaItem}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
                     <circle cx="18" cy="18" r="3" />
                     <circle cx="6" cy="6" r="3" />
                     <path d="M13 6h3a2 2 0 0 1 2 2v7" />
@@ -188,12 +193,18 @@ export function PRDetailModal() {
                   #{pr.number}
                 </span>
                 <span className={styles.metaDivider} />
-                <span className={styles.metaItem}>
-                  by {pr.user.login}
-                </span>
+                <span className={styles.metaItem}>by {pr.user.login}</span>
                 <span className={styles.metaDivider} />
                 <span className={styles.metaItem}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />
                   </svg>
@@ -210,7 +221,15 @@ export function PRDetailModal() {
               onClick={handleClose}
               aria-label="Close modal"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
                 <path d="M18 6 6 18" />
                 <path d="m6 6 12 12" />
               </svg>
@@ -249,7 +268,15 @@ export function PRDetailModal() {
                   <div className={styles.branchInfo}>
                     <span className={styles.branchName}>{pr.head.ref}</span>
                     <span className={styles.branchArrow}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
                         <path d="M5 12h14" />
                         <path d="m12 5 7 7-7 7" />
                       </svg>
@@ -311,11 +338,7 @@ export function PRDetailModal() {
                     <div className={styles.requestedReviewers}>
                       {pr.requested_reviewers.map((reviewer) => (
                         <div key={reviewer.id} className={styles.requestedReviewer}>
-                          <img
-                            src={reviewer.avatar_url}
-                            alt=""
-                            loading="lazy"
-                          />
+                          <img src={reviewer.avatar_url} alt="" loading="lazy" />
                           <span>{reviewer.login}</span>
                         </div>
                       ))}
@@ -330,7 +353,15 @@ export function PRDetailModal() {
                     <div className={styles.teamList}>
                       {pr.requested_teams.map((team) => (
                         <div key={team.id} className={styles.teamItem}>
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                          >
                             <path d="M18 21a8 8 0 0 0-16 0" />
                             <circle cx="10" cy="8" r="5" />
                             <path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3" />
@@ -362,7 +393,15 @@ export function PRDetailModal() {
               rel="noopener noreferrer"
               className={styles.githubLink}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                 <polyline points="15 3 21 3 21 9" />
                 <line x1="10" x2="21" y1="14" y2="3" />

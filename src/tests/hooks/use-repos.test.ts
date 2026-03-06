@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { createQueryWrapper } from '@/tests/test-utils';
 import { useRepos } from '@/hooks/use-repos';
+import { createQueryWrapper } from '@/tests/test-utils';
+import { renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: useRepos hook
@@ -56,7 +56,9 @@ describe('useRepos', () => {
   it('passes search param to API when provided', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: vi.fn().mockResolvedValue({ data: [], total: 0, page: 1, perPage: 30, hasNextPage: false }),
+      json: vi
+        .fn()
+        .mockResolvedValue({ data: [], total: 0, page: 1, perPage: 30, hasNextPage: false }),
     });
 
     const { Wrapper } = createQueryWrapper();

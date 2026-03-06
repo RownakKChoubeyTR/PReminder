@@ -73,24 +73,17 @@ export const useReminderStore = create<ReminderFlowState>((set) => ({
       return { selectedReviewers: s.selectedReviewers.filter((l) => !toRemove.has(l)) };
     }),
 
-  clearReviewers: () =>
-    set({ selectedReviewers: [] }),
+  clearReviewers: () => set({ selectedReviewers: [] }),
 
-  openFlow: () =>
-    set({ flowOpen: true }),
+  openFlow: () => set({ flowOpen: true }),
 
-  closeFlow: () =>
-    set({ flowOpen: false }),
+  closeFlow: () => set({ flowOpen: false }),
 
-  setChannel: (channel) =>
-    set({ channel }),
+  setChannel: (channel) => set({ channel }),
 
-  setTemplateId: (id) =>
-    set({ templateId: id }),
+  setTemplateId: (id) => set({ templateId: id }),
 
-  setPrContext: (ctx) =>
-    set({ prContext: ctx }),
+  setPrContext: (ctx) => set({ prContext: ctx }),
 
-  reset: () =>
-    set(initialState),
+  reset: () => set(initialState),
 }));

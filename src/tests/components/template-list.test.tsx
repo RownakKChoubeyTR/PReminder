@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/hooks/use-templates', () => ({
   useTemplates: vi.fn(),
@@ -11,8 +11,8 @@ vi.mock('@/hooks/use-templates', () => ({
   })),
 }));
 
-import { useTemplates, useDeleteTemplate } from '@/hooks/use-templates';
 import { TemplateList } from '@/components/settings/template-list';
+import { useDeleteTemplate, useTemplates } from '@/hooks/use-templates';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -39,30 +39,40 @@ describe('TemplateList', () => {
   });
 
   it('renders template cards', () => {
-    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, { wrapper });
+    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, {
+      wrapper,
+    });
     expect(screen.getByText('Friendly')).toBeInTheDocument();
     expect(screen.getByText('Formal')).toBeInTheDocument();
   });
 
   it('shows default badge', () => {
-    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, { wrapper });
+    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, {
+      wrapper,
+    });
     expect(screen.getByText('Default')).toBeInTheDocument();
   });
 
   it('shows type labels', () => {
-    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, { wrapper });
+    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, {
+      wrapper,
+    });
     expect(screen.getByText('Teams DM')).toBeInTheDocument();
     expect(screen.getByText('Email')).toBeInTheDocument();
   });
 
   it('renders New Template button', () => {
-    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, { wrapper });
+    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, {
+      wrapper,
+    });
     fireEvent.click(screen.getByText('New Template'));
     expect(onCreateNew).toHaveBeenCalled();
   });
 
   it('calls onSelect when clicking a template', () => {
-    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, { wrapper });
+    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, {
+      wrapper,
+    });
     fireEvent.click(screen.getByText('Friendly'));
     expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: 't1' }));
   });
@@ -74,7 +84,9 @@ describe('TemplateList', () => {
       error: null,
       refetch: vi.fn(),
     } as never);
-    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, { wrapper });
+    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, {
+      wrapper,
+    });
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
@@ -86,7 +98,9 @@ describe('TemplateList', () => {
       error: new Error('fail'),
       refetch,
     } as never);
-    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, { wrapper });
+    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, {
+      wrapper,
+    });
     expect(screen.getByRole('alert')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Retry'));
     expect(refetch).toHaveBeenCalled();
@@ -99,7 +113,9 @@ describe('TemplateList', () => {
       error: null,
       refetch: vi.fn(),
     } as never);
-    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, { wrapper });
+    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, {
+      wrapper,
+    });
     expect(screen.getByText(/No templates yet/)).toBeInTheDocument();
   });
 
@@ -112,7 +128,9 @@ describe('TemplateList', () => {
     } as never);
     vi.spyOn(window, 'confirm').mockReturnValue(true);
 
-    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, { wrapper });
+    render(<TemplateList selectedId={null} onSelect={onSelect} onCreateNew={onCreateNew} />, {
+      wrapper,
+    });
     const deleteButtons = screen.getAllByRole('button', { name: /Delete/i });
     fireEvent.click(deleteButtons[0]!);
     expect(mutateFn).toHaveBeenCalledWith('t1');

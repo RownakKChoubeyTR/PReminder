@@ -1,11 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, waitFor, act } from '@testing-library/react';
+import { useCooldownCheck, useReminderLogs, useSendReminders } from '@/hooks/use-reminders';
 import { createQueryWrapper } from '@/tests/test-utils';
-import {
-  useReminderLogs,
-  useSendReminders,
-  useCooldownCheck,
-} from '@/hooks/use-reminders';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: useReminders hooks
@@ -104,10 +100,9 @@ describe('useCooldownCheck', () => {
 
   it('does not fetch when prNumber is null', () => {
     const { Wrapper } = createQueryWrapper();
-    const { result } = renderHook(
-      () => useCooldownCheck(['alice'], null, 'org/repo'),
-      { wrapper: Wrapper },
-    );
+    const { result } = renderHook(() => useCooldownCheck(['alice'], null, 'org/repo'), {
+      wrapper: Wrapper,
+    });
 
     expect(result.current.fetchStatus).toBe('idle');
   });
@@ -122,10 +117,9 @@ describe('useCooldownCheck', () => {
     });
 
     const { Wrapper } = createQueryWrapper();
-    const { result } = renderHook(
-      () => useCooldownCheck(['alice'], 42, 'org/repo'),
-      { wrapper: Wrapper },
-    );
+    const { result } = renderHook(() => useCooldownCheck(['alice'], 42, 'org/repo'), {
+      wrapper: Wrapper,
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual(mockData);

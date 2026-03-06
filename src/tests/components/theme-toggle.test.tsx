@@ -1,7 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { ThemeContext, type ThemeContextValue } from '@/context/theme-provider';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // ThemeToggle Component Tests

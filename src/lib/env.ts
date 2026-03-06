@@ -31,9 +31,7 @@ export const env = createEnv({
     // The full URL is composed at runtime in src/lib/db/connection.ts.
     // Prisma CLI gets its DATABASE_URL from scripts/prisma-cli.mjs.
     DB_HOST: z.string().min(1),
-    DB_PORT: z
-      .string()
-      .regex(/^\d+$/, 'Must be a numeric port'),
+    DB_PORT: z.string().regex(/^\d+$/, 'Must be a numeric port'),
     DB_USER: z.string().min(1),
     DB_PASSWORD: z.string().min(1),
     DB_NAME: z.string().min(1),

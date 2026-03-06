@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextResponse } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: /api/templates/[id] routes
@@ -30,9 +30,14 @@ import { authenticateUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db/prisma';
 
 // We need to import directly — Next.js route params are passed as { params: Promise<{id}> }
-import { GET, PUT, DELETE } from '@/app/api/templates/[id]/route';
+import { DELETE, GET, PUT } from '@/app/api/templates/[id]/route';
 
-const mockUser = { id: 'user-1', githubLogin: 'testuser', email: 'test@corp.com', accessToken: 'gho_test' };
+const mockUser = {
+  id: 'user-1',
+  githubLogin: 'testuser',
+  email: 'test@corp.com',
+  accessToken: 'gho_test',
+};
 const routeParams = { params: Promise.resolve({ id: 'tmpl-1' }) };
 
 beforeEach(() => {
@@ -138,7 +143,13 @@ describe('PUT /api/templates/[id]', () => {
   });
 
   it('unsets other defaults when isDefault is true', async () => {
-    const updated = { id: 'tmpl-1', name: 'Default', body: 'Body', type: 'TEAMS_DM', isDefault: true };
+    const updated = {
+      id: 'tmpl-1',
+      name: 'Default',
+      body: 'Body',
+      type: 'TEAMS_DM',
+      isDefault: true,
+    };
 
     vi.mocked(prisma.$transaction).mockImplementationOnce(async (fn) => {
       const tx = {

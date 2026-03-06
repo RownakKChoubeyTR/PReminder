@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/hooks/use-dashboard-store', () => ({
   useDashboardStore: vi.fn(),
@@ -14,9 +14,9 @@ vi.mock('@/hooks/use-pulls', () => ({
   usePulls: vi.fn(),
 }));
 
+import { PRTable } from '@/components/pr/pr-table';
 import { useDashboardStore } from '@/hooks/use-dashboard-store';
 import { usePulls } from '@/hooks/use-pulls';
-import { PRTable } from '@/components/pr/pr-table';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>

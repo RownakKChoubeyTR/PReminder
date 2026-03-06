@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CacheService, cacheKey } from '@/lib/cache';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('CacheService', () => {
   let cache: CacheService;
@@ -183,9 +183,7 @@ describe('CacheService', () => {
   it('re-fetches after TTL expires', async () => {
     vi.useFakeTimers();
     try {
-      const factory = vi.fn()
-        .mockResolvedValueOnce('first')
-        .mockResolvedValueOnce('second');
+      const factory = vi.fn().mockResolvedValueOnce('first').mockResolvedValueOnce('second');
 
       await cache.getOrSet('key', factory, 1000);
       expect(factory).toHaveBeenCalledOnce();

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/auth', () => ({
   auth: vi.fn(),
@@ -26,9 +26,14 @@ vi.mock('@/lib/logger', () => ({
   logger: { error: vi.fn(), warn: vi.fn(), info: vi.fn() },
 }));
 
-import { auth } from '@/lib/auth';
-import { listOpenPulls, searchRepoPullsByQuery, isSamlError, searchRepoPulls } from '@/lib/github/client';
 import { GET } from '@/app/api/github/pulls/route';
+import { auth } from '@/lib/auth';
+import {
+  isSamlError,
+  listOpenPulls,
+  searchRepoPulls,
+  searchRepoPullsByQuery,
+} from '@/lib/github/client';
 
 const mockSession = { accessToken: 'ghp_test' };
 

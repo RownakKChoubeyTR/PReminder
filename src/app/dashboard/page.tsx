@@ -15,9 +15,7 @@ export default function DashboardPage() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>
-          {selectedRepo ? selectedRepo : 'Open Pull Requests'}
-        </h1>
+        <h1 className={styles.pageTitle}>{selectedRepo ? selectedRepo : 'Open Pull Requests'}</h1>
         <p className={styles.pageDescription}>
           {selectedRepo
             ? `Viewing open pull requests for ${selectedRepo}`

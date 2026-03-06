@@ -1,7 +1,7 @@
 'use client';
 
-import { useReminderLogs } from '@/hooks/use-reminders';
 import type { ReminderLogEntry } from '@/hooks/use-reminders';
+import { useReminderLogs } from '@/hooks/use-reminders';
 import { useState } from 'react';
 import styles from './reminder-log-table.module.scss';
 
@@ -80,7 +80,15 @@ export function ReminderLogTable() {
   if (logs.length === 0) {
     return (
       <div className={styles.empty}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <path d="m22 2-7 20-4-9-9-4z" />
           <path d="M22 2 11 13" />
         </svg>
@@ -114,17 +122,13 @@ export function ReminderLogTable() {
                 </td>
                 <td>
                   <span className={styles.prNumber}>#{log.prNumber}</span>
-                  {log.prTitle && (
-                    <span className={styles.prTitle}>{log.prTitle}</span>
-                  )}
+                  {log.prTitle && <span className={styles.prTitle}>{log.prTitle}</span>}
                 </td>
                 <td>
                   <span className={styles.repo}>{log.repo}</span>
                 </td>
                 <td>
-                  <span className={styles.method}>
-                    {METHOD_LABELS[log.method] ?? log.method}
-                  </span>
+                  <span className={styles.method}>{METHOD_LABELS[log.method] ?? log.method}</span>
                 </td>
                 <td>
                   <span className={`${styles.status} ${styles[STATUS_STYLES[log.status] ?? '']}`}>

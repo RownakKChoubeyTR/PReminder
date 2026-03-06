@@ -1,6 +1,6 @@
+import { StatusBadge } from '@/components/pr/status-badge';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { StatusBadge } from '@/components/pr/status-badge';
 
 // ─────────────────────────────────────────────────────────────
 // StatusBadge Component Tests

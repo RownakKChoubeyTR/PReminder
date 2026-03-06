@@ -40,9 +40,7 @@ describe('composeDatabaseUrl', () => {
 
     const url = composeDatabaseUrl();
 
-    expect(url).toBe(
-      'postgresql://myuser:secret123@myhost:5432/mydb?schema=public',
-    );
+    expect(url).toBe('postgresql://myuser:secret123@myhost:5432/mydb?schema=public');
   });
 
   it('uses custom schema when DB_SCHEMA is set', () => {
@@ -85,9 +83,7 @@ describe('composeDatabaseUrl', () => {
   });
 
   it('throws when required env vars are missing', () => {
-    expect(() => composeDatabaseUrl()).toThrow(
-      'Missing required env vars',
-    );
+    expect(() => composeDatabaseUrl()).toThrow('Missing required env vars');
   });
 
   it('lists which env vars are missing in the error', () => {

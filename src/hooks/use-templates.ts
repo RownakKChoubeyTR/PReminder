@@ -1,7 +1,7 @@
 'use client';
 
 import type { MessageTemplate, TemplateInput } from '@/types/templates';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 // ─────────────────────────────────────────────────────────────
 // useTemplates — CRUD hooks for message templates
@@ -37,10 +37,7 @@ async function createTemplate(input: TemplateInput): Promise<TemplateResponse> {
   return res.json();
 }
 
-async function updateTemplate(
-  id: string,
-  input: TemplateInput,
-): Promise<TemplateResponse> {
+async function updateTemplate(id: string, input: TemplateInput): Promise<TemplateResponse> {
   const res = await fetch(`/api/templates/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -89,8 +86,7 @@ export function useUpdateTemplate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: TemplateInput }) =>
-      updateTemplate(id, input),
+    mutationFn: ({ id, input }: { id: string; input: TemplateInput }) => updateTemplate(id, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] });
     },

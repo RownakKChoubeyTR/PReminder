@@ -1,6 +1,6 @@
-﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+﻿import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/hooks/use-reviewers', () => ({
   useReviewers: vi.fn(),
@@ -10,9 +10,9 @@ vi.mock('@/hooks/use-reminder-store', () => ({
   useReminderStore: vi.fn(),
 }));
 
-import { useReviewers } from '@/hooks/use-reviewers';
-import { useReminderStore } from '@/hooks/use-reminder-store';
 import { ReviewerList } from '@/components/pr/reviewer-list';
+import { useReminderStore } from '@/hooks/use-reminder-store';
+import { useReviewers } from '@/hooks/use-reviewers';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -55,7 +55,11 @@ describe('ReviewerList', () => {
   });
 
   it('shows loading skeletons', () => {
-    vi.mocked(useReviewers).mockReturnValue({ data: undefined, isLoading: true, error: null } as never);
+    vi.mocked(useReviewers).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+    } as never);
     render(<ReviewerList repo="org/repo" prNumber={42} />, { wrapper });
     expect(screen.getByRole('status')).toBeInTheDocument();
   });

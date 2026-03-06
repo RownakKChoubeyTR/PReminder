@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock the logger to avoid file I/O during tests
 vi.mock('@/lib/db/logger', () => ({
@@ -23,7 +23,8 @@ describe('connectWithRetry', () => {
   });
 
   it('retries on transient failure then succeeds', async () => {
-    const connectFn = vi.fn()
+    const connectFn = vi
+      .fn()
       .mockRejectedValueOnce(new Error('ECONNREFUSED'))
       .mockResolvedValueOnce(undefined);
     const client = { $connect: connectFn } as never;

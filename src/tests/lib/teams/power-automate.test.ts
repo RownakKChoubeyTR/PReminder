@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
 import { EventEmitter } from 'node:events';
 import type { IncomingMessage } from 'node:http';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 // Mock node:https before importing the module under test
 const mockHttpsRequest = vi.fn();
@@ -10,36 +10,46 @@ vi.mock('node:https', () => ({
 
 import {
   isAllowedWebhookUrl,
-  sendTeamsDM,
   sendTeamsChannelMessage,
+  sendTeamsDM,
 } from '@/lib/teams/power-automate';
 
 // ── Test helpers ─────────────────────────────────────────────
 
 /** Simulate a successful https.request that returns given status + body. */
 function mockHttpsSuccess(statusCode: number, responseBody = '') {
-  mockHttpsRequest.mockImplementation((_opts: unknown, callback: (res: IncomingMessage) => void) => {
-    const fakeReq = new EventEmitter() as EventEmitter & { write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; destroy: ReturnType<typeof vi.fn> };
-    fakeReq.write = vi.fn();
-    fakeReq.end = vi.fn();
-    fakeReq.destroy = vi.fn();
+  mockHttpsRequest.mockImplementation(
+    (_opts: unknown, callback: (res: IncomingMessage) => void) => {
+      const fakeReq = new EventEmitter() as EventEmitter & {
+        write: ReturnType<typeof vi.fn>;
+        end: ReturnType<typeof vi.fn>;
+        destroy: ReturnType<typeof vi.fn>;
+      };
+      fakeReq.write = vi.fn();
+      fakeReq.end = vi.fn();
+      fakeReq.destroy = vi.fn();
 
-    process.nextTick(() => {
-      const fakeRes = new EventEmitter() as EventEmitter & { statusCode: number };
-      fakeRes.statusCode = statusCode;
-      callback(fakeRes as unknown as IncomingMessage);
-      fakeRes.emit('data', Buffer.from(responseBody));
-      fakeRes.emit('end');
-    });
+      process.nextTick(() => {
+        const fakeRes = new EventEmitter() as EventEmitter & { statusCode: number };
+        fakeRes.statusCode = statusCode;
+        callback(fakeRes as unknown as IncomingMessage);
+        fakeRes.emit('data', Buffer.from(responseBody));
+        fakeRes.emit('end');
+      });
 
-    return fakeReq;
-  });
+      return fakeReq;
+    },
+  );
 }
 
 /** Simulate a failed https.request (emits 'error' on the request). */
 function mockHttpsError(error: Error) {
   mockHttpsRequest.mockImplementation(() => {
-    const fakeReq = new EventEmitter() as EventEmitter & { write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; destroy: ReturnType<typeof vi.fn> };
+    const fakeReq = new EventEmitter() as EventEmitter & {
+      write: ReturnType<typeof vi.fn>;
+      end: ReturnType<typeof vi.fn>;
+      destroy: ReturnType<typeof vi.fn>;
+    };
     fakeReq.write = vi.fn();
     fakeReq.end = vi.fn();
     fakeReq.destroy = vi.fn();
@@ -55,7 +65,11 @@ function mockHttpsError(error: Error) {
 /** Simulate a timeout (emits 'timeout' then error on the request). */
 function mockHttpsTimeout() {
   mockHttpsRequest.mockImplementation(() => {
-    const fakeReq = new EventEmitter() as EventEmitter & { write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; destroy: ReturnType<typeof vi.fn> };
+    const fakeReq = new EventEmitter() as EventEmitter & {
+      write: ReturnType<typeof vi.fn>;
+      end: ReturnType<typeof vi.fn>;
+      destroy: ReturnType<typeof vi.fn>;
+    };
     fakeReq.write = vi.fn();
     fakeReq.end = vi.fn();
     fakeReq.destroy = vi.fn();
@@ -192,7 +206,11 @@ describe('sendTeamsDM', () => {
 
   it('handles non-Error thrown objects', async () => {
     mockHttpsRequest.mockImplementation(() => {
-      const fakeReq = new EventEmitter() as EventEmitter & { write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; destroy: ReturnType<typeof vi.fn> };
+      const fakeReq = new EventEmitter() as EventEmitter & {
+        write: ReturnType<typeof vi.fn>;
+        end: ReturnType<typeof vi.fn>;
+        destroy: ReturnType<typeof vi.fn>;
+      };
       fakeReq.write = vi.fn();
       fakeReq.end = vi.fn();
       fakeReq.destroy = vi.fn();
@@ -245,9 +263,7 @@ describe('sendTeamsChannelMessage', () => {
     expect(body.attachments[0].contentType).toBe('application/vnd.microsoft.card.adaptive');
     expect(body.attachments[0].content.body[0].text).toBe('PR Reminder');
     expect(body.attachments[0].content.body[1].text).toBe('Please review PR #42');
-    expect(body.attachments[0].content.actions[0].url).toBe(
-      'https://github.com/org/repo/pull/42',
-    );
+    expect(body.attachments[0].content.actions[0].url).toBe('https://github.com/org/repo/pull/42');
   });
 
   it('returns failure on non-OK response', async () => {
@@ -272,7 +288,11 @@ describe('sendTeamsChannelMessage', () => {
 
   it('handles non-Error thrown object', async () => {
     mockHttpsRequest.mockImplementation(() => {
-      const fakeReq = new EventEmitter() as EventEmitter & { write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; destroy: ReturnType<typeof vi.fn> };
+      const fakeReq = new EventEmitter() as EventEmitter & {
+        write: ReturnType<typeof vi.fn>;
+        end: ReturnType<typeof vi.fn>;
+        destroy: ReturnType<typeof vi.fn>;
+      };
       fakeReq.write = vi.fn();
       fakeReq.end = vi.fn();
       fakeReq.destroy = vi.fn();

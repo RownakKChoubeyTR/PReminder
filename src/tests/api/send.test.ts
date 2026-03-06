@@ -1,5 +1,5 @@
-﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { NextRequest } from 'next/server';
+﻿import { NextRequest } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/auth-utils', () => ({
   authenticateUser: vi.fn(),
@@ -39,13 +39,18 @@ vi.mock('@/lib/logger', () => ({
   createLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() })),
 }));
 
+import { POST } from '@/app/api/reminders/send/route';
 import { authenticateUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db/prisma';
 import { resolveRecipientEmail } from '@/lib/email/resolve';
-import { sendTeamsDM, sendTeamsChannelMessage } from '@/lib/teams/power-automate';
-import { POST } from '@/app/api/reminders/send/route';
+import { sendTeamsChannelMessage, sendTeamsDM } from '@/lib/teams/power-automate';
 
-const mockUser = { id: 'user-1', githubLogin: 'testuser', email: 'test@corp.com', accessToken: 'gho_test' };
+const mockUser = {
+  id: 'user-1',
+  githubLogin: 'testuser',
+  email: 'test@corp.com',
+  accessToken: 'gho_test',
+};
 
 const validBody = {
   recipients: ['alice'],
@@ -72,7 +77,9 @@ beforeEach(() => {
   vi.mocked(prisma.reminderLog.findFirst).mockResolvedValue(null);
   vi.mocked(prisma.reminderLog.create).mockResolvedValue({} as never);
   vi.mocked(resolveRecipientEmail).mockResolvedValue({
-    email: 'alice@corp.com', displayName: 'Alice', source: 'email_mapping',
+    email: 'alice@corp.com',
+    displayName: 'Alice',
+    source: 'email_mapping',
   });
 });
 
@@ -175,7 +182,9 @@ describe('POST /api/reminders/send', () => {
       { type: 'POWER_AUTOMATE_DM', encryptedValue: 'ENC:https://example.com/hook' },
     ] as never);
     vi.mocked(resolveRecipientEmail).mockResolvedValueOnce({
-      email: null, displayName: 'alice', source: null,
+      email: null,
+      displayName: 'alice',
+      source: null,
       reason: 'No public email on GitHub profile for "alice".',
     });
 
@@ -221,8 +230,16 @@ describe('POST /api/reminders/send', () => {
       .mockResolvedValueOnce({ success: true, statusCode: 200 })
       .mockResolvedValueOnce({ success: false, statusCode: 500, error: 'API error' });
     vi.mocked(resolveRecipientEmail)
-      .mockResolvedValueOnce({ email: 'alice@corp.com', displayName: 'Alice', source: 'email_mapping' })
-      .mockResolvedValueOnce({ email: 'bob@corp.com', displayName: 'Bob', source: 'github_profile' });
+      .mockResolvedValueOnce({
+        email: 'alice@corp.com',
+        displayName: 'Alice',
+        source: 'email_mapping',
+      })
+      .mockResolvedValueOnce({
+        email: 'bob@corp.com',
+        displayName: 'Bob',
+        source: 'github_profile',
+      });
 
     const multiBody = { ...validBody, recipients: ['alice', 'bob'] };
     const res = await POST(makeReq(multiBody));

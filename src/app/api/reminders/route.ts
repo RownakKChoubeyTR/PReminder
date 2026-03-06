@@ -1,6 +1,6 @@
 import { authenticateUser } from '@/lib/auth-utils';
-import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/db/prisma';
+import { logger } from '@/lib/logger';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 

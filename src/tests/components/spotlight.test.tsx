@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
 import { Spotlight } from '@/components/ui/spotlight';
+import { render } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
 describe('Spotlight', () => {
   it('renders an SVG element', () => {

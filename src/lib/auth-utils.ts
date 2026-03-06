@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
-import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/db/prisma';
+import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 
 // ─────────────────────────────────────────────────────────────
@@ -39,10 +39,7 @@ export async function authenticateUser(): Promise<AuthResult> {
 
   if (!session?.user) {
     return {
-      error: NextResponse.json(
-        { error: 'Unauthorized', code: 'AUTH_REQUIRED' },
-        { status: 401 },
-      ),
+      error: NextResponse.json({ error: 'Unauthorized', code: 'AUTH_REQUIRED' }, { status: 401 }),
     };
   }
 
@@ -51,9 +48,7 @@ export async function authenticateUser(): Promise<AuthResult> {
 
   // Resolve via githubId first (Int, unique, always present), fall back to username
   const dbUser = await prisma.user.findFirst({
-    where: githubId
-      ? { githubId: parseInt(githubId, 10) }
-      : { username: githubLogin },
+    where: githubId ? { githubId: parseInt(githubId, 10) } : { username: githubLogin },
     select: { id: true, username: true, email: true },
   });
 

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { createQueryWrapper } from '@/tests/test-utils';
 import { useMyPRs } from '@/hooks/use-my-prs';
+import { createQueryWrapper } from '@/tests/test-utils';
+import { renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: useMyPRs hook

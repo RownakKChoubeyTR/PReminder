@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
 vi.mock('next-auth/react', () => ({
@@ -16,8 +16,8 @@ vi.mock('next-auth/react', () => ({
   signOut: vi.fn(),
 }));
 
-import { useSession, signOut } from 'next-auth/react';
 import { UserMenu } from '@/components/layout/user-menu';
+import { signOut, useSession } from 'next-auth/react';
 
 describe('UserMenu', () => {
   beforeEach(() => {
@@ -85,7 +85,12 @@ describe('UserMenu', () => {
   });
 
   it('closes menu on outside click', () => {
-    render(<div><UserMenu /><button type="button">outside</button></div>);
+    render(
+      <div>
+        <UserMenu />
+        <button type="button">outside</button>
+      </div>,
+    );
     fireEvent.click(screen.getByRole('button', { name: 'User menu' }));
     expect(screen.getByRole('menu')).toBeInTheDocument();
     fireEvent.mouseDown(screen.getByRole('button', { name: 'outside' }));

@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
-import { composeDatabaseUrl, connectWithRetry, maskDatabaseUrl } from './connection';
 import { dbLogger } from '@/lib/logger';
+import { composeDatabaseUrl, connectWithRetry, maskDatabaseUrl } from './connection';
 
 // ─────────────────────────────────────────────────────────────
 // Prisma Client Singleton
@@ -45,7 +45,7 @@ function createPrismaClient(): PrismaClient {
     datasourceUrl: databaseUrl,
     log: [
       { emit: 'event', level: 'query' },
-      { emit: 'event', level: 'warn'  },
+      { emit: 'event', level: 'warn' },
       { emit: 'event', level: 'error' },
     ],
   });
@@ -101,5 +101,5 @@ if (!globalForPrisma.prismaConnected) {
 
 // ─── Re-exports for convenience ──────────────────────────────
 
-export { composeDatabaseUrl, healthCheck } from './connection';
 export { dbLogger } from '@/lib/logger';
+export { composeDatabaseUrl, healthCheck } from './connection';

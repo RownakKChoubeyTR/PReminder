@@ -47,9 +47,11 @@ async function cacheAndReturn(
     create: { userId, githubUsername: githubLogin, email, displayName, source },
   });
   const resolvedSource: ResolvedRecipient['source'] =
-    source === 'email_mapping' ? 'email_mapping'
-    : source === 'github-profile' ? 'github_profile'
-    : 'github_commit';
+    source === 'email_mapping'
+      ? 'email_mapping'
+      : source === 'github-profile'
+        ? 'github_profile'
+        : 'github_commit';
   return { email, displayName, source: resolvedSource };
 }
 
@@ -73,7 +75,11 @@ export async function resolveRecipientEmail(
     where: { userId, githubUsername: githubLogin },
   });
   if (mapping) {
-    log.info('Email resolved from mapping', { githubLogin, email: mapping.email, source: mapping.source });
+    log.info('Email resolved from mapping', {
+      githubLogin,
+      email: mapping.email,
+      source: mapping.source,
+    });
     return { email: mapping.email, displayName: mapping.displayName, source: 'email_mapping' };
   }
 
@@ -89,7 +95,13 @@ export async function resolveRecipientEmail(
   }
   if (profile?.email && isRealEmail(profile.email)) {
     log.info('Email resolved from GitHub profile', { githubLogin, email: profile.email });
-    return cacheAndReturn(userId, githubLogin, profile.email, profile.name ?? profile.login, 'github-profile');
+    return cacheAndReturn(
+      userId,
+      githubLogin,
+      profile.email,
+      profile.name ?? profile.login,
+      'github-profile',
+    );
   }
 
   // ── Strategy 3: Commit Search API ─────────────────────────
@@ -103,7 +115,13 @@ export async function resolveRecipientEmail(
   }
   if (commitResult && isRealEmail(commitResult.email)) {
     log.info('Email resolved from commit search', { githubLogin, email: commitResult.email });
-    return cacheAndReturn(userId, githubLogin, commitResult.email, commitResult.name, 'github-commit');
+    return cacheAndReturn(
+      userId,
+      githubLogin,
+      commitResult.email,
+      commitResult.name,
+      'github-commit',
+    );
   }
 
   // ── All strategies exhausted ───────────────────────────────

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock env and logger
 vi.mock('@/lib/env', () => ({
@@ -70,11 +70,12 @@ describe('searchOrgRepos', () => {
   it('returns paginated repos from Search API', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({
-        total_count: 1,
-        incomplete_results: false,
-        items: [{ id: 1, name: 'search-repo' }],
-      }),
+      json: () =>
+        Promise.resolve({
+          total_count: 1,
+          incomplete_results: false,
+          items: [{ id: 1, name: 'search-repo' }],
+        }),
       headers: new Headers(),
     });
 
@@ -88,10 +89,11 @@ describe('searchOrgRepos', () => {
   it('reports hasNextPage when more results exist', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({
-        total_count: 50,
-        items: [{ id: 1, name: 'repo' }],
-      }),
+      json: () =>
+        Promise.resolve({
+          total_count: 50,
+          items: [{ id: 1, name: 'repo' }],
+        }),
       headers: new Headers(),
     });
 
@@ -104,22 +106,30 @@ describe('searchRepoPulls', () => {
   it('returns paginated PRs from Search API', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({
-        total_count: 1,
-        items: [{
-          id: 1,
-          number: 10,
-          title: 'PR via search',
-          body: null,
-          html_url: 'https://github.com/org/repo/pull/10',
-          state: 'open',
-          user: { id: 1, login: 'alice' },
-          labels: [],
-          created_at: '2025-01-01T00:00:00Z',
-          updated_at: '2025-01-02T00:00:00Z',
-          pull_request: { url: '', html_url: 'https://github.com/pr/10', diff_url: '', patch_url: '' },
-        }],
-      }),
+      json: () =>
+        Promise.resolve({
+          total_count: 1,
+          items: [
+            {
+              id: 1,
+              number: 10,
+              title: 'PR via search',
+              body: null,
+              html_url: 'https://github.com/org/repo/pull/10',
+              state: 'open',
+              user: { id: 1, login: 'alice' },
+              labels: [],
+              created_at: '2025-01-01T00:00:00Z',
+              updated_at: '2025-01-02T00:00:00Z',
+              pull_request: {
+                url: '',
+                html_url: 'https://github.com/pr/10',
+                diff_url: '',
+                patch_url: '',
+              },
+            },
+          ],
+        }),
       headers: new Headers(),
     });
 
@@ -135,21 +145,38 @@ describe('searchRepoPulls', () => {
   it('filters out non-PR items', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({
-        total_count: 2,
-        items: [
-          {
-            id: 1, number: 10, title: 'Issue', body: null, html_url: '#', state: 'open',
-            user: { id: 1, login: 'a' }, labels: [], created_at: '', updated_at: '',
-            // No pull_request → should be filtered
-          },
-          {
-            id: 2, number: 11, title: 'PR', body: null, html_url: '#', state: 'open',
-            user: { id: 2, login: 'b' }, labels: [], created_at: '', updated_at: '',
-            pull_request: { url: '', html_url: '#', diff_url: '', patch_url: '' },
-          },
-        ],
-      }),
+      json: () =>
+        Promise.resolve({
+          total_count: 2,
+          items: [
+            {
+              id: 1,
+              number: 10,
+              title: 'Issue',
+              body: null,
+              html_url: '#',
+              state: 'open',
+              user: { id: 1, login: 'a' },
+              labels: [],
+              created_at: '',
+              updated_at: '',
+              // No pull_request → should be filtered
+            },
+            {
+              id: 2,
+              number: 11,
+              title: 'PR',
+              body: null,
+              html_url: '#',
+              state: 'open',
+              user: { id: 2, login: 'b' },
+              labels: [],
+              created_at: '',
+              updated_at: '',
+              pull_request: { url: '', html_url: '#', diff_url: '', patch_url: '' },
+            },
+          ],
+        }),
       headers: new Headers(),
     });
 
@@ -162,16 +189,25 @@ describe('searchRepoPullsByQuery', () => {
   it('searches PRs by query text', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({
-        total_count: 1,
-        items: [{
-          id: 1, number: 42, title: 'Login fix', body: null,
-          html_url: '#', state: 'open',
-          user: { id: 1, login: 'alice' }, labels: [],
-          created_at: '', updated_at: '',
-          pull_request: { url: '', html_url: '#', diff_url: '', patch_url: '' },
-        }],
-      }),
+      json: () =>
+        Promise.resolve({
+          total_count: 1,
+          items: [
+            {
+              id: 1,
+              number: 42,
+              title: 'Login fix',
+              body: null,
+              html_url: '#',
+              state: 'open',
+              user: { id: 1, login: 'alice' },
+              labels: [],
+              created_at: '',
+              updated_at: '',
+              pull_request: { url: '', html_url: '#', diff_url: '', patch_url: '' },
+            },
+          ],
+        }),
       headers: new Headers(),
     });
 
@@ -250,11 +286,18 @@ describe('getUserProfile', () => {
   it('returns full user profile with email', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({
-        id: 123, login: 'alice', avatar_url: '', html_url: '',
-        type: 'User', name: 'Alice', email: 'alice@corp.com',
-        company: 'Acme', bio: 'Dev',
-      }),
+      json: () =>
+        Promise.resolve({
+          id: 123,
+          login: 'alice',
+          avatar_url: '',
+          html_url: '',
+          type: 'User',
+          name: 'Alice',
+          email: 'alice@corp.com',
+          company: 'Acme',
+          bio: 'Dev',
+        }),
       headers: new Headers(),
     });
 
@@ -337,13 +380,14 @@ describe('listUserPRs', () => {
   it('filters out non-PR search items', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({
-        total_count: 2,
-        items: [
-          { ...makeItem({ id: 1 }), pull_request: undefined }, // issue — filtered
-          makeItem({ id: 2, number: 11 }),
-        ],
-      }),
+      json: () =>
+        Promise.resolve({
+          total_count: 2,
+          items: [
+            { ...makeItem({ id: 1 }), pull_request: undefined }, // issue — filtered
+            makeItem({ id: 2, number: 11 }),
+          ],
+        }),
       headers: new Headers(),
     });
 
@@ -466,8 +510,7 @@ describe('getCommitEmailForUser', () => {
   it('returns null when no valid email is found', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () =>
-        Promise.resolve({ items: [makeCommitItem('123+dev@users.noreply.github.com')] }),
+      json: () => Promise.resolve({ items: [makeCommitItem('123+dev@users.noreply.github.com')] }),
       headers: new Headers(),
     });
 

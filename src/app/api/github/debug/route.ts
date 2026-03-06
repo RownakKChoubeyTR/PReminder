@@ -82,12 +82,18 @@ export async function GET() {
         error: true,
         status: res.status,
         message: body.message ?? res.statusText,
-        hint: res.status === 403
-          ? 'SAML enforcement is blocking this request. The PAT may not be SSO-authorized.'
-          : undefined,
+        hint:
+          res.status === 403
+            ? 'SAML enforcement is blocking this request. The PAT may not be SSO-authorized.'
+            : undefined,
       };
     } else {
-      const repos = (await res.json()) as Array<{ name: string; full_name: string; private: boolean; updated_at: string }>;
+      const repos = (await res.json()) as Array<{
+        name: string;
+        full_name: string;
+        private: boolean;
+        updated_at: string;
+      }>;
       results.orgRepos = {
         count: repos.length,
         sample: repos.map((r) => ({
@@ -132,7 +138,10 @@ export async function GET() {
         message: body.message ?? res.statusText,
       };
     } else {
-      const data = (await res.json()) as { total_count: number; items: Array<{ name: string; full_name: string; private: boolean }> };
+      const data = (await res.json()) as {
+        total_count: number;
+        items: Array<{ name: string; full_name: string; private: boolean }>;
+      };
       results.searchRepos = {
         totalCount: data.total_count,
         sample: data.items.map((r) => ({

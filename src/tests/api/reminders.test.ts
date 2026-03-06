@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/auth-utils', () => ({
   authenticateUser: vi.fn(),
@@ -18,11 +18,16 @@ vi.mock('@/lib/logger', () => ({
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
 }));
 
+import { GET } from '@/app/api/reminders/route';
 import { authenticateUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db/prisma';
-import { GET } from '@/app/api/reminders/route';
 
-const mockUser = { id: 'user-1', githubLogin: 'testuser', email: 'test@corp.com', accessToken: 'gho_test' };
+const mockUser = {
+  id: 'user-1',
+  githubLogin: 'testuser',
+  email: 'test@corp.com',
+  accessToken: 'gho_test',
+};
 
 beforeEach(() => {
   vi.mocked(authenticateUser).mockResolvedValue({ user: mockUser });
@@ -30,9 +35,7 @@ beforeEach(() => {
 
 describe('GET /api/reminders', () => {
   it('returns paginated reminder logs', async () => {
-    const logs = [
-      { id: '1', reviewerGithub: 'alice', status: 'SENT', sentAt: new Date() },
-    ];
+    const logs = [{ id: '1', reviewerGithub: 'alice', status: 'SENT', sentAt: new Date() }];
     vi.mocked(prisma.reminderLog.findMany).mockResolvedValueOnce(logs as never);
     vi.mocked(prisma.reminderLog.count).mockResolvedValueOnce(1);
 

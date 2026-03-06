@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { EventEmitter } from 'node:events';
 import type { IncomingMessage } from 'node:http';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: /api/integrations routes
@@ -43,35 +43,46 @@ vi.mock('node:https', () => ({
   default: { request: (...args: unknown[]) => mockHttpsRequest(...args) },
 }));
 
+import { DELETE, GET, PATCH, POST, PUT } from '@/app/api/integrations/route';
 import { authenticateUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db/prisma';
 import { isAllowedWebhookUrl } from '@/lib/teams/power-automate';
-import { GET, POST, PUT, DELETE, PATCH } from '@/app/api/integrations/route';
 
-const mockUser = { id: 'user-1', githubLogin: 'testuser', email: 'test@corp.com', accessToken: 'gho_test' };
+const mockUser = {
+  id: 'user-1',
+  githubLogin: 'testuser',
+  email: 'test@corp.com',
+  accessToken: 'gho_test',
+};
 const mockFetch = vi.fn();
 
 /**
  * Helper: simulate a successful https.request with a given status code and body.
  */
 function mockHttpsSuccess(statusCode: number, responseBody = '') {
-  mockHttpsRequest.mockImplementation((_opts: unknown, callback: (res: IncomingMessage) => void) => {
-    const fakeReq = new EventEmitter() as EventEmitter & { write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; destroy: ReturnType<typeof vi.fn> };
-    fakeReq.write = vi.fn();
-    fakeReq.end = vi.fn();
-    fakeReq.destroy = vi.fn();
+  mockHttpsRequest.mockImplementation(
+    (_opts: unknown, callback: (res: IncomingMessage) => void) => {
+      const fakeReq = new EventEmitter() as EventEmitter & {
+        write: ReturnType<typeof vi.fn>;
+        end: ReturnType<typeof vi.fn>;
+        destroy: ReturnType<typeof vi.fn>;
+      };
+      fakeReq.write = vi.fn();
+      fakeReq.end = vi.fn();
+      fakeReq.destroy = vi.fn();
 
-    // Schedule callback on next tick so the request listeners are attached first
-    process.nextTick(() => {
-      const fakeRes = new EventEmitter() as EventEmitter & { statusCode: number };
-      fakeRes.statusCode = statusCode;
-      callback(fakeRes as unknown as IncomingMessage);
-      fakeRes.emit('data', Buffer.from(responseBody));
-      fakeRes.emit('end');
-    });
+      // Schedule callback on next tick so the request listeners are attached first
+      process.nextTick(() => {
+        const fakeRes = new EventEmitter() as EventEmitter & { statusCode: number };
+        fakeRes.statusCode = statusCode;
+        callback(fakeRes as unknown as IncomingMessage);
+        fakeRes.emit('data', Buffer.from(responseBody));
+        fakeRes.emit('end');
+      });
 
-    return fakeReq;
-  });
+      return fakeReq;
+    },
+  );
 }
 
 /**
@@ -79,7 +90,11 @@ function mockHttpsSuccess(statusCode: number, responseBody = '') {
  */
 function mockHttpsError(error: Error) {
   mockHttpsRequest.mockImplementation(() => {
-    const fakeReq = new EventEmitter() as EventEmitter & { write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; destroy: ReturnType<typeof vi.fn> };
+    const fakeReq = new EventEmitter() as EventEmitter & {
+      write: ReturnType<typeof vi.fn>;
+      end: ReturnType<typeof vi.fn>;
+      destroy: ReturnType<typeof vi.fn>;
+    };
     fakeReq.write = vi.fn();
     fakeReq.end = vi.fn();
     fakeReq.destroy = vi.fn();
@@ -178,10 +193,12 @@ describe('POST /api/integrations', () => {
 describe('PUT /api/integrations', () => {
   it('updates integration', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'user-1',
+      id: '1',
+      userId: 'user-1',
     } as never);
     vi.mocked(prisma.integrationConfig.update).mockResolvedValueOnce({
-      id: '1', label: 'Updated',
+      id: '1',
+      label: 'Updated',
     } as never);
 
     const req = new NextRequest('http://localhost/api/integrations?id=1', {
@@ -208,7 +225,8 @@ describe('PUT /api/integrations', () => {
 
   it('returns 404 for non-owned integration', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'other-user',
+      id: '1',
+      userId: 'other-user',
     } as never);
 
     const req = new NextRequest('http://localhost/api/integrations?id=1', {
@@ -223,7 +241,8 @@ describe('PUT /api/integrations', () => {
 
   it('rejects SSRF on value update', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'user-1',
+      id: '1',
+      userId: 'user-1',
     } as never);
     vi.mocked(isAllowedWebhookUrl).mockReturnValueOnce(false);
 
@@ -241,7 +260,8 @@ describe('PUT /api/integrations', () => {
 describe('DELETE /api/integrations', () => {
   it('deletes owned integration', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'user-1',
+      id: '1',
+      userId: 'user-1',
     } as never);
     vi.mocked(prisma.integrationConfig.delete).mockResolvedValueOnce({} as never);
 
@@ -272,7 +292,9 @@ describe('DELETE /api/integrations', () => {
 describe('PATCH /api/integrations (test connectivity)', () => {
   it('returns success on OK response', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'user-1', encryptedValue: 'ENC:https://example.com/hook',
+      id: '1',
+      userId: 'user-1',
+      encryptedValue: 'ENC:https://example.com/hook',
     } as never);
     mockHttpsSuccess(200);
 
@@ -286,7 +308,9 @@ describe('PATCH /api/integrations (test connectivity)', () => {
 
   it('returns success on 202 response', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'user-1', encryptedValue: 'ENC:https://example.com/hook',
+      id: '1',
+      userId: 'user-1',
+      encryptedValue: 'ENC:https://example.com/hook',
     } as never);
     mockHttpsSuccess(202);
 
@@ -299,7 +323,10 @@ describe('PATCH /api/integrations (test connectivity)', () => {
 
   it('returns failure on DNS error', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'user-1', type: 'POWER_AUTOMATE_DM', encryptedValue: 'ENC:https://example.com/hook',
+      id: '1',
+      userId: 'user-1',
+      type: 'POWER_AUTOMATE_DM',
+      encryptedValue: 'ENC:https://example.com/hook',
     } as never);
     mockHttpsError(new Error('getaddrinfo ENOTFOUND example.com'));
 
@@ -313,7 +340,10 @@ describe('PATCH /api/integrations (test connectivity)', () => {
 
   it('classifies SSL/TLS errors', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'user-1', type: 'POWER_AUTOMATE_DM', encryptedValue: 'ENC:https://example.com/hook',
+      id: '1',
+      userId: 'user-1',
+      type: 'POWER_AUTOMATE_DM',
+      encryptedValue: 'ENC:https://example.com/hook',
     } as never);
     mockHttpsError(new Error('unable to verify the first certificate'));
 
@@ -327,7 +357,10 @@ describe('PATCH /api/integrations (test connectivity)', () => {
 
   it('classifies connection refused errors', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'user-1', type: 'POWER_AUTOMATE_DM', encryptedValue: 'ENC:https://example.com/hook',
+      id: '1',
+      userId: 'user-1',
+      type: 'POWER_AUTOMATE_DM',
+      encryptedValue: 'ENC:https://example.com/hook',
     } as never);
     mockHttpsError(new Error('connect ECONNREFUSED 1.2.3.4:443'));
 
@@ -341,7 +374,10 @@ describe('PATCH /api/integrations (test connectivity)', () => {
 
   it('returns descriptive error for HTTP 404', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'user-1', type: 'POWER_AUTOMATE_DM', encryptedValue: 'ENC:https://example.com/hook',
+      id: '1',
+      userId: 'user-1',
+      type: 'POWER_AUTOMATE_DM',
+      encryptedValue: 'ENC:https://example.com/hook',
     } as never);
     mockHttpsSuccess(404, 'Not Found');
 
@@ -356,10 +392,15 @@ describe('PATCH /api/integrations (test connectivity)', () => {
 
   it('returns decrypt error when encryption key is wrong', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'user-1', type: 'POWER_AUTOMATE_DM', encryptedValue: 'bad-data',
+      id: '1',
+      userId: 'user-1',
+      type: 'POWER_AUTOMATE_DM',
+      encryptedValue: 'bad-data',
     } as never);
     const { decrypt } = await import('@/lib/db/encryption');
-    vi.mocked(decrypt).mockImplementationOnce(() => { throw new Error('Invalid encrypted value'); });
+    vi.mocked(decrypt).mockImplementationOnce(() => {
+      throw new Error('Invalid encrypted value');
+    });
 
     const req = new NextRequest('http://localhost/api/integrations?id=1', { method: 'PATCH' });
     const res = await PATCH(req);
@@ -378,7 +419,8 @@ describe('PATCH /api/integrations (test connectivity)', () => {
 
   it('returns 404 for non-owned config', async () => {
     vi.mocked(prisma.integrationConfig.findUnique).mockResolvedValueOnce({
-      id: '1', userId: 'other-user',
+      id: '1',
+      userId: 'other-user',
     } as never);
 
     const req = new NextRequest('http://localhost/api/integrations?id=1', { method: 'PATCH' });

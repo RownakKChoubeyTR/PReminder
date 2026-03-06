@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // GitHub Client Unit Tests
@@ -22,7 +22,15 @@ const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
 // Import after mocks
-const { listOrgRepos, listOpenPulls, listReviews, listTeamMembers, getAuthenticatedUser, searchOrgReposByName, GitHubApiError } = await import('@/lib/github/client');
+const {
+  listOrgRepos,
+  listOpenPulls,
+  listReviews,
+  listTeamMembers,
+  getAuthenticatedUser,
+  searchOrgReposByName,
+  GitHubApiError,
+} = await import('@/lib/github/client');
 
 beforeEach(() => {
   mockFetch.mockReset();
@@ -164,9 +172,7 @@ describe('listReviews', () => {
 
 describe('listTeamMembers', () => {
   it('should fetch team members', async () => {
-    const members = [
-      { id: 1, login: 'member1', avatar_url: 'https://example.com/1.png' },
-    ];
+    const members = [{ id: 1, login: 'member1', avatar_url: 'https://example.com/1.png' }];
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -256,11 +262,12 @@ describe('searchOrgReposByName', () => {
   it('should report hasNextPage when results exceed page size', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({
-        total_count: 50,
-        incomplete_results: false,
-        items: Array.from({ length: 10 }, (_, i) => ({ id: i, name: `repo-${i}` })),
-      }),
+      json: () =>
+        Promise.resolve({
+          total_count: 50,
+          incomplete_results: false,
+          items: Array.from({ length: 10 }, (_, i) => ({ id: i, name: `repo-${i}` })),
+        }),
       headers: new Headers(),
     });
 

@@ -1,6 +1,6 @@
 import { authenticateUser } from '@/lib/auth-utils';
-import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/db/prisma';
+import { logger } from '@/lib/logger';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
@@ -24,7 +24,10 @@ export async function GET(request: NextRequest) {
 
   if (!recipientsStr || !prNumber || !repo) {
     return NextResponse.json(
-      { error: 'Missing required parameters: recipients, prNumber, repo', code: 'VALIDATION_ERROR' },
+      {
+        error: 'Missing required parameters: recipients, prNumber, repo',
+        code: 'VALIDATION_ERROR',
+      },
       { status: 400 },
     );
   }

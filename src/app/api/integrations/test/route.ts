@@ -1,9 +1,9 @@
 import { authenticateUser } from '@/lib/auth-utils';
-import { isAllowedWebhookUrl } from '@/lib/teams/power-automate';
 import { createLogger } from '@/lib/logger';
-import https from 'node:https';
+import { isAllowedWebhookUrl } from '@/lib/teams/power-automate';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import https from 'node:https';
 import { z } from 'zod';
 
 const log = createLogger('api/integrations/test');
@@ -22,10 +22,7 @@ export async function POST(request: NextRequest) {
   try {
     rawBody = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: 'Invalid JSON body', code: 'INVALID_BODY' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Invalid JSON body', code: 'INVALID_BODY' }, { status: 400 });
   }
 
   const parsed = testSchema.safeParse(rawBody);
@@ -82,7 +79,11 @@ export async function POST(request: NextRequest) {
     const res = await webhookTestPost(url, testPayload);
 
     if (!res.ok && res.statusCode !== 202) {
-      log.warn('Test webhook returned non-success status', { url, statusCode: res.statusCode, body: res.body.slice(0, 500) });
+      log.warn('Test webhook returned non-success status', {
+        url,
+        statusCode: res.statusCode,
+        body: res.body.slice(0, 500),
+      });
     }
 
     const success = res.ok || res.statusCode === 202;
@@ -94,7 +95,11 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     const detail = classifyFetchError(err);
-    log.error('Connectivity test failed', err, { url, errorType: detail.errorType, hint: detail.hint });
+    log.error('Connectivity test failed', err, {
+      url,
+      errorType: detail.errorType,
+      hint: detail.hint,
+    });
     return NextResponse.json({
       success: false,
       statusCode: 0,
@@ -163,7 +168,12 @@ function classifyFetchError(err: unknown): { message: string; errorType: string;
   const msg = root.message.toLowerCase();
   const name = root.name.toLowerCase();
 
-  if (name === 'timeouterror' || name === 'aborterror' || msg.includes('timed out') || msg.includes('timeout')) {
+  if (
+    name === 'timeouterror' ||
+    name === 'aborterror' ||
+    msg.includes('timed out') ||
+    msg.includes('timeout')
+  ) {
     return {
       message: 'Connection timed out after 10 seconds',
       errorType: 'timeout',
@@ -200,14 +210,19 @@ function classifyFetchError(err: unknown): { message: string; errorType: string;
 
 function classifyHttpError(status: number, type: string): string {
   switch (true) {
-    case status === 401: return 'Unauthorized (401) — the webhook URL may have expired.';
-    case status === 403: return 'Forbidden (403) — the flow trigger URL may have been regenerated.';
+    case status === 401:
+      return 'Unauthorized (401) — the webhook URL may have expired.';
+    case status === 403:
+      return 'Forbidden (403) — the flow trigger URL may have been regenerated.';
     case status === 404:
       return type === 'POWER_AUTOMATE_DM'
         ? 'Not Found (404) — the Power Automate flow may have been deleted.'
         : 'Not Found (404) — the Teams webhook URL may have been removed.';
-    case status === 429: return 'Rate limited (429) — try again in a few minutes.';
-    case status >= 500: return `Server error (${status}) — try again later.`;
-    default: return `Unexpected status ${status} from webhook.`;
+    case status === 429:
+      return 'Rate limited (429) — try again in a few minutes.';
+    case status >= 500:
+      return `Server error (${status}) — try again later.`;
+    default:
+      return `Unexpected status ${status} from webhook.`;
   }
 }

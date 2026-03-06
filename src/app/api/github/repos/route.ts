@@ -28,10 +28,7 @@ export async function GET(request: NextRequest) {
   const session = await auth();
 
   if (!session?.accessToken) {
-    return NextResponse.json(
-      { error: 'Unauthorized', code: 'AUTH_REQUIRED' },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: 'Unauthorized', code: 'AUTH_REQUIRED' }, { status: 401 });
   }
 
   const params = request.nextUrl.searchParams;
@@ -65,19 +62,29 @@ export async function GET(request: NextRequest) {
     if (isSamlError(err)) {
       logger.warn('SAML restriction — falling back to Search API', '/api/github/repos');
       try {
-        const samlKey = cacheKey('repos:saml', { page, perPage, ...(search.length >= 3 ? { q: search.toLowerCase() } : {}) });
+        const samlKey = cacheKey('repos:saml', {
+          page,
+          perPage,
+          ...(search.length >= 3 ? { q: search.toLowerCase() } : {}),
+        });
         const result = await githubCache.getOrSet(
           samlKey,
-          () => search.length >= 3
-            ? searchOrgReposByName(resolveToken(session.accessToken), search, page, perPage)
-            : searchOrgRepos(resolveToken(session.accessToken), page, perPage),
+          () =>
+            search.length >= 3
+              ? searchOrgReposByName(resolveToken(session.accessToken), search, page, perPage)
+              : searchOrgRepos(resolveToken(session.accessToken), page, perPage),
           search.length >= 3 ? SEARCH_TTL : BROWSE_TTL,
         );
         return NextResponse.json({ ...result, notice: SAML_NOTICE, helpUrl: SAML_HELP_URL });
       } catch (searchErr) {
         logger.error('Search API fallback failed', '/api/github/repos', searchErr);
         return NextResponse.json(
-          { error: 'SAML enforcement blocks repo access', code: 'SAML_ENFORCEMENT', notice: SAML_NOTICE, helpUrl: SAML_HELP_URL },
+          {
+            error: 'SAML enforcement blocks repo access',
+            code: 'SAML_ENFORCEMENT',
+            notice: SAML_NOTICE,
+            helpUrl: SAML_HELP_URL,
+          },
           { status: 403 },
         );
       }

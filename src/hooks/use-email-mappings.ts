@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 // ─────────────────────────────────────────────────────────────
 // useEmailMappings — CRUD hooks for GitHub → email mappings

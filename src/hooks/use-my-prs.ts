@@ -10,10 +10,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 // client-side so switching the status column sort never triggers a refetch.
 // ─────────────────────────────────────────────────────────────
 
-async function fetchMyPRs(
-  page: number,
-  perPage: number,
-): Promise<PaginatedResponse<GitHubMyPR>> {
+async function fetchMyPRs(page: number, perPage: number): Promise<PaginatedResponse<GitHubMyPR>> {
   const params = new URLSearchParams({
     page: String(page),
     per_page: String(perPage),

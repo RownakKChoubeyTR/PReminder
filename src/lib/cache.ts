@@ -124,11 +124,7 @@ export class CacheService {
    * Get-or-set pattern: returns cached value if fresh,
    * otherwise calls the factory function, caches, and returns.
    */
-  async getOrSet<T>(
-    key: string,
-    factory: () => Promise<T>,
-    ttlMs?: number,
-  ): Promise<T> {
+  async getOrSet<T>(key: string, factory: () => Promise<T>, ttlMs?: number): Promise<T> {
     const cached = this.get<T>(key);
     if (cached !== undefined) {
       logger.info(`Cache HIT: ${this.options.namespace}:${key}`, 'cache');

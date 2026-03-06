@@ -12,9 +12,7 @@ interface ReviewersResponse {
 }
 
 async function fetchReviewers(repo: string, prNumber: number): Promise<ReviewersResponse> {
-  const res = await fetch(
-    `/api/github/reviewers?repo=${encodeURIComponent(repo)}&pr=${prNumber}`,
-  );
+  const res = await fetch(`/api/github/reviewers?repo=${encodeURIComponent(repo)}&pr=${prNumber}`);
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));

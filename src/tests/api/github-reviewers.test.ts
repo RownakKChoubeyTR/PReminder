@@ -1,5 +1,5 @@
-﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { NextRequest } from 'next/server';
+﻿import { NextRequest } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
@@ -38,11 +38,16 @@ vi.mock('@/lib/logger', () => ({
   createLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() })),
 }));
 
-import { authenticateUser } from '@/lib/auth-utils';
-import { listReviews, isSamlError, getPullRequest } from '@/lib/github/client';
 import { GET } from '@/app/api/github/reviewers/route';
+import { authenticateUser } from '@/lib/auth-utils';
+import { getPullRequest, isSamlError, listReviews } from '@/lib/github/client';
 
-const mockUser = { id: 'user-1', githubLogin: 'testuser', email: 'test@corp.com', accessToken: 'gho_test' };
+const mockUser = {
+  id: 'user-1',
+  githubLogin: 'testuser',
+  email: 'test@corp.com',
+  accessToken: 'gho_test',
+};
 
 beforeEach(() => {
   vi.mocked(authenticateUser).mockResolvedValue({ user: mockUser, error: null } as never);
@@ -60,7 +65,11 @@ describe('GET /api/github/reviewers', () => {
   it('returns reviewers with computed statuses', async () => {
     vi.mocked(listReviews).mockResolvedValueOnce([
       { user: { login: 'alice', id: 1 }, state: 'APPROVED', submitted_at: '2024-01-02T00:00:00Z' },
-      { user: { login: 'bob', id: 2 }, state: 'CHANGES_REQUESTED', submitted_at: '2024-01-01T00:00:00Z' },
+      {
+        user: { login: 'bob', id: 2 },
+        state: 'CHANGES_REQUESTED',
+        submitted_at: '2024-01-01T00:00:00Z',
+      },
     ] as never);
 
     const req = new NextRequest('http://localhost/api/github/reviewers?repo=org/repo&pr=42');
@@ -98,7 +107,13 @@ describe('GET /api/github/reviewers', () => {
   });
 
   it('returns 401 when not authenticated', async () => {
-    vi.mocked(authenticateUser).mockResolvedValueOnce({ user: null, error: (await import('next/server')).NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) } as never);
+    vi.mocked(authenticateUser).mockResolvedValueOnce({
+      user: null,
+      error: (await import('next/server')).NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 },
+      ),
+    } as never);
 
     const req = new NextRequest('http://localhost/api/github/reviewers?repo=org/repo&pr=42');
     const res = await GET(req);
@@ -129,7 +144,11 @@ describe('GET /api/github/reviewers', () => {
 
   it('computes COMMENTED status when only comments exist', async () => {
     vi.mocked(listReviews).mockResolvedValueOnce([
-      { user: { login: 'charlie', id: 3 }, state: 'COMMENTED', submitted_at: '2024-01-01T00:00:00Z' },
+      {
+        user: { login: 'charlie', id: 3 },
+        state: 'COMMENTED',
+        submitted_at: '2024-01-01T00:00:00Z',
+      },
     ] as never);
 
     const req = new NextRequest('http://localhost/api/github/reviewers?repo=org/repo&pr=42');
@@ -141,7 +160,11 @@ describe('GET /api/github/reviewers', () => {
 
   it('takes latest actionable review when multiple exist', async () => {
     vi.mocked(listReviews).mockResolvedValueOnce([
-      { user: { login: 'alice', id: 1 }, state: 'CHANGES_REQUESTED', submitted_at: '2024-01-01T00:00:00Z' },
+      {
+        user: { login: 'alice', id: 1 },
+        state: 'CHANGES_REQUESTED',
+        submitted_at: '2024-01-01T00:00:00Z',
+      },
       { user: { login: 'alice', id: 1 }, state: 'APPROVED', submitted_at: '2024-01-02T00:00:00Z' },
     ] as never);
 

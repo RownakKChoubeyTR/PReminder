@@ -29,17 +29,12 @@ export class AppError extends Error {
   readonly statusCode: number;
   readonly meta?: Record<string, unknown>;
 
-  constructor(
-    message: string,
-    code: string,
-    statusCode: number,
-    meta?: Record<string, unknown>,
-  ) {
+  constructor(message: string, code: string, statusCode: number, meta?: Record<string, unknown>) {
     super(message);
-    this.name       = this.constructor.name;
-    this.code       = code;
+    this.name = this.constructor.name;
+    this.code = code;
     this.statusCode = statusCode;
-    this.meta       = meta;
+    this.meta = meta;
 
     // Ensure instanceof works correctly after TypeScript compilation
     Object.setPrototypeOf(this, new.target.prototype);

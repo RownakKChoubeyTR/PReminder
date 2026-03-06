@@ -1,5 +1,5 @@
-import { describe, expect, it, beforeEach } from 'vitest';
 import { useDashboardStore } from '@/hooks/use-dashboard-store';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Dashboard Store Tests

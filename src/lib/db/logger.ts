@@ -15,9 +15,9 @@ import { createLogger } from '@/lib/logger';
 
 const _log = createLogger('db', { logFile: 'dbLog.txt' });
 
-const GREY  = '\x1b[90m';
+const GREY = '\x1b[90m';
 const RESET = '\x1b[0m';
-const SEP   = '─'.repeat(69); // matches BOX_WIDTH - 2 in logger.ts
+const SEP = '─'.repeat(69); // matches BOX_WIDTH - 2 in logger.ts
 
 export const dbLogger = {
   ..._log,

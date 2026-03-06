@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { signIn } from 'next-auth/react';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useState } from 'react';
 import styles from './page.module.scss';
@@ -40,13 +40,7 @@ function LoginForm() {
     <main className={styles.container}>
       <div className={styles.card}>
         <div className={styles.logoWrapper}>
-          <Image
-            src="/logo.png"
-            alt="PReminder logo"
-            width={88}
-            height={88}
-            priority
-          />
+          <Image src="/logo.png" alt="PReminder logo" width={88} height={88} priority />
         </div>
         <h1 className={styles.title}>Sign in to PReminder</h1>
         <p className={styles.description}>

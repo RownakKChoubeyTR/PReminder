@@ -3,8 +3,8 @@
 import { useReminderStore } from '@/hooks/use-reminder-store';
 import { useReviewers } from '@/hooks/use-reviewers';
 import type { ReviewerInfo } from '@/types/github';
-import { StatusBadge } from './status-badge';
 import styles from './reviewer-list.module.scss';
+import { StatusBadge } from './status-badge';
 
 // ─────────────────────────────────────────────────────────────
 // Reviewer List — Shows reviewer breakdown with statuses
@@ -34,7 +34,8 @@ function formatRelativeTime(dateStr: string): string {
 
 export function ReviewerList({ repo, prNumber, selectable = false }: ReviewerListProps) {
   const { data, isLoading, error } = useReviewers(repo, prNumber);
-  const { selectedReviewers, toggleReviewer, selectAllReviewers, deselectReviewers } = useReminderStore();
+  const { selectedReviewers, toggleReviewer, selectAllReviewers, deselectReviewers } =
+    useReminderStore();
 
   if (isLoading) {
     return (
@@ -57,15 +58,12 @@ export function ReviewerList({ repo, prNumber, selectable = false }: ReviewerLis
   const reviewers = data?.data ?? [];
 
   if (reviewers.length === 0) {
-    return (
-      <div className={styles.empty}>
-        No reviewers requested for this PR.
-      </div>
-    );
+    return <div className={styles.empty}>No reviewers requested for this PR.</div>;
   }
 
   const allLogins = reviewers.map((r: ReviewerInfo) => r.user.login);
-  const allSelected = allLogins.length > 0 && allLogins.every((l: string) => selectedReviewers.includes(l));
+  const allSelected =
+    allLogins.length > 0 && allLogins.every((l: string) => selectedReviewers.includes(l));
   const someSelected = allLogins.some((l: string) => selectedReviewers.includes(l));
 
   const handleSelectAll = () => {
@@ -116,17 +114,10 @@ export function ReviewerList({ repo, prNumber, selectable = false }: ReviewerLis
                   aria-label={`Select ${reviewer.user.login}`}
                 />
               )}
-              <img
-                className={styles.avatar}
-                src={reviewer.user.avatar_url}
-                alt=""
-                loading="lazy"
-              />
+              <img className={styles.avatar} src={reviewer.user.avatar_url} alt="" loading="lazy" />
               <div className={styles.info}>
                 <div className={styles.login}>{reviewer.user.login}</div>
-                {reviewer.email && (
-                  <div className={styles.email}>{reviewer.email}</div>
-                )}
+                {reviewer.email && <div className={styles.email}>{reviewer.email}</div>}
                 {reviewer.lastReviewedAt && (
                   <div className={styles.reviewedAt}>
                     Reviewed {formatRelativeTime(reviewer.lastReviewedAt)}

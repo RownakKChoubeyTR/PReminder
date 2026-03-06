@@ -1,11 +1,11 @@
 ﻿// @vitest-environment node
-import { describe, it, expect, vi, beforeEach, afterEach, afterAll } from 'vitest';
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// 
+//
 // Tests: dbLogger (src/lib/logger.ts)
-// 
+//
 // STRATEGY: vi.mock('node:fs') only intercepts ESM imports, NOT require()
 // calls made inside imported modules. Since logger.ts uses require('node:fs')
 // internally (for Edge compatibility), we use an integration approach:
@@ -14,9 +14,9 @@ import { join } from 'node:path';
 //
 // // @vitest-environment node ensures IS_SERVER=true (typeof window ===
 // 'undefined'), which is required for file writing to be enabled.
-// 
+//
 
-const LOGS_DIR    = join(process.cwd(), 'logs');
+const LOGS_DIR = join(process.cwd(), 'logs');
 const DB_LOG_PATH = join(LOGS_DIR, 'dbLog.txt');
 
 interface LogEntry {
@@ -33,18 +33,18 @@ function findLogLines(marker: string): LogEntry[] {
   if (!existsSync(DB_LOG_PATH)) return [];
   return readFileSync(DB_LOG_PATH, 'utf8')
     .split('\n')
-    .filter(l => l.trim() && l.includes(marker))
-    .map(l => JSON.parse(l) as LogEntry);
+    .filter((l) => l.trim() && l.includes(marker))
+    .map((l) => JSON.parse(l) as LogEntry);
 }
 
 // Top-level import: NODE_ENV='test'  IS_DEV=false (used for non-dev tests)
 import { dbLogger } from '@/lib/logger';
 
-const infoSpy  = vi.spyOn(console, 'info').mockImplementation(() => {});
-const warnSpy  = vi.spyOn(console, 'warn').mockImplementation(() => {});
+const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-const logSpy   = vi.spyOn(console, 'log').mockImplementation(() => {});
+const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
 beforeEach(() => {
   infoSpy.mockClear();
@@ -57,7 +57,11 @@ beforeEach(() => {
 afterAll(() => {
   // Clean up the log file written during integration tests
   if (existsSync(DB_LOG_PATH)) {
-    try { unlinkSync(DB_LOG_PATH); } catch { /* ignore */ }
+    try {
+      unlinkSync(DB_LOG_PATH);
+    } catch {
+      /* ignore */
+    }
   }
 });
 
@@ -166,13 +170,17 @@ describe('dbLogger', () => {
       vi.stubEnv('NODE_ENV', 'development');
 
       const linesBefore = existsSync(DB_LOG_PATH)
-        ? readFileSync(DB_LOG_PATH, 'utf8').split('\n').filter(l => l.trim()).length
+        ? readFileSync(DB_LOG_PATH, 'utf8')
+            .split('\n')
+            .filter((l) => l.trim()).length
         : 0;
 
       dbLogger.separator();
 
       const linesAfter = existsSync(DB_LOG_PATH)
-        ? readFileSync(DB_LOG_PATH, 'utf8').split('\n').filter(l => l.trim()).length
+        ? readFileSync(DB_LOG_PATH, 'utf8')
+            .split('\n')
+            .filter((l) => l.trim()).length
         : 0;
 
       expect(linesAfter).toBe(linesBefore);

@@ -1,28 +1,52 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/components/settings/template-form', () => ({
   TemplateForm: ({ onCancel, onSaved }: { onCancel: () => void; onSaved: () => void }) => (
     <div data-testid="template-form">
-      <button type="button" onClick={onCancel}>Cancel</button>
-      <button type="button" onClick={onSaved}>Save</button>
+      <button type="button" onClick={onCancel}>
+        Cancel
+      </button>
+      <button type="button" onClick={onSaved}>
+        Save
+      </button>
     </div>
   ),
 }));
 
 vi.mock('@/components/settings/template-list', () => ({
-  TemplateList: ({ onSelect, onCreateNew }: { onSelect: (t: unknown) => void; onCreateNew: () => void }) => (
+  TemplateList: ({
+    onSelect,
+    onCreateNew,
+  }: {
+    onSelect: (t: unknown) => void;
+    onCreateNew: () => void;
+  }) => (
     <div data-testid="template-list">
-      <button type="button" onClick={onCreateNew}>New</button>
-      <button type="button" onClick={() => onSelect({ id: 't1', name: 'T', type: 'TEAMS_DM', body: 'x', subject: '', isDefault: false })}>Select</button>
+      <button type="button" onClick={onCreateNew}>
+        New
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          onSelect({
+            id: 't1',
+            name: 'T',
+            type: 'TEAMS_DM',
+            body: 'x',
+            subject: '',
+            isDefault: false,
+          })
+        }
+      >
+        Select
+      </button>
     </div>
   ),
 }));
 
 vi.mock('@/components/settings/template-preview', () => ({
-  TemplatePreview: ({ body }: { body: string }) => (
-    <div data-testid="template-preview">{body}</div>
-  ),
+  TemplatePreview: ({ body }: { body: string }) => <div data-testid="template-preview">{body}</div>,
 }));
 
 import TemplatesPage from '@/app/dashboard/templates/page';

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: GET /api/github/my-prs
@@ -28,9 +28,9 @@ vi.mock('@/lib/logger', () => ({
   createLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() })),
 }));
 
-import { authenticateUser } from '@/lib/auth-utils';
-import { listUserPRs, isSamlError } from '@/lib/github/client';
 import { GET } from '@/app/api/github/my-prs/route';
+import { authenticateUser } from '@/lib/auth-utils';
+import { isSamlError, listUserPRs } from '@/lib/github/client';
 
 const mockUser = {
   id: 'user-1',
@@ -135,6 +135,11 @@ describe('GET /api/github/my-prs', () => {
     const req = new NextRequest('http://localhost/api/github/my-prs');
     await GET(req);
 
-    expect(listUserPRs).toHaveBeenCalledWith('gho_test', 'alice', expect.any(Number), expect.any(Number));
+    expect(listUserPRs).toHaveBeenCalledWith(
+      'gho_test',
+      'alice',
+      expect.any(Number),
+      expect.any(Number),
+    );
   });
 });

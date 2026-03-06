@@ -5,8 +5,8 @@ import { useMyPRs } from '@/hooks/use-my-prs';
 import { useReviewers } from '@/hooks/use-reviewers';
 import type { GitHubMyPR, ReviewerInfo } from '@/types/github';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StatusBadge } from './status-badge';
 import styles from './pr-table.module.scss';
+import { StatusBadge } from './status-badge';
 
 // ─── ReviewerCell ─────────────────────────────────────────────
 
@@ -208,7 +208,17 @@ export function MyPRsTable() {
               aria-haspopup="listbox"
               aria-label="Sort pull requests"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
                 <path d="m3 16 4 4 4-4" />
                 <path d="M7 20V4" />
                 <path d="m21 8-4-4-4 4" />
@@ -230,7 +240,9 @@ export function MyPRsTable() {
                     >
                       <span>{opt.label}</span>
                       {sortField === opt.value && (
-                        <span className={styles.sortDirIndicator}>{sortDir === 'asc' ? '\u2191 Asc' : '\u2193 Desc'}</span>
+                        <span className={styles.sortDirIndicator}>
+                          {sortDir === 'asc' ? '\u2191 Asc' : '\u2193 Desc'}
+                        </span>
                       )}
                     </button>
                   </li>
@@ -239,9 +251,7 @@ export function MyPRsTable() {
             )}
           </div>
 
-          {isFetching && !isLoading && (
-            <span className={styles.count}>Refreshing\u2026</span>
-          )}
+          {isFetching && !isLoading && <span className={styles.count}>Refreshing\u2026</span>}
         </div>
       </div>
 

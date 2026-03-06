@@ -1,6 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { render, screen } from '@testing-library/react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { describe, expect, it } from 'vitest';
 
 describe('Card components', () => {
   it('renders Card with children', () => {

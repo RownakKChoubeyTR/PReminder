@@ -1,6 +1,6 @@
 import { authenticateUser } from '@/lib/auth-utils';
-import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/db/prisma';
+import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -34,10 +34,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
     });
 
     if (!template) {
-      return NextResponse.json(
-        { error: 'Template not found', code: 'NOT_FOUND' },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Template not found', code: 'NOT_FOUND' }, { status: 404 });
     }
 
     return NextResponse.json({ data: template });
@@ -62,10 +59,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
   try {
     rawBody = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: 'Invalid JSON body', code: 'INVALID_BODY' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Invalid JSON body', code: 'INVALID_BODY' }, { status: 400 });
   }
 
   const parsed = templateUpdateSchema.safeParse(rawBody);
@@ -116,10 +110,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     });
 
     if (!template) {
-      return NextResponse.json(
-        { error: 'Template not found', code: 'NOT_FOUND' },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Template not found', code: 'NOT_FOUND' }, { status: 404 });
     }
 
     return NextResponse.json({ data: template });
@@ -147,10 +138,7 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
     });
 
     if (!existing) {
-      return NextResponse.json(
-        { error: 'Template not found', code: 'NOT_FOUND' },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Template not found', code: 'NOT_FOUND' }, { status: 404 });
     }
 
     await prisma.messageTemplate.delete({ where: { id } });

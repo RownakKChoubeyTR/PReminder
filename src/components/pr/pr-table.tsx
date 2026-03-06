@@ -5,8 +5,8 @@ import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { usePulls } from '@/hooks/use-pulls';
 import type { GitHubPullRequest } from '@/types/github';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StatusBadge } from './status-badge';
 import styles from './pr-table.module.scss';
+import { StatusBadge } from './status-badge';
 
 // ─────────────────────────────────────────────────────────────
 // PR Table — Sortable list of open pull requests
@@ -42,7 +42,8 @@ function getContrastColor(hex: string): string {
 }
 
 export function PRTable() {
-  const { selectedRepo, selectedPR, selectPR, prSearch, setPrSearch, prPage, setPrPage } = useDashboardStore();
+  const { selectedRepo, selectedPR, selectPR, prSearch, setPrSearch, prPage, setPrPage } =
+    useDashboardStore();
 
   const debouncedSearch = useDebouncedValue(prSearch, 600);
   const isTyping = prSearch.length >= 3 && prSearch !== debouncedSearch;
@@ -117,7 +118,16 @@ export function PRTable() {
   if (!selectedRepo) {
     return (
       <div className={styles.empty}>
-        <svg className={styles.emptyIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          className={styles.emptyIcon}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
           <path d="M9 18c-4.51 2-5-2-7-2" />
         </svg>
@@ -155,7 +165,16 @@ export function PRTable() {
   if (pulls.length === 0 && !isServerSearch) {
     return (
       <div className={styles.empty}>
-        <svg className={styles.emptyIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          className={styles.emptyIcon}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <circle cx="12" cy="12" r="10" />
           <path d="m9 12 2 2 4-4" />
         </svg>
@@ -172,7 +191,16 @@ export function PRTable() {
       {/* Toolbar */}
       <div className={styles.toolbar}>
         <div className={styles.searchWrapper}>
-          <svg className={styles.searchIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg
+            className={styles.searchIcon}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.3-4.3" />
           </svg>
@@ -200,7 +228,17 @@ export function PRTable() {
               aria-haspopup="listbox"
               aria-label="Sort pull requests"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
                 <path d="m3 16 4 4 4-4" />
                 <path d="M7 20V4" />
                 <path d="m21 8-4-4-4 4" />
@@ -222,7 +260,9 @@ export function PRTable() {
                     >
                       <span>{opt.label}</span>
                       {sortField === opt.value && (
-                        <span className={styles.sortDirIndicator}>{sortDir === 'asc' ? '\u2191 Asc' : '\u2193 Desc'}</span>
+                        <span className={styles.sortDirIndicator}>
+                          {sortDir === 'asc' ? '\u2191 Asc' : '\u2193 Desc'}
+                        </span>
                       )}
                     </button>
                   </li>

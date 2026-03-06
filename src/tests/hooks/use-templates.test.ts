@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, waitFor, act } from '@testing-library/react';
-import { createQueryWrapper } from '@/tests/test-utils';
 import {
-  useTemplates,
   useCreateTemplate,
-  useUpdateTemplate,
   useDeleteTemplate,
+  useTemplates,
+  useUpdateTemplate,
 } from '@/hooks/use-templates';
+import { createQueryWrapper } from '@/tests/test-utils';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: useTemplates hooks

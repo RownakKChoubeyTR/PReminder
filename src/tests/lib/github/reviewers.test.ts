@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Reviewers Route — computeReviewerStatuses logic tests
@@ -132,9 +132,7 @@ describe('computeReviewerStatuses', () => {
   });
 
   it('should show pending when only PENDING reviews exist', () => {
-    const reviews = [
-      makeReview('dave', 'PENDING', '2025-01-01T00:00:00Z'),
-    ];
+    const reviews = [makeReview('dave', 'PENDING', '2025-01-01T00:00:00Z')];
 
     const result = computeReviewerStatuses(reviews);
     expect(result).toHaveLength(1);
@@ -142,9 +140,7 @@ describe('computeReviewerStatuses', () => {
   });
 
   it('should show pending when DISMISSED', () => {
-    const reviews = [
-      makeReview('eve', 'DISMISSED', '2025-01-01T00:00:00Z'),
-    ];
+    const reviews = [makeReview('eve', 'DISMISSED', '2025-01-01T00:00:00Z')];
 
     const result = computeReviewerStatuses(reviews);
     expect(result).toHaveLength(1);

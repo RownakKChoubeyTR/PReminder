@@ -108,11 +108,7 @@ async function getPage<T>(
 }
 
 /** Fetch ALL pages (for small, bounded datasets like reviews). */
-async function getAll<T>(
-  path: string,
-  token: string,
-  maxPages = 5,
-): Promise<T[]> {
+async function getAll<T>(path: string, token: string, maxPages = 5): Promise<T[]> {
   const items: T[] = [];
   let page = 1;
   let hasMore = true;
@@ -330,9 +326,7 @@ export async function searchRepoPullsByQuery(
   page = 1,
   perPage = DEFAULT_PER_PAGE,
 ): Promise<PaginatedResponse<GitHubPullRequest>> {
-  const q = encodeURIComponent(
-    `${query} is:pr is:open repo:${env.GITHUB_ORG}/${repo} in:title`,
-  );
+  const q = encodeURIComponent(`${query} is:pr is:open repo:${env.GITHUB_ORG}/${repo} in:title`);
   const result = await get<SearchResponse<SearchIssueItem>>(
     `/search/issues?q=${q}&sort=updated&order=desc&per_page=${perPage}&page=${page}`,
     token,
@@ -403,7 +397,10 @@ function logRateLimit(headers: Headers): void {
   const remaining = headers.get('x-ratelimit-remaining');
   const limit = headers.get('x-ratelimit-limit');
   if (remaining && limit) {
-    log.debug('GitHub rate limit', { remaining: parseInt(remaining, 10), limit: parseInt(limit, 10) });
+    log.debug('GitHub rate limit', {
+      remaining: parseInt(remaining, 10),
+      limit: parseInt(limit, 10),
+    });
   }
 }
 
@@ -419,8 +416,7 @@ export class GitHubApiError extends Error {
   }
 }
 
-export const SAML_HELP_URL =
-  `https://github.com/settings/connections/applications/${env.GITHUB_CLIENT_ID}`;
+export const SAML_HELP_URL = `https://github.com/settings/connections/applications/${env.GITHUB_CLIENT_ID}`;
 
 export const SAML_NOTICE =
   'Your org requires SAML SSO authorization for this app. ' +

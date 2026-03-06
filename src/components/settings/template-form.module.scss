@@ -67,7 +67,9 @@
   border-radius: $radius-md;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
-  transition: border-color $transition-fast, box-shadow $transition-fast;
+  transition:
+    border-color $transition-fast,
+    box-shadow $transition-fast;
 
   &::placeholder {
     color: var(--color-text-muted);
@@ -100,7 +102,9 @@
   resize: vertical;
   min-height: 120px;
   line-height: $line-height-relaxed;
-  transition: border-color $transition-fast, box-shadow $transition-fast;
+  transition:
+    border-color $transition-fast,
+    box-shadow $transition-fast;
 
   &::placeholder {
     color: var(--color-text-muted);

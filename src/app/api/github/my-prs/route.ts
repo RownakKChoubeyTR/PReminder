@@ -1,11 +1,6 @@
 import { authenticateUser } from '@/lib/auth-utils';
 import { cacheKey, githubCache } from '@/lib/cache';
-import {
-  isSamlError,
-  listUserPRs,
-  SAML_HELP_URL,
-  SAML_NOTICE,
-} from '@/lib/github/client';
+import { isSamlError, listUserPRs, SAML_HELP_URL, SAML_NOTICE } from '@/lib/github/client';
 import { createLogger } from '@/lib/logger';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';

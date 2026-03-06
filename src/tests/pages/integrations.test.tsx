@@ -1,6 +1,6 @@
-﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+﻿import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Mocks ───────────────────────────────────────────────────
 
@@ -18,19 +18,19 @@ vi.mock('@/hooks/use-email-mappings', () => ({
   useDeleteEmailMapping: vi.fn(),
 }));
 
+import IntegrationsPage from '@/app/dashboard/settings/integrations/page';
 import {
-  useIntegrations,
-  useCreateIntegration,
-  useDeleteIntegration,
-  useUpdateIntegration,
-  useTestIntegration,
-} from '@/hooks/use-integrations';
-import {
-  useEmailMappings,
   useCreateEmailMapping,
   useDeleteEmailMapping,
+  useEmailMappings,
 } from '@/hooks/use-email-mappings';
-import IntegrationsPage from '@/app/dashboard/settings/integrations/page';
+import {
+  useCreateIntegration,
+  useDeleteIntegration,
+  useIntegrations,
+  useTestIntegration,
+  useUpdateIntegration,
+} from '@/hooks/use-integrations';
 
 function wrapper({ children }: { children: React.ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -134,8 +134,20 @@ describe('IntegrationsPage', () => {
     vi.mocked(useIntegrations).mockReturnValue({
       data: {
         data: [
-          { id: 'i1', type: 'POWER_AUTOMATE_DM', label: 'My Flow', isActive: true, updatedAt: '2024-01-15T10:00:00.000Z' },
-          { id: 'i2', type: 'TEAMS_WEBHOOK', label: 'Channel Hook', isActive: false, updatedAt: '2024-01-15T10:00:00.000Z' },
+          {
+            id: 'i1',
+            type: 'POWER_AUTOMATE_DM',
+            label: 'My Flow',
+            isActive: true,
+            updatedAt: '2024-01-15T10:00:00.000Z',
+          },
+          {
+            id: 'i2',
+            type: 'TEAMS_WEBHOOK',
+            label: 'Channel Hook',
+            isActive: false,
+            updatedAt: '2024-01-15T10:00:00.000Z',
+          },
         ],
       },
       isLoading: false,
@@ -173,7 +185,15 @@ describe('IntegrationsPage', () => {
   it('deletes an integration', () => {
     vi.mocked(useIntegrations).mockReturnValue({
       data: {
-        data: [{ id: 'i1', type: 'POWER_AUTOMATE_DM', label: 'My Flow', isActive: true, updatedAt: '2024-01-15T10:00:00.000Z' }],
+        data: [
+          {
+            id: 'i1',
+            type: 'POWER_AUTOMATE_DM',
+            label: 'My Flow',
+            isActive: true,
+            updatedAt: '2024-01-15T10:00:00.000Z',
+          },
+        ],
       },
       isLoading: false,
       error: null,
@@ -186,7 +206,15 @@ describe('IntegrationsPage', () => {
   it('toggles integration active status', () => {
     vi.mocked(useIntegrations).mockReturnValue({
       data: {
-        data: [{ id: 'i1', type: 'POWER_AUTOMATE_DM', label: 'My Flow', isActive: true, updatedAt: '2024-01-15T10:00:00.000Z' }],
+        data: [
+          {
+            id: 'i1',
+            type: 'POWER_AUTOMATE_DM',
+            label: 'My Flow',
+            isActive: true,
+            updatedAt: '2024-01-15T10:00:00.000Z',
+          },
+        ],
       },
       isLoading: false,
       error: null,
@@ -200,7 +228,15 @@ describe('IntegrationsPage', () => {
     testMutateAsync.mockResolvedValue({ success: true });
     vi.mocked(useIntegrations).mockReturnValue({
       data: {
-        data: [{ id: 'i1', type: 'POWER_AUTOMATE_DM', label: 'My Flow', isActive: true, updatedAt: '2024-01-15T10:00:00.000Z' }],
+        data: [
+          {
+            id: 'i1',
+            type: 'POWER_AUTOMATE_DM',
+            label: 'My Flow',
+            isActive: true,
+            updatedAt: '2024-01-15T10:00:00.000Z',
+          },
+        ],
       },
       isLoading: false,
       error: null,
@@ -224,7 +260,13 @@ describe('IntegrationsPage', () => {
     vi.mocked(useEmailMappings).mockReturnValue({
       data: {
         data: [
-          { id: 'm1', githubUsername: 'alice', email: 'alice@corp.com', displayName: 'Alice', source: 'MANUAL' },
+          {
+            id: 'm1',
+            githubUsername: 'alice',
+            email: 'alice@corp.com',
+            displayName: 'Alice',
+            source: 'MANUAL',
+          },
         ],
       },
       isLoading: false,
@@ -244,7 +286,9 @@ describe('IntegrationsPage', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Email Mappings' }));
 
     fireEvent.change(screen.getByLabelText('GitHub Username'), { target: { value: 'bob' } });
-    fireEvent.change(screen.getByLabelText('Corporate Email'), { target: { value: 'bob@corp.com' } });
+    fireEvent.change(screen.getByLabelText('Corporate Email'), {
+      target: { value: 'bob@corp.com' },
+    });
     fireEvent.submit(screen.getByText('Add Mapping').closest('form')!);
 
     await waitFor(() => {
@@ -260,7 +304,13 @@ describe('IntegrationsPage', () => {
     vi.mocked(useEmailMappings).mockReturnValue({
       data: {
         data: [
-          { id: 'm1', githubUsername: 'alice', email: 'alice@corp.com', displayName: null, source: 'MANUAL' },
+          {
+            id: 'm1',
+            githubUsername: 'alice',
+            email: 'alice@corp.com',
+            displayName: null,
+            source: 'MANUAL',
+          },
         ],
       },
       isLoading: false,
@@ -276,7 +326,13 @@ describe('IntegrationsPage', () => {
     vi.mocked(useEmailMappings).mockReturnValue({
       data: {
         data: [
-          { id: 'm1', githubUsername: 'alice', email: 'alice@corp.com', displayName: null, source: 'GITHUB_PROFILE' },
+          {
+            id: 'm1',
+            githubUsername: 'alice',
+            email: 'alice@corp.com',
+            displayName: null,
+            source: 'GITHUB_PROFILE',
+          },
         ],
       },
       isLoading: false,

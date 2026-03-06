@@ -1,9 +1,9 @@
 import { authenticateUser } from '@/lib/auth-utils';
 import { decrypt } from '@/lib/db/encryption';
+import { prisma } from '@/lib/db/prisma';
 import { resolveRecipientEmail } from '@/lib/email/resolve';
 import { createLogger } from '@/lib/logger';
-import { prisma } from '@/lib/db/prisma';
-import { sendTeamsDM, sendTeamsChannelMessage } from '@/lib/teams/power-automate';
+import { sendTeamsChannelMessage, sendTeamsDM } from '@/lib/teams/power-automate';
 import { renderTemplate } from '@/lib/templates/engine';
 import type { ReminderChannel, SingleReminderResult } from '@/types/reminders';
 import type { TemplateContext } from '@/types/templates';
@@ -21,7 +21,10 @@ const log = createLogger('api/reminders/send');
 const MAX_RECIPIENTS = 50; // Hard cap
 
 const sendReminderSchema = z.object({
-  recipients: z.array(z.string().min(1)).min(1, 'At least one recipient is required').max(MAX_RECIPIENTS),
+  recipients: z
+    .array(z.string().min(1))
+    .min(1, 'At least one recipient is required')
+    .max(MAX_RECIPIENTS),
   pr: z.object({
     number: z.number().int().positive(),
     title: z.string().min(1),
@@ -46,10 +49,7 @@ export async function POST(request: NextRequest) {
   try {
     rawBody = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: 'Invalid JSON body', code: 'INVALID_BODY' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Invalid JSON body', code: 'INVALID_BODY' }, { status: 400 });
   }
 
   const parsed = sendReminderSchema.safeParse(rawBody);
@@ -129,18 +129,39 @@ export async function POST(request: NextRequest) {
         // Fail early if webhook not configured
         if (channel === 'TEAMS_DM' && !dmWebhookUrl) {
           const result: SingleReminderResult = {
-            login, channel, status: 'FAILED',
-            error: 'No Teams DM webhook configured — add your Power Automate URL in Settings → Integrations',
+            login,
+            channel,
+            status: 'FAILED',
+            error:
+              'No Teams DM webhook configured — add your Power Automate URL in Settings → Integrations',
           };
-          await logReminder(user.id, login, resolution.email, pr, 'TEAMS_DM_POWER_AUTOMATE', templateId, result);
+          await logReminder(
+            user.id,
+            login,
+            resolution.email,
+            pr,
+            'TEAMS_DM_POWER_AUTOMATE',
+            templateId,
+            result,
+          );
           return result;
         }
         if (channel === 'TEAMS_CHANNEL' && !channelWebhookUrl) {
           const result: SingleReminderResult = {
-            login, channel, status: 'FAILED',
+            login,
+            channel,
+            status: 'FAILED',
             error: 'No Teams channel webhook configured — add one in Settings → Integrations',
           };
-          await logReminder(user.id, login, resolution.email, pr, 'TEAMS_CHANNEL_WEBHOOK', templateId, result);
+          await logReminder(
+            user.id,
+            login,
+            resolution.email,
+            pr,
+            'TEAMS_CHANNEL_WEBHOOK',
+            templateId,
+            result,
+          );
           return result;
         }
 
@@ -156,9 +177,10 @@ export async function POST(request: NextRequest) {
                 status: 'FAILED',
                 requiresEmailMapping: true,
                 displayName: resolution.displayName,
-                error: resolution.source === null
-                  ? (resolution as { reason: string }).reason
-                  : 'No email mapping found — add one in Settings → Email Mappings',
+                error:
+                  resolution.source === null
+                    ? (resolution as { reason: string }).reason
+                    : 'No email mapping found — add one in Settings → Email Mappings',
               };
             } else {
               const renderedSubject = renderTemplate(
@@ -171,7 +193,11 @@ export async function POST(request: NextRequest) {
                 subject: renderedSubject,
               });
               if (!dmResult.success) {
-                log.warn('PA DM delivery failed', { login, statusCode: dmResult.statusCode, error: dmResult.error });
+                log.warn('PA DM delivery failed', {
+                  login,
+                  statusCode: dmResult.statusCode,
+                  error: dmResult.error,
+                });
               }
               result = {
                 login,
@@ -192,7 +218,11 @@ export async function POST(request: NextRequest) {
               pr.url,
             );
             if (!channelResult.success) {
-              log.warn('Teams channel delivery failed', { login, statusCode: channelResult.statusCode, error: channelResult.error });
+              log.warn('Teams channel delivery failed', {
+                login,
+                statusCode: channelResult.statusCode,
+                error: channelResult.error,
+              });
             }
             result = {
               login,
@@ -218,9 +248,16 @@ export async function POST(request: NextRequest) {
           TEAMS_DM: 'TEAMS_DM_POWER_AUTOMATE',
           TEAMS_CHANNEL: 'TEAMS_CHANNEL_WEBHOOK',
         };
-        await logReminder(user.id, login, resolution.email, pr, methodMap[effectiveChannel], templateId, result);
+        await logReminder(
+          user.id,
+          login,
+          resolution.email,
+          pr,
+          methodMap[effectiveChannel],
+          templateId,
+          result,
+        );
         return result;
-
       } catch (err) {
         log.error('Failed to process reminder', err, { login, channel });
         return { login, channel, status: 'FAILED', error: 'Internal error processing reminder' };

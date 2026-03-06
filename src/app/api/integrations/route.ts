@@ -3,9 +3,9 @@ import { decrypt, encrypt } from '@/lib/db/encryption';
 import { prisma } from '@/lib/db/prisma';
 import { createLogger } from '@/lib/logger';
 import { isAllowedWebhookUrl } from '@/lib/teams/power-automate';
-import https from 'node:https';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import https from 'node:https';
 import { z } from 'zod';
 
 const log = createLogger('api/integrations');
@@ -61,16 +61,17 @@ export async function POST(request: NextRequest) {
   try {
     rawBody = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: 'Invalid JSON body', code: 'INVALID_BODY' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Invalid JSON body', code: 'INVALID_BODY' }, { status: 400 });
   }
 
   const parsed = createSchema.safeParse(rawBody);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Validation failed', code: 'VALIDATION_ERROR', details: parsed.error.flatten().fieldErrors },
+      {
+        error: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+        details: parsed.error.flatten().fieldErrors,
+      },
       { status: 400 },
     );
   }
@@ -105,7 +106,10 @@ export async function PUT(request: NextRequest) {
 
   const id = request.nextUrl.searchParams.get('id');
   if (!id) {
-    return NextResponse.json({ error: 'Missing id parameter', code: 'MISSING_ID' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Missing id parameter', code: 'MISSING_ID' },
+      { status: 400 },
+    );
   }
 
   const existing = await prisma.integrationConfig.findUnique({ where: { id } });
@@ -123,7 +127,11 @@ export async function PUT(request: NextRequest) {
   const parsed = updateSchema.safeParse(rawBody);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Validation failed', code: 'VALIDATION_ERROR', details: parsed.error.flatten().fieldErrors },
+      {
+        error: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+        details: parsed.error.flatten().fieldErrors,
+      },
       { status: 400 },
     );
   }
@@ -157,7 +165,10 @@ export async function DELETE(request: NextRequest) {
 
   const id = request.nextUrl.searchParams.get('id');
   if (!id) {
-    return NextResponse.json({ error: 'Missing id parameter', code: 'MISSING_ID' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Missing id parameter', code: 'MISSING_ID' },
+      { status: 400 },
+    );
   }
 
   const existing = await prisma.integrationConfig.findUnique({ where: { id } });
@@ -193,7 +204,8 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({
       success: false,
       statusCode: 0,
-      error: 'Stored webhook URL could not be decrypted — the encryption key may have changed. Please re-save the integration.',
+      error:
+        'Stored webhook URL could not be decrypted — the encryption key may have changed. Please re-save the integration.',
     });
   }
 
@@ -221,19 +233,30 @@ export async function PATCH(request: NextRequest) {
 
     if (!res.ok && res.status !== 202) {
       const body = await res.text().catch(() => '(empty)');
-      log.warn('Test webhook returned non-success status', { id, type: config.type, status: res.status, responseBody: body.slice(0, 500) });
+      log.warn('Test webhook returned non-success status', {
+        id,
+        type: config.type,
+        status: res.status,
+        responseBody: body.slice(0, 500),
+      });
     }
 
     return NextResponse.json({
       success: res.ok || res.status === 202,
       statusCode: res.status,
-      ...((!res.ok && res.status !== 202) && {
-        error: classifyHttpError(res.status, config.type),
-      }),
+      ...(!res.ok &&
+        res.status !== 202 && {
+          error: classifyHttpError(res.status, config.type),
+        }),
     });
   } catch (err) {
     const detail = classifyFetchError(err);
-    log.error('Webhook connectivity test failed', err, { id, type: config.type, errorType: detail.errorType, hint: detail.hint });
+    log.error('Webhook connectivity test failed', err, {
+      id,
+      type: config.type,
+      errorType: detail.errorType,
+      hint: detail.hint,
+    });
 
     return NextResponse.json({
       success: false,
@@ -320,14 +343,20 @@ function classifyFetchError(err: unknown): {
 
   // Node.js undici-based fetch wraps the real error in err.cause.
   // Unwrap it so we can classify the actual underlying failure.
-  const rootCause = (err.cause instanceof Error) ? err.cause : err;
+  const rootCause = err.cause instanceof Error ? err.cause : err;
   const msg = rootCause.message.toLowerCase();
   const name = rootCause.name.toLowerCase();
   // Also check the top-level message for timeout indicators
   const topMsg = err.message.toLowerCase();
 
   // Timeout (AbortSignal.timeout or AbortError)
-  if (name === 'timeouterror' || name === 'aborterror' || msg.includes('timed out') || msg.includes('timeout') || topMsg.includes('timeout')) {
+  if (
+    name === 'timeouterror' ||
+    name === 'aborterror' ||
+    msg.includes('timed out') ||
+    msg.includes('timeout') ||
+    topMsg.includes('timeout')
+  ) {
     return {
       message: 'Connection timed out after 10 seconds',
       errorType: 'timeout',
@@ -354,7 +383,11 @@ function classifyFetchError(err: unknown): {
   }
 
   // Connection reset
-  if (msg.includes('econnreset') || msg.includes('connection reset') || msg.includes('other side closed')) {
+  if (
+    msg.includes('econnreset') ||
+    msg.includes('connection reset') ||
+    msg.includes('other side closed')
+  ) {
     return {
       message: 'Connection reset by the remote server',
       errorType: 'connection_reset',
@@ -363,7 +396,14 @@ function classifyFetchError(err: unknown): {
   }
 
   // SSL/TLS errors
-  if (msg.includes('ssl') || msg.includes('tls') || msg.includes('cert') || msg.includes('unable to verify') || msg.includes('self-signed') || msg.includes('self_signed')) {
+  if (
+    msg.includes('ssl') ||
+    msg.includes('tls') ||
+    msg.includes('cert') ||
+    msg.includes('unable to verify') ||
+    msg.includes('self-signed') ||
+    msg.includes('self_signed')
+  ) {
     return {
       message: 'SSL/TLS error — could not establish a secure connection',
       errorType: 'ssl',
@@ -381,9 +421,8 @@ function classifyFetchError(err: unknown): {
   }
 
   // Build a useful message from the deepest cause
-  const causeMsg = (err.cause instanceof Error)
-    ? `${rootCause.name}: ${rootCause.message}`
-    : err.message;
+  const causeMsg =
+    err.cause instanceof Error ? `${rootCause.name}: ${rootCause.message}` : err.message;
 
   return {
     message: `Connection failed: ${causeMsg}`,

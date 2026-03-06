@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Mocks ───────────────────────────────────────────────────
 
@@ -39,10 +39,10 @@ vi.mock('@/components/pr/reviewer-list', () => ({
   ReviewerList: () => <div data-testid="reviewer-list" />,
 }));
 
+import { PRDetailModal } from '@/components/pr/pr-detail-modal';
 import { useDashboardStore } from '@/hooks/use-dashboard-store';
 import { usePulls } from '@/hooks/use-pulls';
 import { useReminderStore } from '@/hooks/use-reminder-store';
-import { PRDetailModal } from '@/components/pr/pr-detail-modal';
 
 const pr = {
   id: 1,
@@ -55,9 +55,7 @@ const pr = {
   created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
   updated_at: new Date().toISOString(),
   user: { id: 1, login: 'alice', avatar_url: 'https://avatar.com/alice.png', type: 'User' },
-  requested_reviewers: [
-    { id: 2, login: 'bob', avatar_url: 'https://avatar.com/bob.png' },
-  ],
+  requested_reviewers: [{ id: 2, login: 'bob', avatar_url: 'https://avatar.com/bob.png' }],
   requested_teams: [{ id: 10, name: 'frontend', slug: 'frontend' }],
   labels: [{ id: 100, name: 'bug', color: 'ff0000' }],
   head: { ref: 'feature/login', sha: 'abc123' },
@@ -234,7 +232,10 @@ describe('PRDetailModal', () => {
     vi.mocked(usePulls).mockReturnValue({
       data: {
         data: [{ ...pr, user: { ...pr.user, type: 'Bot' } }],
-        page: 1, perPage: 30, hasNextPage: false, total: 1,
+        page: 1,
+        perPage: 30,
+        hasNextPage: false,
+        total: 1,
       },
     } as never);
     render(<PRDetailModal />, { wrapper });

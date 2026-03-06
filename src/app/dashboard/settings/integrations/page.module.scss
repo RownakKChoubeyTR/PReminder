@@ -40,7 +40,9 @@
   border: none;
   border-bottom: 2px solid transparent;
   cursor: pointer;
-  transition: color $transition-fast, border-color $transition-fast;
+  transition:
+    color $transition-fast,
+    border-color $transition-fast;
 
   &:hover {
     color: var(--color-text-primary);
@@ -254,8 +256,13 @@
   border-radius: $radius-md;
   white-space: nowrap;
 
-  &:hover:not(:disabled) { opacity: 0.9; }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .cancelButton {
@@ -269,7 +276,9 @@
   border-radius: $radius-md;
   white-space: nowrap;
 
-  &:hover { background: var(--color-bg-secondary); }
+  &:hover {
+    background: var(--color-bg-secondary);
+  }
 }
 
 // ── Timestamp ────────────────────────────────────────────

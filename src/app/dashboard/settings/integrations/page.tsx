@@ -1,19 +1,19 @@
 'use client';
 
+import type { EmailMapping } from '@/hooks/use-email-mappings';
 import {
-  useIntegrations,
-  useCreateIntegration,
-  useDeleteIntegration,
-  useUpdateIntegration,
-  useTestIntegration,
-} from '@/hooks/use-integrations';
-import {
-  useEmailMappings,
   useCreateEmailMapping,
   useDeleteEmailMapping,
+  useEmailMappings,
 } from '@/hooks/use-email-mappings';
 import type { IntegrationConfig } from '@/hooks/use-integrations';
-import type { EmailMapping } from '@/hooks/use-email-mappings';
+import {
+  useCreateIntegration,
+  useDeleteIntegration,
+  useIntegrations,
+  useTestIntegration,
+  useUpdateIntegration,
+} from '@/hooks/use-integrations';
 import { useCallback, useState } from 'react';
 import styles from './page.module.scss';
 
@@ -103,31 +103,45 @@ function IntegrationsSection() {
   const allTypesTaken = availableTypes.length === 0;
 
   // When available types change, ensure the selected type is always available
-  const effectiveType = availableTypes.includes(type)
-    ? type
-    : (availableTypes[0] ?? type);
+  const effectiveType = availableTypes.includes(type) ? type : (availableTypes[0] ?? type);
 
-  const handleAdd = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!label.trim() || !value.trim()) return;
-    await createMutation.mutateAsync({ type: effectiveType, label: label.trim(), value: value.trim() });
-    setLabel('');
-    setValue('');
-  }, [effectiveType, label, value, createMutation]);
+  const handleAdd = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!label.trim() || !value.trim()) return;
+      await createMutation.mutateAsync({
+        type: effectiveType,
+        label: label.trim(),
+        value: value.trim(),
+      });
+      setLabel('');
+      setValue('');
+    },
+    [effectiveType, label, value, createMutation],
+  );
 
-  const handleDelete = useCallback((id: string) => {
-    deleteMutation.mutate(id);
-  }, [deleteMutation]);
+  const handleDelete = useCallback(
+    (id: string) => {
+      deleteMutation.mutate(id);
+    },
+    [deleteMutation],
+  );
 
-  const handleToggle = useCallback((config: IntegrationConfig) => {
-    updateMutation.mutate({ id: config.id, input: { isActive: !config.isActive } });
-  }, [updateMutation]);
+  const handleToggle = useCallback(
+    (config: IntegrationConfig) => {
+      updateMutation.mutate({ id: config.id, input: { isActive: !config.isActive } });
+    },
+    [updateMutation],
+  );
 
-  const handleTest = useCallback(async (id: string) => {
-    const result = await testMutation.mutateAsync(id);
-    setTestResult({ id, success: result.success });
-    setTimeout(() => setTestResult(null), 5000);
-  }, [testMutation]);
+  const handleTest = useCallback(
+    async (id: string) => {
+      const result = await testMutation.mutateAsync(id);
+      setTestResult({ id, success: result.success });
+      setTimeout(() => setTestResult(null), 5000);
+    },
+    [testMutation],
+  );
 
   const handleStartEdit = useCallback((config: IntegrationConfig) => {
     setEditingId(config.id);
@@ -135,14 +149,17 @@ function IntegrationsSection() {
     setEditValue(''); // URL is encrypted and not returned by API; user must re-enter to change
   }, []);
 
-  const handleSaveEdit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingId || !editLabel.trim()) return;
-    const input: { label?: string; value?: string } = { label: editLabel.trim() };
-    if (editValue.trim()) input.value = editValue.trim();
-    await updateMutation.mutateAsync({ id: editingId, input });
-    setEditingId(null);
-  }, [editingId, editLabel, editValue, updateMutation]);
+  const handleSaveEdit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editingId || !editLabel.trim()) return;
+      const input: { label?: string; value?: string } = { label: editLabel.trim() };
+      if (editValue.trim()) input.value = editValue.trim();
+      await updateMutation.mutateAsync({ id: editingId, input });
+      setEditingId(null);
+    },
+    [editingId, editLabel, editValue, updateMutation],
+  );
 
   const handleCancelEdit = useCallback(() => {
     setEditingId(null);
@@ -157,15 +174,29 @@ function IntegrationsSection() {
         One integration per type. URLs are stored encrypted (AES-256-GCM).
       </p>
 
-      {error && <div className={styles.error} role="alert">{error.message}</div>}
-      {createMutation.error && <div className={styles.error} role="alert">{createMutation.error.message}</div>}
-      {updateMutation.error && <div className={styles.error} role="alert">{updateMutation.error.message}</div>}
+      {error && (
+        <div className={styles.error} role="alert">
+          {error.message}
+        </div>
+      )}
+      {createMutation.error && (
+        <div className={styles.error} role="alert">
+          {createMutation.error.message}
+        </div>
+      )}
+      {updateMutation.error && (
+        <div className={styles.error} role="alert">
+          {updateMutation.error.message}
+        </div>
+      )}
 
       {/* Add form — only shown when at least one type slot is still free */}
       {!allTypesTaken && (
         <form className={styles.form} onSubmit={handleAdd}>
           <div className={styles.field}>
-            <label className={styles.label} htmlFor="int-type">Type</label>
+            <label className={styles.label} htmlFor="int-type">
+              Type
+            </label>
             <select
               id="int-type"
               className={styles.select}
@@ -173,13 +204,17 @@ function IntegrationsSection() {
               onChange={(e) => setType(e.target.value as IntegrationConfig['type'])}
             >
               {availableTypes.map((t) => (
-                <option key={t} value={t}>{TYPE_LABELS[t]}</option>
+                <option key={t} value={t}>
+                  {TYPE_LABELS[t]}
+                </option>
               ))}
             </select>
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label} htmlFor="int-label">Label</label>
+            <label className={styles.label} htmlFor="int-label">
+              Label
+            </label>
             <input
               id="int-label"
               className={styles.input}
@@ -191,7 +226,9 @@ function IntegrationsSection() {
           </div>
 
           <div className={styles.field} style={{ flex: 2 }}>
-            <label className={styles.label} htmlFor="int-value">Webhook URL</label>
+            <label className={styles.label} htmlFor="int-value">
+              Webhook URL
+            </label>
             <input
               id="int-value"
               className={styles.input}
@@ -233,7 +270,7 @@ function IntegrationsSection() {
             </tr>
           </thead>
           <tbody>
-            {configs.map((config) => (
+            {configs.map((config) =>
               editingId === config.id ? (
                 /* ── Inline edit row ── */
                 <tr key={config.id} className={styles.editRow}>
@@ -289,7 +326,9 @@ function IntegrationsSection() {
                   <td>{TYPE_LABELS[config.type]}</td>
                   <td>{config.label}</td>
                   <td>
-                    <span className={`${styles.badge} ${config.isActive ? styles.badgeActive : styles.badgeInactive}`}>
+                    <span
+                      className={`${styles.badge} ${config.isActive ? styles.badgeActive : styles.badgeInactive}`}
+                    >
                       {config.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
@@ -300,7 +339,9 @@ function IntegrationsSection() {
                     <div className={styles.actionsCell}>
                       <button
                         type="button"
-                        className={styles.toggleSwitch + (config.isActive ? ` ${styles.toggleActive}` : '')}
+                        className={
+                          styles.toggleSwitch + (config.isActive ? ` ${styles.toggleActive}` : '')
+                        }
                         onClick={() => handleToggle(config)}
                         aria-label={config.isActive ? 'Deactivate' : 'Activate'}
                         title={config.isActive ? 'Deactivate' : 'Activate'}
@@ -312,7 +353,14 @@ function IntegrationsSection() {
                         aria-label={`Edit ${config.label}`}
                         title="Edit"
                       >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                         </svg>
@@ -326,9 +374,20 @@ function IntegrationsSection() {
                         title="Test connection"
                       >
                         {testResult?.id === config.id ? (
-                          testResult.success ? '✓' : '✗'
+                          testResult.success ? (
+                            '✓'
+                          ) : (
+                            '✗'
+                          )
                         ) : (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
                             <path d="m22 2-7 20-4-9-9-4z" />
                           </svg>
                         )}
@@ -340,16 +399,24 @@ function IntegrationsSection() {
                         aria-label={`Delete ${config.label}`}
                         title="Delete"
                       >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
                           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                         </svg>
                       </button>
                     </div>
                   </td>
                 </tr>
-              )
-            ))}
+              ),
+            )}
           </tbody>
         </table>
       )}
@@ -370,37 +437,53 @@ function EmailMappingsSection() {
 
   const mappings = data?.data ?? [];
 
-  const handleAdd = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!githubUsername.trim() || !email.trim()) return;
-    await createMutation.mutateAsync({
-      githubUsername: githubUsername.trim(),
-      email: email.trim(),
-      displayName: displayName.trim() || undefined,
-    });
-    setGithubUsername('');
-    setEmail('');
-    setDisplayName('');
-  }, [githubUsername, email, displayName, createMutation]);
+  const handleAdd = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!githubUsername.trim() || !email.trim()) return;
+      await createMutation.mutateAsync({
+        githubUsername: githubUsername.trim(),
+        email: email.trim(),
+        displayName: displayName.trim() || undefined,
+      });
+      setGithubUsername('');
+      setEmail('');
+      setDisplayName('');
+    },
+    [githubUsername, email, displayName, createMutation],
+  );
 
-  const handleDelete = useCallback((id: string) => {
-    deleteMutation.mutate(id);
-  }, [deleteMutation]);
+  const handleDelete = useCallback(
+    (id: string) => {
+      deleteMutation.mutate(id);
+    },
+    [deleteMutation],
+  );
 
   return (
     <section className={styles.section}>
       <h2 className={styles.sectionTitle}>Email Mappings</h2>
       <p className={styles.sectionDescription}>
-        Map GitHub usernames to corporate email addresses. Required for Teams DM and email reminders.
-        Emails discovered from GitHub profiles/commits are cached automatically.
+        Map GitHub usernames to corporate email addresses. Required for Teams DM and email
+        reminders. Emails discovered from GitHub profiles/commits are cached automatically.
       </p>
 
-      {error && <div className={styles.error} role="alert">{error.message}</div>}
-      {createMutation.error && <div className={styles.error} role="alert">{createMutation.error.message}</div>}
+      {error && (
+        <div className={styles.error} role="alert">
+          {error.message}
+        </div>
+      )}
+      {createMutation.error && (
+        <div className={styles.error} role="alert">
+          {createMutation.error.message}
+        </div>
+      )}
 
       <form className={styles.form} onSubmit={handleAdd}>
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="map-github">GitHub Username</label>
+          <label className={styles.label} htmlFor="map-github">
+            GitHub Username
+          </label>
           <input
             id="map-github"
             className={styles.input}
@@ -412,7 +495,9 @@ function EmailMappingsSection() {
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="map-email">Corporate Email</label>
+          <label className={styles.label} htmlFor="map-email">
+            Corporate Email
+          </label>
           <input
             id="map-email"
             className={styles.input}
@@ -425,7 +510,9 @@ function EmailMappingsSection() {
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="map-name">Display Name</label>
+          <label className={styles.label} htmlFor="map-name">
+            Display Name
+          </label>
           <input
             id="map-name"
             className={styles.input}
@@ -465,7 +552,9 @@ function EmailMappingsSection() {
                 <td>@{mapping.githubUsername}</td>
                 <td>{mapping.email}</td>
                 <td>{mapping.displayName ?? '—'}</td>
-                <td><span className={styles.sourceBadge}>{mapping.source}</span></td>
+                <td>
+                  <span className={styles.sourceBadge}>{mapping.source}</span>
+                </td>
                 <td>
                   <div className={styles.actionsCell}>
                     <button
@@ -474,8 +563,16 @@ function EmailMappingsSection() {
                       onClick={() => handleDelete(mapping.id)}
                       aria-label={`Delete mapping for ${mapping.githubUsername}`}
                     >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M3 6h18" />
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
                         <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                       </svg>
                     </button>

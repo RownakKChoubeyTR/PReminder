@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/components/pr/pr-table', () => ({
   PRTable: () => <div data-testid="pr-table" />,
@@ -13,8 +13,8 @@ vi.mock('@/hooks/use-dashboard-store', () => ({
   useDashboardStore: vi.fn(() => ({ selectedRepo: null })),
 }));
 
-import { useDashboardStore } from '@/hooks/use-dashboard-store';
 import DashboardPage from '@/app/dashboard/page';
+import { useDashboardStore } from '@/hooks/use-dashboard-store';
 
 describe('DashboardPage', () => {
   it('renders PR table and detail modal', () => {

@@ -121,9 +121,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       // Expose a server-only accessor for API routes
       session.accessToken = token.accessToken ?? '';
-      session.expiresAt = new Date(
-        ((token.expiresAt ?? 0)) * 1000,
-      ).toISOString();
+      session.expiresAt = new Date((token.expiresAt ?? 0) * 1000).toISOString();
 
       return session;
     },

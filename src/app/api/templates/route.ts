@@ -1,6 +1,6 @@
 import { authenticateUser } from '@/lib/auth-utils';
-import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/db/prisma';
+import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -48,10 +48,7 @@ export async function POST(request: Request) {
   try {
     rawBody = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: 'Invalid JSON body', code: 'INVALID_BODY' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Invalid JSON body', code: 'INVALID_BODY' }, { status: 400 });
   }
 
   const parsed = templateInputSchema.safeParse(rawBody);

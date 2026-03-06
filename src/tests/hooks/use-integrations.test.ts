@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, waitFor, act } from '@testing-library/react';
-import { createQueryWrapper } from '@/tests/test-utils';
 import {
-  useIntegrations,
   useCreateIntegration,
-  useUpdateIntegration,
   useDeleteIntegration,
+  useIntegrations,
   useTestIntegration,
+  useUpdateIntegration,
 } from '@/hooks/use-integrations';
+import { createQueryWrapper } from '@/tests/test-utils';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: useIntegrations hooks
@@ -27,9 +27,7 @@ afterEach(() => {
 describe('useIntegrations', () => {
   it('fetches all integration configs', async () => {
     const mockData = {
-      data: [
-        { id: '1', type: 'POWER_AUTOMATE_DM', label: 'My Flow', isActive: true },
-      ],
+      data: [{ id: '1', type: 'POWER_AUTOMATE_DM', label: 'My Flow', isActive: true }],
     };
     mockFetch.mockResolvedValueOnce({
       ok: true,

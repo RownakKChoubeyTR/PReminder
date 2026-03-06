@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import React from 'react';
 
 /**
  * Create a test wrapper with fresh QueryClient per test.

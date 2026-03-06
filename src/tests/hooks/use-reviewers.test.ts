@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { createQueryWrapper } from '@/tests/test-utils';
 import { useReviewers } from '@/hooks/use-reviewers';
+import { createQueryWrapper } from '@/tests/test-utils';
+import { renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: useReviewers hook
@@ -38,9 +38,7 @@ describe('useReviewers', () => {
 
   it('fetches reviewers for a valid repo and PR', async () => {
     const mockData = {
-      data: [
-        { login: 'alice', status: 'APPROVED', avatarUrl: 'https://example.com/alice.png' },
-      ],
+      data: [{ login: 'alice', status: 'APPROVED', avatarUrl: 'https://example.com/alice.png' }],
     };
     mockFetch.mockResolvedValueOnce({
       ok: true,

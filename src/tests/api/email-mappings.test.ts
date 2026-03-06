@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: /api/email-mappings routes
@@ -20,12 +20,17 @@ vi.mock('@/lib/db/prisma', () => ({
   },
 }));
 
+import { DELETE } from '@/app/api/email-mappings/[id]/route';
+import { GET, POST } from '@/app/api/email-mappings/route';
 import { authenticateUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db/prisma';
-import { GET, POST } from '@/app/api/email-mappings/route';
-import { DELETE } from '@/app/api/email-mappings/[id]/route';
 
-const mockUser = { id: 'user-1', githubLogin: 'testuser', email: 'test@corp.com', accessToken: 'gho_test' };
+const mockUser = {
+  id: 'user-1',
+  githubLogin: 'testuser',
+  email: 'test@corp.com',
+  accessToken: 'gho_test',
+};
 
 beforeEach(() => {
   vi.mocked(authenticateUser).mockResolvedValue({ user: mockUser });
@@ -38,7 +43,13 @@ beforeEach(() => {
 describe('GET /api/email-mappings', () => {
   it('returns user mappings', async () => {
     const mappings = [
-      { id: '1', githubUsername: 'alice', email: 'alice@corp.com', displayName: null, source: 'manual' },
+      {
+        id: '1',
+        githubUsername: 'alice',
+        email: 'alice@corp.com',
+        displayName: null,
+        source: 'manual',
+      },
     ];
     vi.mocked(prisma.emailMapping.findMany).mockResolvedValueOnce(mappings as never);
 
@@ -71,7 +82,11 @@ describe('POST /api/email-mappings', () => {
 
     const req = new NextRequest('http://localhost/api/email-mappings', {
       method: 'POST',
-      body: JSON.stringify({ githubUsername: 'alice', email: 'alice@corp.com', displayName: 'Alice' }),
+      body: JSON.stringify({
+        githubUsername: 'alice',
+        email: 'alice@corp.com',
+        displayName: 'Alice',
+      }),
       headers: { 'Content-Type': 'application/json' },
     });
 

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/templates/engine', () => ({
   renderTemplate: vi.fn((tpl: string) => tpl.replace(/\{(\w+)\}/g, 'SAMPLE')),

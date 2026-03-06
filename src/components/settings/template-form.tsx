@@ -2,7 +2,12 @@
 
 import { useCreateTemplate, useUpdateTemplate } from '@/hooks/use-templates';
 import { extractVariables, validateTemplate } from '@/lib/templates/engine';
-import type { MessageTemplate, TemplateInput, TemplateType, TemplateVariable } from '@/types/templates';
+import type {
+  MessageTemplate,
+  TemplateInput,
+  TemplateType,
+  TemplateVariable,
+} from '@/types/templates';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './template-form.module.scss';
 
@@ -40,7 +45,7 @@ const AVAILABLE_VARIABLES: { name: TemplateVariable; description: string }[] = [
   { name: 'targetBranch', description: 'Target branch' },
   { name: 'labelList', description: 'Comma-separated labels' },
   { name: 'prDescription', description: 'PR description excerpt' },
-  { name: 'currentDate', description: 'Today\'s date' },
+  { name: 'currentDate', description: "Today's date" },
   { name: 'currentTime', description: 'Current time' },
   { name: 'orgName', description: 'Organization name' },
 ];
@@ -123,10 +128,7 @@ export function TemplateForm({ template, onSaved, onCancel, onFormChange }: Temp
     };
 
     if (isEditing && template) {
-      updateMutation.mutate(
-        { id: template.id, input },
-        { onSuccess: onSaved },
-      );
+      updateMutation.mutate({ id: template.id, input }, { onSuccess: onSaved });
     } else {
       createMutation.mutate(input, { onSuccess: onSaved });
     }
@@ -137,9 +139,7 @@ export function TemplateForm({ template, onSaved, onCancel, onFormChange }: Temp
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
-      <h3 className={styles.formTitle}>
-        {isEditing ? 'Edit Template' : 'New Template'}
-      </h3>
+      <h3 className={styles.formTitle}>{isEditing ? 'Edit Template' : 'New Template'}</h3>
 
       {/* Error messages */}
       {(errors.length > 0 || mutationError) && (
@@ -153,7 +153,9 @@ export function TemplateForm({ template, onSaved, onCancel, onFormChange }: Temp
 
       {/* Name */}
       <div className={styles.field}>
-        <label htmlFor="template-name" className={styles.label}>Name</label>
+        <label htmlFor="template-name" className={styles.label}>
+          Name
+        </label>
         <input
           id="template-name"
           type="text"
@@ -168,7 +170,9 @@ export function TemplateForm({ template, onSaved, onCancel, onFormChange }: Temp
 
       {/* Type */}
       <div className={styles.field}>
-        <label htmlFor="template-type" className={styles.label}>Channel</label>
+        <label htmlFor="template-type" className={styles.label}>
+          Channel
+        </label>
         <select
           id="template-type"
           className={styles.select}
@@ -176,7 +180,9 @@ export function TemplateForm({ template, onSaved, onCancel, onFormChange }: Temp
           onChange={(e) => setType(e.target.value as TemplateType)}
         >
           {TEMPLATE_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>{t.label}</option>
+            <option key={t.value} value={t.value}>
+              {t.label}
+            </option>
           ))}
         </select>
       </div>
@@ -184,7 +190,9 @@ export function TemplateForm({ template, onSaved, onCancel, onFormChange }: Temp
       {/* Subject (email only) */}
       {type === 'EMAIL' && (
         <div className={styles.field}>
-          <label htmlFor="template-subject" className={styles.label}>Subject</label>
+          <label htmlFor="template-subject" className={styles.label}>
+            Subject
+          </label>
           <input
             id="template-subject"
             type="text"
@@ -257,11 +265,7 @@ export function TemplateForm({ template, onSaved, onCancel, onFormChange }: Temp
         >
           Cancel
         </button>
-        <button
-          type="submit"
-          className={styles.submitButton}
-          disabled={isPending}
-        >
+        <button type="submit" className={styles.submitButton} disabled={isPending}>
           {isPending ? 'Saving\u2026' : isEditing ? 'Update Template' : 'Create Template'}
         </button>
       </div>
