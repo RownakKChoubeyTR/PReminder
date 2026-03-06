@@ -1,0 +1,43 @@
+# ── Version control ───────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+
+# ── Build outputs (rebuilt inside Docker) ─────────────────────
+.next
+out
+dist
+build
+
+# ── Dependencies (reinstalled inside Docker) ──────────────────
+node_modules
+.pnpm-store
+
+# ── Environment files (injected at runtime via App Service config) ──
+.env
+.env.*
+
+# ── Test & coverage ───────────────────────────────────────────
+coverage
+*.lcov
+
+# ── Dev tooling ───────────────────────────────────────────────
+.claude
+.vscode
+.idea
+
+# ── Docker itself ─────────────────────────────────────────────
+docker/pgdata
+
+# ── OS noise ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ──────────────────────────────────────────────────────
+logs
+*.log
+
+# ── Docs (not needed at runtime) ──────────────────────────────
+*.md
+!prisma/schema.prisma
