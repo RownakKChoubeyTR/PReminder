@@ -1,23 +1,23 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { NextRequest } from 'next/server';
 import {
   AppError,
-  NotFoundError,
-  ValidationError,
-  UnauthorizedError,
-  ForbiddenError,
-  ConflictError,
-  UnprocessableError,
-  ServiceUnavailableError,
   ConfigError,
-  withRouteHandler,
+  ConflictError,
+  ForbiddenError,
   isAppError,
+  NotFoundError,
+  ServiceUnavailableError,
+  UnauthorizedError,
+  UnprocessableError,
+  ValidationError,
+  withRouteHandler,
 } from '@/lib/errors';
+import { NextRequest } from 'next/server';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/logger', () => ({
   createLogger: () => ({
-    info:  vi.fn(),
-    warn:  vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
     error: vi.fn(),
     debug: vi.fn(),
   }),

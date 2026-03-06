@@ -492,7 +492,6 @@ export function ReminderFlowModal() {
                     className={styles.previewBoxBody}
                     // Escape template body first (user-authored — may contain HTML),
                     // then escape substituted values, then apply safe br/link transforms.
-                    // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{
                       __html: renderTemplate(
                         selectedTemplate.body
