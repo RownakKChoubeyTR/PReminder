@@ -30,6 +30,10 @@ prisma/migrations/**/migration_lock.toml
 *.swo
 *~
 
+# ── Claude Code (local agent config — not for version control) ──
+.claude/settings.json
+.claude/settings.local.json
+
 # ── OS ──
 .DS_Store
 Thumbs.db
