@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─────────────────────────────────────────────────────────────
 // Tests: MyPRsTable
@@ -18,10 +18,10 @@ vi.mock('@/hooks/use-reviewers', () => ({
   useReviewers: vi.fn(),
 }));
 
+import { MyPRsTable } from '@/components/pr/my-prs-table';
 import { useDashboardStore } from '@/hooks/use-dashboard-store';
 import { useMyPRs } from '@/hooks/use-my-prs';
 import { useReviewers } from '@/hooks/use-reviewers';
-import { MyPRsTable } from '@/components/pr/my-prs-table';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -177,7 +177,7 @@ describe('MyPRsTable', () => {
 
   it('renders table with correct aria-label', () => {
     render(<MyPRsTable />, { wrapper });
-    expect(screen.getByRole('grid', { name: /My pull requests/i })).toBeInTheDocument();
+    expect(screen.getByRole('table', { name: /My pull requests/i })).toBeInTheDocument();
   });
 
   it('shows sortable column headers', () => {
@@ -215,7 +215,10 @@ describe('MyPRsTable', () => {
     vi.mocked(useReviewers).mockReturnValue({
       data: {
         data: [
-          { user: { id: 1, login: 'bob', avatar_url: 'https://avatar.com/bob.png' }, status: 'approved' },
+          {
+            user: { id: 1, login: 'bob', avatar_url: 'https://avatar.com/bob.png' },
+            status: 'approved',
+          },
         ],
       },
       isLoading: false,
@@ -239,7 +242,7 @@ describe('MyPRsTable', () => {
 
   it('clicking a column header changes sort direction on second click', () => {
     render(<MyPRsTable />, { wrapper });
-    const ageHeader = screen.getByText(/Age/);
+    const ageHeader = screen.getByRole('columnheader', { name: /Age/i });
     // First click: already sorted by age desc (default) → switches to asc
     fireEvent.click(ageHeader);
     // Second click: sorts desc again

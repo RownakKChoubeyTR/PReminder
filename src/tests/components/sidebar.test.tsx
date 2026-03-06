@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/hooks/use-dashboard-store', () => ({
   useDashboardStore: vi.fn(),
@@ -16,18 +16,29 @@ vi.mock('@/hooks/use-repos', () => ({
 
 vi.mock('next/link', () => ({
   __esModule: true,
-  default: ({ children, href, ...props }: { children: React.ReactNode; href: string; onClick?: () => void }) => (
-    <a href={href} {...props}>{children}</a>
+  default: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+    onClick?: () => void;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
   ),
 }));
 
 vi.mock('next/navigation', () => ({
   usePathname: vi.fn(() => '/dashboard'),
+  useRouter: vi.fn(() => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() })),
 }));
 
+import { Sidebar } from '@/components/layout/sidebar';
 import { useDashboardStore } from '@/hooks/use-dashboard-store';
 import { useRepos } from '@/hooks/use-repos';
-import { Sidebar } from '@/components/layout/sidebar';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -147,10 +158,9 @@ describe('Sidebar', () => {
   });
 
   it('shows mobile overlay when mobileOpen', () => {
-    const { container } = render(
-      <Sidebar mobileOpen={true} onCloseMobile={onCloseMobile} />,
-      { wrapper },
-    );
+    const { container } = render(<Sidebar mobileOpen={true} onCloseMobile={onCloseMobile} />, {
+      wrapper,
+    });
     // overlay is an aria-hidden div
     const overlay = container.querySelector('[aria-hidden="true"]');
     expect(overlay).toBeTruthy();
@@ -170,7 +180,7 @@ describe('Sidebar', () => {
     } as never);
     render(<Sidebar mobileOpen={false} onCloseMobile={onCloseMobile} />, { wrapper });
     expect(screen.getByRole('button', { name: 'Next page' })).toBeInTheDocument();
-   });
+  });
 
   it('My PRs link points to /dashboard/my-prs', () => {
     render(<Sidebar mobileOpen={false} onCloseMobile={onCloseMobile} />, { wrapper });
