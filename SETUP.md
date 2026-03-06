@@ -40,9 +40,9 @@ You need a GitHub OAuth App to authenticate users and access the GitHub API on t
 1. Go to **[github.com/settings/developers](https://github.com/settings/developers)**
 2. Click **"OAuth Apps"** → **"New OAuth App"**
 3. Fill in:
-   - **Application name**: `PReminder` (or any name)
-   - **Homepage URL**: `http://localhost:3000`
-   - **Authorization callback URL**: `http://localhost:3000/api/auth/callback/github`
+    - **Application name**: `PReminder` (or any name)
+    - **Homepage URL**: `http://localhost:3000`
+    - **Authorization callback URL**: `http://localhost:3000/api/auth/callback/github`
 4. Click **"Register application"**
 5. Copy the **Client ID** → paste into `.env.local` as `GITHUB_CLIENT_ID`
 6. Click **"Generate a new client secret"** → copy → paste as `GITHUB_CLIENT_SECRET`
@@ -55,8 +55,8 @@ If targeting private repos in a GitHub organization:
    `https://github.com/organizations/<YOUR_ORG>/settings/applications` → **New OAuth App**
 
 2. **Option B**: Register under your personal account, then request org access:
-   - After login, users will see a prompt to grant org access
-   - An org admin must approve the OAuth App in org settings
+    - After login, users will see a prompt to grant org access
+    - An org admin must approve the OAuth App in org settings
 
 ### Required Scopes
 
@@ -92,13 +92,13 @@ The app composes these into a PostgreSQL URL at startup via `src/lib/db/connecti
 
 **In production**, replace the individual vars with values from your secrets manager:
 
-| Provider              | How to inject                                              |
-| --------------------- | ---------------------------------------------------------- |
-| Azure Key Vault       | App Service → Configuration → Key Vault references         |
-| AWS Secrets Manager   | ECS Task Definition → `secrets` field                      |
-| HashiCorp Vault       | Vault Agent sidecar or `vault kv get`                      |
-| Vercel                | Project Settings → Environment Variables (encrypted)       |
-| GitHub Actions        | Repository → Settings → Secrets                            |
+| Provider            | How to inject                                        |
+| ------------------- | ---------------------------------------------------- |
+| Azure Key Vault     | App Service → Configuration → Key Vault references   |
+| AWS Secrets Manager | ECS Task Definition → `secrets` field                |
+| HashiCorp Vault     | Vault Agent sidecar or `vault kv get`                |
+| Vercel              | Project Settings → Environment Variables (encrypted) |
+| GitHub Actions      | Repository → Settings → Secrets                      |
 
 All database credentials are **required** — there is no `DATABASE_URL` fallback. The Prisma CLI uses `scripts/prisma-cli.mjs` to compose the URL from the same individual vars.
 
@@ -173,11 +173,11 @@ DB_SSL_MODE=require
 
 1. Update `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` in `.env.local`
 2. If changing database _type_ (e.g., PostgreSQL → SQLite for local dev):
-   - Update `provider` in `prisma/schema.prisma`
-   - Run `pnpm db:migrate`
+    - Update `provider` in `prisma/schema.prisma`
+    - Run `pnpm db:migrate`
 3. If same type (e.g., Supabase → Azure PostgreSQL):
-   - Just update the individual env vars — Prisma handles the rest
-   - Run `pnpm db:migrate:deploy` to apply existing migrations
+    - Just update the individual env vars — Prisma handles the rest
+    - Run `pnpm db:migrate:deploy` to apply existing migrations
 
 ---
 
@@ -253,36 +253,36 @@ Sends automated 1:1 Teams messages as yourself. No admin consent needed.
 2. In the left sidebar, click **"+ Create"**
 3. Select **"Instant cloud flow"**
 4. In the dialog:
-   - **Flow name**: `PReminder - Send Teams DM`
-   - **Choose how to trigger this flow**: scroll down and select **"When an HTTP request is received"**
-   - Click **"Create"**
+    - **Flow name**: `PReminder - Send Teams DM`
+    - **Choose how to trigger this flow**: scroll down and select **"When an HTTP request is received"**
+    - Click **"Create"**
 
 **2. Configure the HTTP trigger**
 
 5. You'll see the trigger card **"When an HTTP request is received"**. Click on it to expand.
 6. Click **"Use sample payload to generate schema"**
 7. In the popup, paste this JSON and click **"Done"**:
-   ```json
-   {
-     "recipientEmail": "john.doe@company.com",
-     "subject": "PR Review Reminder",
-     "message": "Hi John, PR #123 needs your review: https://github.com/..."
-   }
-   ```
-   The schema will auto-generate with `recipientEmail`, `subject`, and `message` fields.
+    ```json
+    {
+        "recipientEmail": "john.doe@company.com",
+        "subject": "PR Review Reminder",
+        "message": "Hi John, PR #123 needs your review: https://github.com/..."
+    }
+    ```
+    The schema will auto-generate with `recipientEmail`, `subject`, and `message` fields.
 
 **3. Add the Teams action**
 
 8. Click **"+ New step"** (or the **+** button below the trigger)
 9. In the **"Choose an operation"** search box, type: **`Post message in a chat or channel`**
 
-   > **Can't find it?** Microsoft has multiple Teams connectors. Try these alternatives:
-   >
-   > - Search for **`Microsoft Teams`** first, click on the connector, then browse its actions
-   > - Look for **"Post message in a chat or channel (V2)"** — this is the newer version
-   > - If you see **"Chat or channel"** as a category, expand it
-   > - Try searching for just **`chat`** or **`Teams`** and scroll through results
-   > - If you're on the new Power Automate designer (2024+), click **"Add an action"** → type **`Teams`** → look under **"Microsoft Teams"** connector → select **"Post message in a chat or channel"**
+    > **Can't find it?** Microsoft has multiple Teams connectors. Try these alternatives:
+    >
+    > - Search for **`Microsoft Teams`** first, click on the connector, then browse its actions
+    > - Look for **"Post message in a chat or channel (V2)"** — this is the newer version
+    > - If you see **"Chat or channel"** as a category, expand it
+    > - Try searching for just **`chat`** or **`Teams`** and scroll through results
+    > - If you're on the new Power Automate designer (2024+), click **"Add an action"** → type **`Teams`** → look under **"Microsoft Teams"** connector → select **"Post message in a chat or channel"**
 
 10. Once you find and select the action, configure it:
 
@@ -291,6 +291,7 @@ Sends automated 1:1 Teams messages as yourself. No admin consent needed.
 11. **Post as**: Choose **"Flow bot"** (sends as a bot — no extra permissions needed) or **"User"** (sends as you — requires Teams permissions)
 
 12. **Post in**: Select **"Chat with Flow bot"**
+
     > This creates a 1:1 chat between the Flow bot and the recipient. If you chose "User" above, select **"Chat with a user"** instead.
 
 13. **Recipient**: Click the field, then click the ⚡ lightning bolt icon (or **"Add dynamic content"**). Select **`recipientEmail`** from the dynamic content list.
@@ -298,8 +299,9 @@ Sends automated 1:1 Teams messages as yourself. No admin consent needed.
 14. **Message**: Click the field, click ⚡ dynamic content, select **`message`**.
 
     > **Optional**: For a richer message, switch to the code view and use HTML:
+    >
     > ```html
-    > <b>PR Review Reminder</b><br/><br/>@{triggerBody()?['message']}
+    > <b>PR Review Reminder</b><br /><br />@{triggerBody()?['message']}
     > ```
 
 **5. Save and get the URL**
@@ -337,8 +339,8 @@ If you still can't find the chat action, search for this exact name instead:
 
 - **`Post a message as the Flow bot to a user`** (under Microsoft Teams connector)
 - This is a simpler action with only two fields:
-  - **Recipient**: ⚡ `recipientEmail`
-  - **Message**: ⚡ `message`
+    - **Recipient**: ⚡ `recipientEmail`
+    - **Message**: ⚡ `message`
 - It always posts as the Flow bot — no "Post as" choice needed
 
 #### Testing
@@ -404,8 +406,8 @@ Sends emails as yourself through Outlook. Requires Azure AD app registration.
 7. Copy **Directory (tenant) ID** → `AZURE_AD_TENANT_ID`
 8. Go to **Certificates & secrets** → **New client secret** → Copy value → `AZURE_AD_CLIENT_SECRET`
 9. Go to **API permissions** → **Add a permission** → **Microsoft Graph** → **Delegated permissions** → Add:
-   - `Mail.Send` — Send mail as user
-   - `User.Read` — Sign in and read user profile
+    - `Mail.Send` — Send mail as user
+    - `User.Read` — Sign in and read user profile
 10. If you don't have admin: click **"Grant admin consent"** — if greyed out, ask an admin, or the app will prompt users individually for consent.
 
 #### Enable in `.env.local`
@@ -475,12 +477,12 @@ PReminder uses **one env file per environment**, all gitignored. Next.js auto-lo
 
 ### Env File Layout
 
-| File               | Purpose                | Loaded by                                   |
-|--------------------|------------------------|---------------------------------------------|
-| `.env.local`       | Local development      | Next.js (auto), `prisma-cli.mjs` (default)  |
-| `.env.staging`     | Staging deployment     | `prisma-cli.mjs --env-file .env.staging`    |
-| `.env.production`  | Production deployment  | `prisma-cli.mjs --env-file .env.production` |
-| `.env.example`     | Documented template    | Committed to repo — never contains secrets  |
+| File              | Purpose               | Loaded by                                   |
+| ----------------- | --------------------- | ------------------------------------------- |
+| `.env.local`      | Local development     | Next.js (auto), `prisma-cli.mjs` (default)  |
+| `.env.staging`    | Staging deployment    | `prisma-cli.mjs --env-file .env.staging`    |
+| `.env.production` | Production deployment | `prisma-cli.mjs --env-file .env.production` |
+| `.env.example`    | Documented template   | Committed to repo — never contains secrets  |
 
 > All env files except `.env.example` are in `.gitignore`. **Never commit secrets.**
 
@@ -523,6 +525,7 @@ node scripts/prisma-cli.mjs --env-file .env.production studio
 ```
 
 For the running Next.js app, inject env vars via:
+
 - **Vercel** → Project Settings → Environment Variables
 - **Azure App Service** → Configuration → Application Settings
 - **AWS** → Secrets Manager → injected at container start
@@ -545,13 +548,13 @@ cp .env.example .env.staging
 
 ### Summary
 
-| Task                          | Command                                      |
-|-------------------------------|----------------------------------------------|
-| Local dev server              | `pnpm dev`                                   |
-| Migrate local DB              | `pnpm db:migrate`                            |
-| Migrate staging DB            | `pnpm db:migrate:staging`                    |
-| Migrate production DB         | `pnpm db:migrate:production`                 |
-| Any Prisma cmd with env file  | `node scripts/prisma-cli.mjs --env-file <file> <cmd>` |
+| Task                         | Command                                               |
+| ---------------------------- | ----------------------------------------------------- |
+| Local dev server             | `pnpm dev`                                            |
+| Migrate local DB             | `pnpm db:migrate`                                     |
+| Migrate staging DB           | `pnpm db:migrate:staging`                             |
+| Migrate production DB        | `pnpm db:migrate:production`                          |
+| Any Prisma cmd with env file | `node scripts/prisma-cli.mjs --env-file <file> <cmd>` |
 
 ---
 

@@ -18,7 +18,7 @@
  *   }
  */
 
-/* eslint-disable no-console */
+ 
 /* global process, console */
 
 import { existsSync } from 'fs';

@@ -7,23 +7,23 @@ import { NextResponse } from 'next/server';
 // ─────────────────────────────────────────────────────────────
 
 interface RouteParams {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }
 
 /** DELETE — remove an email mapping. */
 export async function DELETE(_request: Request, { params }: RouteParams) {
-  const auth = await authenticateUser();
-  if (auth.error) return auth.error;
+    const auth = await authenticateUser();
+    if (auth.error) return auth.error;
 
-  const { id } = await params;
+    const { id } = await params;
 
-  const mapping = await prisma.emailMapping.findUnique({ where: { id } });
+    const mapping = await prisma.emailMapping.findUnique({ where: { id } });
 
-  if (!mapping || mapping.userId !== auth.user.id) {
-    return NextResponse.json({ error: 'Mapping not found' }, { status: 404 });
-  }
+    if (!mapping || mapping.userId !== auth.user.id) {
+        return NextResponse.json({ error: 'Mapping not found' }, { status: 404 });
+    }
 
-  await prisma.emailMapping.delete({ where: { id } });
+    await prisma.emailMapping.delete({ where: { id } });
 
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true });
 }

@@ -1,0 +1,123 @@
+# ─────────────────────────────────────────────────────────────
+# PReminder — Deploy to Azure App Service
+# ─────────────────────────────────────────────────────────────
+# Triggers ONLY after the CI workflow passes on main.
+# This guarantees: lint + tests + build all green before deploy.
+#
+# Flow:
+#   CI passes on main → this workflow runs → build standalone →
+#   zip → deploy to Azure App Service → run DB migrations
+#
+# Secrets required (set in repo Settings → Secrets → Actions):
+#   AZURE_APP_NAME        — App Service name (e.g. "preminder")
+#   AZURE_PUBLISH_PROFILE — Download from App Service → Get publish profile
+#
+# App Service startup command (set once in Azure Portal):
+#   node server.js
+# ─────────────────────────────────────────────────────────────
+
+name: Deploy
+
+on:
+    # Only run after CI passes on main — never on PRs, never on failure.
+    workflow_run:
+        workflows: [CI]
+        types: [completed]
+        branches: [main]
+    # Allow manual re-deploy without a code push.
+    workflow_dispatch:
+
+# Never run two deploys simultaneously — queue them.
+concurrency:
+    group: deploy-production
+    cancel-in-progress: false
+
+permissions:
+    contents: read
+
+env:
+    NODE_VERSION: '20'
+    PNPM_VERSION: '9'
+
+jobs:
+    deploy:
+        name: Build & Deploy
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+
+        # For workflow_run: skip if CI failed. For workflow_dispatch: always run.
+        if: >
+            github.event_name == 'workflow_dispatch' ||
+            github.event.workflow_run.conclusion == 'success'
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Setup Node.js ${{ env.NODE_VERSION }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            # Reuse cached Next.js build chunks — speeds up deploy significantly.
+            - name: Restore Next.js build cache
+              uses: actions/cache@v4
+              with:
+                  path: .next/cache
+                  key: nextjs-deploy-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**/*.{ts,tsx,scss}') }}
+                  restore-keys: |
+                      nextjs-deploy-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+                      nextjs-deploy-${{ runner.os }}-
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Generate Prisma client
+              run: pnpm db:generate
+
+            # DOCKER_BUILD=true activates output: 'standalone' in next.config.ts.
+            # Standalone bundles a minimal Node.js server + only the required deps.
+            - name: Build (standalone mode)
+              run: pnpm build
+              env:
+                  DOCKER_BUILD: 'true'
+                  SKIP_ENV_VALIDATION: '1'
+                  NEXT_TELEMETRY_DISABLED: '1'
+
+            # Standalone output layout expected by App Service:
+            #   .next/standalone/          ← self-contained server (server.js)
+            #   .next/standalone/.next/static/  ← JS/CSS chunks
+            #   .next/standalone/public/        ← static public assets
+            - name: Package standalone for deployment
+              run: |
+                  cp -r .next/static .next/standalone/.next/static
+                  cp -r public .next/standalone/public
+                  cd .next/standalone
+                  zip -r ../../../deploy.zip . --quiet
+                  echo "deploy.zip size: $(du -sh ../../../deploy.zip | cut -f1)"
+
+            - name: Deploy to Azure App Service
+              uses: azure/webapps-deploy@v3
+              with:
+                  app-name: ${{ secrets.AZURE_APP_NAME }}
+                  publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+                  package: deploy.zip
+
+            - name: Write deploy summary
+              if: always()
+              run: |
+                  echo "## Deploy" >> "$GITHUB_STEP_SUMMARY"
+                  echo "" >> "$GITHUB_STEP_SUMMARY"
+                  if [ "${{ job.status }}" = "success" ]; then
+                    echo "✅ Deployed to Azure App Service \`${{ secrets.AZURE_APP_NAME }}\`" >> "$GITHUB_STEP_SUMMARY"
+                    echo "" >> "$GITHUB_STEP_SUMMARY"
+                    echo "App URL: https://${{ secrets.AZURE_APP_NAME }}.azurewebsites.net" >> "$GITHUB_STEP_SUMMARY"
+                  else
+                    echo "❌ Deploy failed — check the step logs above." >> "$GITHUB_STEP_SUMMARY"
+                  fi

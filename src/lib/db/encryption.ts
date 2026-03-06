@@ -16,7 +16,7 @@ const ENCODING = 'hex' as const;
  * Derive the 32-byte key buffer from the hex-encoded ENCRYPTION_KEY env var.
  */
 function getKey(): Buffer {
-  return Buffer.from(env.ENCRYPTION_KEY, 'hex');
+    return Buffer.from(env.ENCRYPTION_KEY, 'hex');
 }
 
 /**
@@ -25,15 +25,15 @@ function getKey(): Buffer {
  * Output format: `iv:authTag:ciphertext` (all hex-encoded).
  */
 export function encrypt(plaintext: string): string {
-  const iv = randomBytes(IV_LENGTH);
-  const cipher = createCipheriv(ALGORITHM, getKey(), iv);
+    const iv = randomBytes(IV_LENGTH);
+    const cipher = createCipheriv(ALGORITHM, getKey(), iv);
 
-  let encrypted = cipher.update(plaintext, 'utf8', ENCODING);
-  encrypted += cipher.final(ENCODING);
+    let encrypted = cipher.update(plaintext, 'utf8', ENCODING);
+    encrypted += cipher.final(ENCODING);
 
-  const authTag = cipher.getAuthTag().toString(ENCODING);
+    const authTag = cipher.getAuthTag().toString(ENCODING);
 
-  return `${iv.toString(ENCODING)}:${authTag}:${encrypted}`;
+    return `${iv.toString(ENCODING)}:${authTag}:${encrypted}`;
 }
 
 /**
@@ -44,29 +44,29 @@ export function encrypt(plaintext: string): string {
  * @throws {Error} If the value is malformed or tampered with.
  */
 export function decrypt(encryptedValue: string): string {
-  const parts = encryptedValue.split(':');
+    const parts = encryptedValue.split(':');
 
-  if (parts.length !== 3) {
-    throw new Error('Invalid encrypted value format — expected iv:authTag:ciphertext');
-  }
+    if (parts.length !== 3) {
+        throw new Error('Invalid encrypted value format — expected iv:authTag:ciphertext');
+    }
 
-  const [ivHex, authTagHex, ciphertext] = parts as [string, string, string];
+    const [ivHex, authTagHex, ciphertext] = parts as [string, string, string];
 
-  const iv = Buffer.from(ivHex, ENCODING);
-  const authTag = Buffer.from(authTagHex, ENCODING);
+    const iv = Buffer.from(ivHex, ENCODING);
+    const authTag = Buffer.from(authTagHex, ENCODING);
 
-  if (iv.length !== IV_LENGTH) {
-    throw new Error(`Invalid IV length: expected ${IV_LENGTH}, got ${iv.length}`);
-  }
-  if (authTag.length !== AUTH_TAG_LENGTH) {
-    throw new Error(`Invalid auth tag length: expected ${AUTH_TAG_LENGTH}, got ${authTag.length}`);
-  }
+    if (iv.length !== IV_LENGTH) {
+        throw new Error(`Invalid IV length: expected ${IV_LENGTH}, got ${iv.length}`);
+    }
+    if (authTag.length !== AUTH_TAG_LENGTH) {
+        throw new Error(`Invalid auth tag length: expected ${AUTH_TAG_LENGTH}, got ${authTag.length}`);
+    }
 
-  const decipher = createDecipheriv(ALGORITHM, getKey(), iv);
-  decipher.setAuthTag(authTag);
+    const decipher = createDecipheriv(ALGORITHM, getKey(), iv);
+    decipher.setAuthTag(authTag);
 
-  let decrypted: string = decipher.update(ciphertext, ENCODING, 'utf8');
-  decrypted += decipher.final('utf8');
+    let decrypted: string = decipher.update(ciphertext, ENCODING, 'utf8');
+    decrypted += decipher.final('utf8');
 
-  return decrypted;
+    return decrypted;
 }

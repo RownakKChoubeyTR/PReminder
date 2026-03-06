@@ -14,22 +14,19 @@ import https from 'node:https';
 
 // Allow skipping TLS verification in dev or via explicit env var.
 // Useful when a corporate proxy does SSL inspection with its own CA cert.
-const skipTlsVerify =
-  process.env.NODE_ENV === 'development' || process.env.WEBHOOK_SKIP_TLS_VERIFY === 'true';
+const skipTlsVerify = process.env.NODE_ENV === 'development' || process.env.WEBHOOK_SKIP_TLS_VERIFY === 'true';
 
 // ── SSRF Protection ─────────────────────────────────────────
 
-const BLOCKED_HOSTS = new Set([
-  'localhost', '127.0.0.1', '::1', '0.0.0.0', '[::1]',
-]);
+const BLOCKED_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '0.0.0.0', '[::1]']);
 
 const BLOCKED_HOST_PATTERNS: readonly RegExp[] = [
-  /^10\.\d+\.\d+\.\d+$/,                     // 10.0.0.0/8
-  /^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/,     // 172.16.0.0/12
-  /^192\.168\.\d+\.\d+$/,                     // 192.168.0.0/16
-  /^169\.254\.\d+\.\d+$/,                     // link-local
-  /\.local$/,
-  /\.internal$/,
+    /^10\.\d+\.\d+\.\d+$/, // 10.0.0.0/8
+    /^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/, // 172.16.0.0/12
+    /^192\.168\.\d+\.\d+$/, // 192.168.0.0/16
+    /^169\.254\.\d+\.\d+$/, // link-local
+    /\.local$/,
+    /\.internal$/
 ];
 
 /**
@@ -37,32 +34,32 @@ const BLOCKED_HOST_PATTERNS: readonly RegExp[] = [
  * Prevents SSRF attacks where a stored webhook targets internal infrastructure.
  */
 export function isAllowedWebhookUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== 'https:') return false;
-    const hostname = parsed.hostname.toLowerCase();
-    if (BLOCKED_HOSTS.has(hostname)) return false;
-    if (BLOCKED_HOST_PATTERNS.some((p) => p.test(hostname))) return false;
-    return true;
-  } catch {
-    return false;
-  }
+    try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== 'https:') return false;
+        const hostname = parsed.hostname.toLowerCase();
+        if (BLOCKED_HOSTS.has(hostname)) return false;
+        if (BLOCKED_HOST_PATTERNS.some(p => p.test(hostname))) return false;
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 // ── Types ───────────────────────────────────────────────────
 
 export interface PowerAutomatePayload {
-  /** The recipient's Microsoft 365 / Teams email address (one call per recipient). */
-  recipientEmail: string;
-  message: string;
-  /** Required — Power Automate's SendEmailV3 action rejects null/missing subjects. */
-  subject: string;
+    /** The recipient's Microsoft 365 / Teams email address (one call per recipient). */
+    recipientEmail: string;
+    message: string;
+    /** Required — Power Automate's SendEmailV3 action rejects null/missing subjects. */
+    subject: string;
 }
 
 export interface PowerAutomateResult {
-  success: boolean;
-  statusCode: number;
-  error?: string;
+    success: boolean;
+    statusCode: number;
+    error?: string;
 }
 
 // ── Message normalisation ────────────────────────────────────
@@ -80,20 +77,23 @@ export interface PowerAutomateResult {
  *      render correctly in the Teams message.
  */
 export function normalizeMessageBody(body: string): string {
-  // Strip a single wrapping <p ...>…</p> if that's the whole content
-  const stripped = body.trim().replace(/^<p[^>]*>([\s\S]*)<\/p>$/i, '$1').trim();
-  // Convert newlines to <br> for HTML rendering
-  const withBreaks = stripped.replace(/\n/g, '<br>');
-  // Convert bare URLs to clickable anchor tags (template stores plain text URLs)
-  return withBreaks.replace(/(https?:\/\/[^\s<>"']+)/g, '<a href="$1">$1</a>');
+    // Strip a single wrapping <p ...>…</p> if that's the whole content
+    const stripped = body
+        .trim()
+        .replace(/^<p[^>]*>([\s\S]*)<\/p>$/i, '$1')
+        .trim();
+    // Convert newlines to <br> for HTML rendering
+    const withBreaks = stripped.replace(/\n/g, '<br>');
+    // Convert bare URLs to clickable anchor tags (template stores plain text URLs)
+    return withBreaks.replace(/(https?:\/\/[^\s<>"']+)/g, '<a href="$1">$1</a>');
 }
 
 // ── HTTPS POST helper (with optional TLS bypass) ────────────
 
 interface HttpsPostResult {
-  statusCode: number;
-  body: string;
-  ok: boolean;
+    statusCode: number;
+    body: string;
+    ok: boolean;
 }
 
 /**
@@ -101,49 +101,45 @@ interface HttpsPostResult {
  * This allows setting `rejectUnauthorized` per-request without
  * affecting the global Node.js TLS settings.
  */
-function httpsPost(
-  url: string,
-  jsonBody: string,
-  timeoutMs = 30_000,
-): Promise<HttpsPostResult> {
-  return new Promise((resolve, reject) => {
-    const parsed = new URL(url);
-    const req = https.request(
-      {
-        hostname: parsed.hostname,
-        port: parsed.port || 443,
-        path: parsed.pathname + parsed.search,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(jsonBody),
-        },
-        rejectUnauthorized: !skipTlsVerify,
-        timeout: timeoutMs,
-      },
-      (res) => {
-        const chunks: Buffer[] = [];
-        res.on('data', (chunk: Buffer) => chunks.push(chunk));
-        res.on('end', () => {
-          const statusCode = res.statusCode ?? 0;
-          const body = Buffer.concat(chunks).toString('utf8');
-          resolve({
-            statusCode,
-            body,
-            ok: statusCode >= 200 && statusCode < 300,
-          });
-        });
-      },
-    );
+function httpsPost(url: string, jsonBody: string, timeoutMs = 30_000): Promise<HttpsPostResult> {
+    return new Promise((resolve, reject) => {
+        const parsed = new URL(url);
+        const req = https.request(
+            {
+                hostname: parsed.hostname,
+                port: parsed.port || 443,
+                path: parsed.pathname + parsed.search,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(jsonBody)
+                },
+                rejectUnauthorized: !skipTlsVerify,
+                timeout: timeoutMs
+            },
+            res => {
+                const chunks: Buffer[] = [];
+                res.on('data', (chunk: Buffer) => chunks.push(chunk));
+                res.on('end', () => {
+                    const statusCode = res.statusCode ?? 0;
+                    const body = Buffer.concat(chunks).toString('utf8');
+                    resolve({
+                        statusCode,
+                        body,
+                        ok: statusCode >= 200 && statusCode < 300
+                    });
+                });
+            }
+        );
 
-    req.on('timeout', () => {
-      req.destroy();
-      reject(new Error(`Request timed out after ${timeoutMs}ms`));
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error(`Request timed out after ${timeoutMs}ms`));
+        });
+        req.on('error', reject);
+        req.write(jsonBody);
+        req.end();
     });
-    req.on('error', reject);
-    req.write(jsonBody);
-    req.end();
-  });
 }
 
 /**
@@ -154,50 +150,50 @@ function httpsPost(
  * @param timeoutMs  - Request timeout in milliseconds (default: 30s)
  */
 export async function sendTeamsDM(
-  webhookUrl: string,
-  payload: PowerAutomatePayload,
-  timeoutMs = 30_000,
+    webhookUrl: string,
+    payload: PowerAutomatePayload,
+    timeoutMs = 30_000
 ): Promise<PowerAutomateResult> {
-  // Reject internal/private URLs to prevent SSRF
-  if (!isAllowedWebhookUrl(webhookUrl)) {
-    return {
-      success: false,
-      statusCode: 0,
-      error: 'Webhook URL must be HTTPS and must not target internal/private hosts',
-    };
-  }
-
-  try {
-    const normalizedPayload: PowerAutomatePayload = {
-      ...payload,
-      message: normalizeMessageBody(payload.message),
-    };
-    const res = await httpsPost(webhookUrl, JSON.stringify(normalizedPayload), timeoutMs);
-
-    if (res.ok || res.statusCode === 202) {
-      return { success: true, statusCode: res.statusCode };
+    // Reject internal/private URLs to prevent SSRF
+    if (!isAllowedWebhookUrl(webhookUrl)) {
+        return {
+            success: false,
+            statusCode: 0,
+            error: 'Webhook URL must be HTTPS and must not target internal/private hosts'
+        };
     }
 
-    return {
-      success: false,
-      statusCode: res.statusCode,
-      error: `Power Automate returned ${res.statusCode}: ${res.body}`.slice(0, 500),
-    };
-  } catch (err) {
-    if (err instanceof Error && err.message.includes('timed out')) {
-      return {
-        success: false,
-        statusCode: 0,
-        error: `Request timed out after ${timeoutMs}ms`,
-      };
-    }
+    try {
+        const normalizedPayload: PowerAutomatePayload = {
+            ...payload,
+            message: normalizeMessageBody(payload.message)
+        };
+        const res = await httpsPost(webhookUrl, JSON.stringify(normalizedPayload), timeoutMs);
 
-    return {
-      success: false,
-      statusCode: 0,
-      error: err instanceof Error ? err.message : 'Unknown error',
-    };
-  }
+        if (res.ok || res.statusCode === 202) {
+            return { success: true, statusCode: res.statusCode };
+        }
+
+        return {
+            success: false,
+            statusCode: res.statusCode,
+            error: `Power Automate returned ${res.statusCode}: ${res.body}`.slice(0, 500)
+        };
+    } catch (err) {
+        if (err instanceof Error && err.message.includes('timed out')) {
+            return {
+                success: false,
+                statusCode: 0,
+                error: `Request timed out after ${timeoutMs}ms`
+            };
+        }
+
+        return {
+            success: false,
+            statusCode: 0,
+            error: err instanceof Error ? err.message : 'Unknown error'
+        };
+    }
 }
 
 /**
@@ -209,58 +205,58 @@ export async function sendTeamsDM(
  * @param prUrl      - Link to the PR (added as action button)
  */
 export async function sendTeamsChannelMessage(
-  webhookUrl: string,
-  title: string,
-  message: string,
-  prUrl: string,
+    webhookUrl: string,
+    title: string,
+    message: string,
+    prUrl: string
 ): Promise<PowerAutomateResult> {
-  const adaptiveCard = {
-    type: 'message',
-    attachments: [
-      {
-        contentType: 'application/vnd.microsoft.card.adaptive',
-        content: {
-          $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
-          type: 'AdaptiveCard',
-          version: '1.4',
-          body: [
+    const adaptiveCard = {
+        type: 'message',
+        attachments: [
             {
-              type: 'TextBlock',
-              text: title,
-              weight: 'Bolder',
-              size: 'Medium',
-            },
-            {
-              type: 'TextBlock',
-              text: message,
-              wrap: true,
-            },
-          ],
-          actions: [
-            {
-              type: 'Action.OpenUrl',
-              title: 'View Pull Request',
-              url: prUrl,
-            },
-          ],
-        },
-      },
-    ],
-  };
-
-  try {
-    const res = await httpsPost(webhookUrl, JSON.stringify(adaptiveCard));
-
-    return {
-      success: res.ok,
-      statusCode: res.statusCode,
-      error: res.ok ? undefined : `Webhook returned ${res.statusCode}`,
+                contentType: 'application/vnd.microsoft.card.adaptive',
+                content: {
+                    $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
+                    type: 'AdaptiveCard',
+                    version: '1.4',
+                    body: [
+                        {
+                            type: 'TextBlock',
+                            text: title,
+                            weight: 'Bolder',
+                            size: 'Medium'
+                        },
+                        {
+                            type: 'TextBlock',
+                            text: message,
+                            wrap: true
+                        }
+                    ],
+                    actions: [
+                        {
+                            type: 'Action.OpenUrl',
+                            title: 'View Pull Request',
+                            url: prUrl
+                        }
+                    ]
+                }
+            }
+        ]
     };
-  } catch (err) {
-    return {
-      success: false,
-      statusCode: 0,
-      error: err instanceof Error ? err.message : 'Unknown error',
-    };
-  }
+
+    try {
+        const res = await httpsPost(webhookUrl, JSON.stringify(adaptiveCard));
+
+        return {
+            success: res.ok,
+            statusCode: res.statusCode,
+            error: res.ok ? undefined : `Webhook returned ${res.statusCode}`
+        };
+    } catch (err) {
+        return {
+            success: false,
+            statusCode: 0,
+            error: err instanceof Error ? err.message : 'Unknown error'
+        };
+    }
 }

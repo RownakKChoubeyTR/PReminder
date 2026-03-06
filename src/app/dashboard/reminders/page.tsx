@@ -8,16 +8,16 @@ import styles from './page.module.scss';
 // ─────────────────────────────────────────────────────────────
 
 export default function RemindersPage() {
-  return (
-    <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Reminder History</h1>
-        <p className={styles.pageDescription}>
-          View all reminders sent to reviewers. Track delivery status and retry failed messages.
-        </p>
-      </div>
+    return (
+        <div className={styles.page}>
+            <div className={styles.pageHeader}>
+                <h1 className={styles.pageTitle}>Reminder History</h1>
+                <p className={styles.pageDescription}>
+                    View all reminders sent to reviewers. Track delivery status and retry failed messages.
+                </p>
+            </div>
 
-      <ReminderLogTable />
-    </div>
-  );
+            <ReminderLogTable />
+        </div>
+    );
 }

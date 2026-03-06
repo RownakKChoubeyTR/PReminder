@@ -11,5 +11,5 @@
  * existing theme system (see src/styles/themes/).
  * ────────────────────────────────────────────────────────────── */
 
-@import "tailwindcss";
+@import 'tailwindcss';
 @config "../../tailwind.config.ts";

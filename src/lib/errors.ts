@@ -25,87 +25,78 @@ import { NextResponse } from 'next/server';
 // ── Base AppError ─────────────────────────────────────────────
 
 export class AppError extends Error {
-  readonly code: string;
-  readonly statusCode: number;
-  readonly meta?: Record<string, unknown>;
+    readonly code: string;
+    readonly statusCode: number;
+    readonly meta?: Record<string, unknown>;
 
-  constructor(
-    message: string,
-    code: string,
-    statusCode: number,
-    meta?: Record<string, unknown>,
-  ) {
-    super(message);
-    this.name       = this.constructor.name;
-    this.code       = code;
-    this.statusCode = statusCode;
-    this.meta       = meta;
+    constructor(message: string, code: string, statusCode: number, meta?: Record<string, unknown>) {
+        super(message);
+        this.name = this.constructor.name;
+        this.code = code;
+        this.statusCode = statusCode;
+        this.meta = meta;
 
-    // Ensure instanceof works correctly after TypeScript compilation
-    Object.setPrototypeOf(this, new.target.prototype);
-  }
+        // Ensure instanceof works correctly after TypeScript compilation
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
 }
 
 // ── Specialised error types ───────────────────────────────────
 
 /** 404 — resource does not exist or is not owned by the caller. */
 export class NotFoundError extends AppError {
-  constructor(message = 'Resource not found', code = 'NOT_FOUND', meta?: Record<string, unknown>) {
-    super(message, code, 404, meta);
-  }
+    constructor(message = 'Resource not found', code = 'NOT_FOUND', meta?: Record<string, unknown>) {
+        super(message, code, 404, meta);
+    }
 }
 
 /** 400 — request body / query params fail validation. */
 export class ValidationError extends AppError {
-  constructor(
-    message = 'Validation failed',
-    code = 'VALIDATION_ERROR',
-    meta?: Record<string, unknown>,
-  ) {
-    super(message, code, 400, meta);
-  }
+    constructor(message = 'Validation failed', code = 'VALIDATION_ERROR', meta?: Record<string, unknown>) {
+        super(message, code, 400, meta);
+    }
 }
 
 /** 401 — caller is not authenticated. */
 export class UnauthorizedError extends AppError {
-  constructor(message = 'Authentication required', code = 'UNAUTHORIZED') {
-    super(message, code, 401);
-  }
+    constructor(message = 'Authentication required', code = 'UNAUTHORIZED') {
+        super(message, code, 401);
+    }
 }
 
 /** 403 — caller is authenticated but not permitted. */
 export class ForbiddenError extends AppError {
-  constructor(message = 'Access denied', code = 'FORBIDDEN') {
-    super(message, code, 403);
-  }
+    constructor(message = 'Access denied', code = 'FORBIDDEN') {
+        super(message, code, 403);
+    }
 }
 
 /** 409 — state conflict (e.g. duplicate resource). */
 export class ConflictError extends AppError {
-  constructor(message: string, code = 'CONFLICT', meta?: Record<string, unknown>) {
-    super(message, code, 409, meta);
-  }
+    constructor(message: string, code = 'CONFLICT', meta?: Record<string, unknown>) {
+        super(message, code, 409, meta);
+    }
 }
 
 /** 422 — request is syntactically valid but semantically wrong. */
 export class UnprocessableError extends AppError {
-  constructor(message: string, code = 'UNPROCESSABLE', meta?: Record<string, unknown>) {
-    super(message, code, 422, meta);
-  }
+    constructor(message: string, code = 'UNPROCESSABLE', meta?: Record<string, unknown>) {
+        super(message, code, 422, meta);
+    }
 }
 
 /** 503 — downstream service (GitHub, Teams, etc.) is unavailable. */
 export class ServiceUnavailableError extends AppError {
-  constructor(message: string, code = 'SERVICE_UNAVAILABLE', meta?: Record<string, unknown>) {
-    super(message, code, 503, meta);
-  }
+    constructor(message: string, code = 'SERVICE_UNAVAILABLE', meta?: Record<string, unknown>) {
+        super(message, code, 503, meta);
+    }
 }
 
 /** 500 — misconfiguration or missing required env / encryption keys. */
 export class ConfigError extends AppError {
-  constructor(message: string, code = 'CONFIG_ERROR', meta?: Record<string, unknown>) {
-    super(message, code, 500, meta);
-  }
+    constructor(message: string, code = 'CONFIG_ERROR', meta?: Record<string, unknown>) {
+        super(message, code, 500, meta);
+    }
 }
 
 // ── withRouteHandler HOF ────────────────────────────────────
@@ -116,8 +107,8 @@ export class ConfigError extends AppError {
 // a consistent error response shape across the entire API.
 
 type RouteHandler<P = Record<string, string>> = (
-  req: import('next/server').NextRequest,
-  ctx?: { params: P },
+    req: import('next/server').NextRequest,
+    ctx?: { params: P }
 ) => Promise<Response>;
 
 /**
@@ -127,35 +118,32 @@ type RouteHandler<P = Record<string, string>> = (
  * @param handler      - async function that should throw AppErrors for expected failures
  */
 export function withRouteHandler<P = Record<string, string>>(
-  routeContext: string,
-  handler: RouteHandler<P>,
+    routeContext: string,
+    handler: RouteHandler<P>
 ): RouteHandler<P> {
-  const log = createLogger(routeContext);
+    const log = createLogger(routeContext);
 
-  return async (req, ctx) => {
-    try {
-      return await handler(req, ctx);
-    } catch (err) {
-      if (err instanceof AppError) {
-        log.warn(`${err.code}: ${err.message}`, { statusCode: err.statusCode, ...err.meta });
-        return NextResponse.json(
-          { error: err.message, code: err.code },
-          { status: err.statusCode },
-        );
-      }
+    return async (req, ctx) => {
+        try {
+            return await handler(req, ctx);
+        } catch (err) {
+            if (err instanceof AppError) {
+                log.warn(`${err.code}: ${err.message}`, { statusCode: err.statusCode, ...err.meta });
+                return NextResponse.json({ error: err.message, code: err.code }, { status: err.statusCode });
+            }
 
-      // Unhandled / unexpected error
-      log.error('Unhandled route error', err);
-      return NextResponse.json(
-        { error: 'An unexpected error occurred. Please try again.', code: 'INTERNAL_ERROR' },
-        { status: 500 },
-      );
-    }
-  };
+            // Unhandled / unexpected error
+            log.error('Unhandled route error', err);
+            return NextResponse.json(
+                { error: 'An unexpected error occurred. Please try again.', code: 'INTERNAL_ERROR' },
+                { status: 500 }
+            );
+        }
+    };
 }
 
 // ── Type guard ────────────────────────────────────────────────
 
 export function isAppError(err: unknown): err is AppError {
-  return err instanceof AppError;
+    return err instanceof AppError;
 }

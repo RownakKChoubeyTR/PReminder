@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
-import { composeDatabaseUrl, connectWithRetry, maskDatabaseUrl } from './connection';
 import { dbLogger } from '@/lib/logger';
+import { composeDatabaseUrl, connectWithRetry, maskDatabaseUrl } from './connection';
 
 // ─────────────────────────────────────────────────────────────
 // Prisma Client Singleton
@@ -18,8 +18,8 @@ import { dbLogger } from '@/lib/logger';
 // ─────────────────────────────────────────────────────────────
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-  prismaConnected: boolean | undefined;
+    prisma: PrismaClient | undefined;
+    prismaConnected: boolean | undefined;
 };
 
 /**
@@ -41,28 +41,28 @@ const databaseUrl = composeDatabaseUrl();
  * to `PrismaClient` and $on event names become `never`.
  */
 function createPrismaClient(): PrismaClient {
-  const client = new PrismaClient({
-    datasourceUrl: databaseUrl,
-    log: [
-      { emit: 'event', level: 'query' },
-      { emit: 'event', level: 'warn'  },
-      { emit: 'event', level: 'error' },
-    ],
-  });
-
-  if (process.env.NODE_ENV === 'development') {
-    client.$on('query', (e) => {
-      dbLogger.debug(`${e.query}`, { duration: `${e.duration}ms` });
+    const client = new PrismaClient({
+        datasourceUrl: databaseUrl,
+        log: [
+            { emit: 'event', level: 'query' },
+            { emit: 'event', level: 'warn' },
+            { emit: 'event', level: 'error' }
+        ]
     });
-    client.$on('warn', (e) => {
-      dbLogger.warn(e.message);
-    });
-  }
-  client.$on('error', (e) => {
-    dbLogger.error(e.message);
-  });
 
-  return client;
+    if (process.env.NODE_ENV === 'development') {
+        client.$on('query', e => {
+            dbLogger.debug(`${e.query}`, { duration: `${e.duration}ms` });
+        });
+        client.$on('warn', e => {
+            dbLogger.warn(e.message);
+        });
+    }
+    client.$on('error', e => {
+        dbLogger.error(e.message);
+    });
+
+    return client;
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
@@ -85,21 +85,21 @@ globalForPrisma.prisma = prisma;
  * flag prevents duplicate connection attempts during hot-reload.
  */
 if (!globalForPrisma.prismaConnected) {
-  connectWithRetry(prisma, databaseUrl)
-    .then(() => {
-      globalForPrisma.prismaConnected = true;
-    })
-    .catch((err) => {
-      const message = err instanceof Error ? err.message : String(err);
-      dbLogger.error(`Fatal: ${message}`);
-      dbLogger.error(
-        `Database is unreachable at ${maskDatabaseUrl(databaseUrl)}. ` +
-          'Requests requiring the database will fail until the connection is restored.',
-      );
-    });
+    connectWithRetry(prisma, databaseUrl)
+        .then(() => {
+            globalForPrisma.prismaConnected = true;
+        })
+        .catch(err => {
+            const message = err instanceof Error ? err.message : String(err);
+            dbLogger.error(`Fatal: ${message}`);
+            dbLogger.error(
+                `Database is unreachable at ${maskDatabaseUrl(databaseUrl)}. ` +
+                    'Requests requiring the database will fail until the connection is restored.'
+            );
+        });
 }
 
 // ─── Re-exports for convenience ──────────────────────────────
 
-export { composeDatabaseUrl, healthCheck } from './connection';
 export { dbLogger } from '@/lib/logger';
+export { composeDatabaseUrl, healthCheck } from './connection';

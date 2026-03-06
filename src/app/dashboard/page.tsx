@@ -10,23 +10,21 @@ import styles from './page.module.scss';
 // ─────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  const { selectedRepo } = useDashboardStore();
+    const { selectedRepo } = useDashboardStore();
 
-  return (
-    <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>
-          {selectedRepo ? selectedRepo : 'Open Pull Requests'}
-        </h1>
-        <p className={styles.pageDescription}>
-          {selectedRepo
-            ? `Viewing open pull requests for ${selectedRepo}`
-            : 'Select a repository from the sidebar to view open PRs and their reviewer status.'}
-        </p>
-      </div>
+    return (
+        <div className={styles.page}>
+            <div className={styles.pageHeader}>
+                <h1 className={styles.pageTitle}>{selectedRepo ? selectedRepo : 'Open Pull Requests'}</h1>
+                <p className={styles.pageDescription}>
+                    {selectedRepo
+                        ? `Viewing open pull requests for ${selectedRepo}`
+                        : 'Select a repository from the sidebar to view open PRs and their reviewer status.'}
+                </p>
+            </div>
 
-      <PRTable />
-      <PRDetailModal />
-    </div>
-  );
+            <PRTable />
+            <PRDetailModal />
+        </div>
+    );
 }

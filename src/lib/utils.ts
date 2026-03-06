@@ -11,5 +11,5 @@ import { twMerge } from 'tailwind-merge';
  * @example cn('px-2 py-1', isActive && 'bg-primary', className)
  */
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+    return twMerge(clsx(inputs));
 }

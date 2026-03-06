@@ -5,105 +5,105 @@
 // ─────────────────────────────────────────────────────────────
 
 .bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: $space-3;
-  padding: $space-3 $space-4;
-  background: var(--color-bg-elevated);
-  border-top: 1px solid var(--color-border);
-  border-radius: $radius-lg;
-  box-shadow: $shadow-lg;
-  animation: slideUp $transition-base;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-3;
+    padding: $space-3 $space-4;
+    background: var(--color-bg-elevated);
+    border-top: 1px solid var(--color-border);
+    border-radius: $radius-lg;
+    box-shadow: $shadow-lg;
+    animation: slideUp $transition-base;
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .info {
-  display: flex;
-  align-items: center;
-  gap: $space-2;
+    display: flex;
+    align-items: center;
+    gap: $space-2;
 }
 
 .count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 $space-1-5;
-  border-radius: $radius-full;
-  background: var(--color-primary);
-  color: white;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 $space-1-5;
+    border-radius: $radius-full;
+    background: var(--color-primary);
+    color: white;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
 }
 
 .label {
-  font-size: $font-size-sm;
-  color: var(--color-text-secondary);
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
 }
 
 .actions {
-  display: flex;
-  align-items: center;
-  gap: $space-2;
+    display: flex;
+    align-items: center;
+    gap: $space-2;
 }
 
 .clearButton {
-  padding: $space-1-5 $space-3;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: var(--color-text-secondary);
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: $radius-md;
-  cursor: pointer;
-  transition: all $transition-fast;
+    padding: $space-1-5 $space-3;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: all $transition-fast;
 
-  &:hover {
-    background: var(--color-bg-secondary);
-    color: var(--color-text-primary);
-  }
+    &:hover {
+        background: var(--color-bg-secondary);
+        color: var(--color-text-primary);
+    }
 
-  &:focus-visible {
-    @include focus-ring;
-  }
+    &:focus-visible {
+        @include focus-ring;
+    }
 }
 
 .sendButton {
-  display: inline-flex;
-  align-items: center;
-  gap: $space-1-5;
-  padding: $space-1-5 $space-4;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: white;
-  background: var(--color-primary);
-  border: 1px solid transparent;
-  border-radius: $radius-md;
-  cursor: pointer;
-  transition: all $transition-fast;
+    display: inline-flex;
+    align-items: center;
+    gap: $space-1-5;
+    padding: $space-1-5 $space-4;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: white;
+    background: var(--color-primary);
+    border: 1px solid transparent;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: all $transition-fast;
 
-  svg {
-    width: 14px;
-    height: 14px;
-  }
+    svg {
+        width: 14px;
+        height: 14px;
+    }
 
-  &:hover {
-    background: var(--color-primary-hover);
-  }
+    &:hover {
+        background: var(--color-primary-hover);
+    }
 
-  &:focus-visible {
-    @include focus-ring;
-  }
+    &:focus-visible {
+        @include focus-ring;
+    }
 }

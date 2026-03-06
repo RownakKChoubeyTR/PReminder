@@ -5,160 +5,160 @@
 // ─────────────────────────────────────────────────────────────
 
 .leftContent {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: center;
-  padding: $space-12 $space-8;
-  position: relative;
-  z-index: 10;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    padding: $space-12 $space-8;
+    position: relative;
+    z-index: 10;
 
-  @include md {
-    padding: $space-16 $space-20;
-  }
+    @include md {
+        padding: $space-16 $space-20;
+    }
 }
 
 // ── Badge ──────────────────────────────────────────────────
 
 .badge {
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  gap: $space-2;
-  margin-bottom: $space-8;
-  padding: $space-1-5 $space-4;
-  border-radius: $radius-full;
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  background: rgba(99, 102, 241, 0.07);
-  font-size: 11px;
-  font-weight: $font-weight-semibold;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #818cf8;
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: $space-2;
+    margin-bottom: $space-8;
+    padding: $space-1-5 $space-4;
+    border-radius: $radius-full;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    background: rgba(99, 102, 241, 0.07);
+    font-size: 11px;
+    font-weight: $font-weight-semibold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #818cf8;
 }
 
 .badgeDot {
-  width: 6px;
-  height: 6px;
-  border-radius: $radius-full;
-  background: #818cf8;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    width: 6px;
+    height: 6px;
+    border-radius: $radius-full;
+    background: #818cf8;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
 }
 
 // ── Heading ────────────────────────────────────────────────
 
 .heading {
-  font-size: 3.75rem;
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  line-height: 1;
+    font-size: 3.75rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 1;
 
-  @include md {
-    font-size: 4.5rem;
-  }
+    @include md {
+        font-size: 4.5rem;
+    }
 
-  @include lg {
-    font-size: 6rem;
-  }
+    @include lg {
+        font-size: 6rem;
+    }
 }
 
 .headingWhite {
-  color: #fff;
+    color: #fff;
 }
 
 .headingGradient {
-  background: linear-gradient(to right, #818cf8, #a78bfa, #f472b6);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
+    background: linear-gradient(to right, #818cf8, #a78bfa, #f472b6);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
 }
 
 // ── Subheading ─────────────────────────────────────────────
 
 .subheading {
-  margin-top: $space-6;
-  font-size: $font-size-lg;
-  color: #737373;
-  max-width: 32rem;
-  line-height: $line-height-relaxed;
-  font-weight: $font-weight-normal;
+    margin-top: $space-6;
+    font-size: $font-size-lg;
+    color: #737373;
+    max-width: 32rem;
+    line-height: $line-height-relaxed;
+    font-weight: $font-weight-normal;
 
-  @include md {
-    font-size: $font-size-xl;
-  }
+    @include md {
+        font-size: $font-size-xl;
+    }
 }
 
 .brDesktop {
-  display: none;
+    display: none;
 
-  @include md {
-    display: block;
-  }
+    @include md {
+        display: block;
+    }
 }
 
 // ── CTA Button ─────────────────────────────────────────────
 
 .ctaWrapper {
-  margin-top: $space-16;
+    margin-top: $space-16;
 }
 
 .ctaButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: $space-4;
-  padding: $space-1 $space-2;
-  border-radius: $radius-2xl;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #fff;
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  color: #000;
-  text-decoration: none;
-  transition: all $transition-slow;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-4;
+    padding: $space-1 $space-2;
+    border-radius: $radius-2xl;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #fff;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: #000;
+    text-decoration: none;
+    transition: all $transition-slow;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 0 60px -12px rgba(129, 90, 213, 0.4);
-  }
+    &:hover {
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 0 60px -12px rgba(129, 90, 213, 0.4);
+    }
 
-  &:focus-visible {
-    outline: 2px solid #6366f1;
-    outline-offset: 2px;
-  }
+    &:focus-visible {
+        outline: 2px solid #6366f1;
+        outline-offset: 2px;
+    }
 }
 
 .ctaIcon {
-  width: 1.5rem;
-  height: 1.5rem;
-  flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
 }
 
 // ── Feature Pills ──────────────────────────────────────────
 
 .featurePills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $space-3;
-  margin-top: $space-16;
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-3;
+    margin-top: $space-16;
 }
 
 .pill {
-  padding: $space-1-5 $space-4;
-  border-radius: $radius-full;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.03);
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  color: #737373;
+    padding: $space-1-5 $space-4;
+    border-radius: $radius-full;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: #737373;
 }

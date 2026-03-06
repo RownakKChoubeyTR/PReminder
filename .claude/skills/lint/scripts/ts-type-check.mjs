@@ -10,7 +10,7 @@
  * - .ts files: checked using the nearest tsconfig.json (walking up from the file)
  */
 
-/* eslint-disable no-console */
+ 
 /* global process, console */
 
 import path, { resolve } from 'path';

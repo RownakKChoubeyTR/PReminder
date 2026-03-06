@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
-import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/db/prisma';
+import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 
 // ─────────────────────────────────────────────────────────────
@@ -10,15 +10,13 @@ import { NextResponse } from 'next/server';
 // route uses the correct `User.id` (cuid) instead of email.
 
 interface AuthenticatedUser {
-  id: string;
-  githubLogin: string;
-  email: string | null;
-  accessToken: string;
+    id: string;
+    githubLogin: string;
+    email: string | null;
+    accessToken: string;
 }
 
-type AuthResult =
-  | { user: AuthenticatedUser; error?: never }
-  | { user?: never; error: NextResponse };
+type AuthResult = { user: AuthenticatedUser; error?: never } | { user?: never; error: NextResponse };
 
 /**
  * Authenticate the request and resolve the DB user.
@@ -35,47 +33,36 @@ type AuthResult =
  * ```
  */
 export async function authenticateUser(): Promise<AuthResult> {
-  const session = await auth();
+    const session = await auth();
 
-  if (!session?.user) {
+    if (!session?.user) {
+        return {
+            error: NextResponse.json({ error: 'Unauthorized', code: 'AUTH_REQUIRED' }, { status: 401 })
+        };
+    }
+
+    const { githubLogin, githubId } = session.user;
+    const accessToken = session.accessToken ?? '';
+
+    // Resolve via githubId first (Int, unique, always present), fall back to username
+    const dbUser = await prisma.user.findFirst({
+        where: githubId ? { githubId: parseInt(githubId, 10) } : { username: githubLogin },
+        select: { id: true, username: true, email: true }
+    });
+
+    if (!dbUser) {
+        logger.error(`DB user not found for session: githubId=${githubId}, login=${githubLogin}`, 'auth-utils');
+        return {
+            error: NextResponse.json({ error: 'User not found', code: 'USER_NOT_FOUND' }, { status: 404 })
+        };
+    }
+
     return {
-      error: NextResponse.json(
-        { error: 'Unauthorized', code: 'AUTH_REQUIRED' },
-        { status: 401 },
-      ),
+        user: {
+            id: dbUser.id,
+            githubLogin: dbUser.username,
+            email: dbUser.email,
+            accessToken
+        }
     };
-  }
-
-  const { githubLogin, githubId } = session.user;
-  const accessToken = session.accessToken ?? '';
-
-  // Resolve via githubId first (Int, unique, always present), fall back to username
-  const dbUser = await prisma.user.findFirst({
-    where: githubId
-      ? { githubId: parseInt(githubId, 10) }
-      : { username: githubLogin },
-    select: { id: true, username: true, email: true },
-  });
-
-  if (!dbUser) {
-    logger.error(
-      `DB user not found for session: githubId=${githubId}, login=${githubLogin}`,
-      'auth-utils',
-    );
-    return {
-      error: NextResponse.json(
-        { error: 'User not found', code: 'USER_NOT_FOUND' },
-        { status: 404 },
-      ),
-    };
-  }
-
-  return {
-    user: {
-      id: dbUser.id,
-      githubLogin: dbUser.username,
-      email: dbUser.email,
-      accessToken,
-    },
-  };
 }

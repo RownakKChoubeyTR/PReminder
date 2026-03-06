@@ -7,775 +7,809 @@
 // ── Backdrop ───────────────────────────────────────────────
 
 .backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: $z-modal-backdrop;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  animation: fadeIn $transition-fast;
+    position: fixed;
+    inset: 0;
+    z-index: $z-modal-backdrop;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    animation: fadeIn $transition-fast;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 // ── Modal ──────────────────────────────────────────────────
 
 .modal {
-  position: fixed;
-  inset: 0;
-  z-index: $z-modal;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $space-6;
+    position: fixed;
+    inset: 0;
+    z-index: $z-modal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $space-6;
 }
 
 .modalContent {
-  width: 100%;
-  max-width: 640px;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  border-radius: $radius-xl;
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  box-shadow: $shadow-xl;
-  animation: scaleIn $transition-base;
-  overflow: hidden;
+    width: 100%;
+    max-width: 640px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: $radius-xl;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    box-shadow: $shadow-xl;
+    animation: scaleIn $transition-base;
+    overflow: hidden;
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.96) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 // ── Header ─────────────────────────────────────────────────
 
 .header {
-  display: flex;
-  align-items: flex-start;
-  gap: $space-4;
-  padding: $space-4 $space-6;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg-secondary);
+    display: flex;
+    align-items: flex-start;
+    gap: $space-4;
+    padding: $space-4 $space-6;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
 }
 
 .headerLeft {
-  flex: 1;
-  min-width: 0;
+    flex: 1;
+    min-width: 0;
 }
 
 .title {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  color: var(--color-text-primary);
-  margin-bottom: $space-1;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: var(--color-text-primary);
+    margin-bottom: $space-1;
 }
 
 .meta {
-  display: flex;
-  align-items: center;
-  gap: $space-2;
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
-  @include truncate;
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
+    @include truncate;
 }
 
 .metaDot {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--color-text-muted);
-  opacity: 0.5;
-  flex-shrink: 0;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-text-muted);
+    opacity: 0.5;
+    flex-shrink: 0;
 }
 
 .closeButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: $radius-md;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-primary);
-  color: var(--color-text-muted);
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: all $transition-fast;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: $radius-md;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all $transition-fast;
 
-  svg { width: 16px; height: 16px; }
+    svg {
+        width: 16px;
+        height: 16px;
+    }
 
-  &:hover {
-    background: var(--color-bg-tertiary);
-    color: var(--color-text-primary);
-  }
+    &:hover {
+        background: var(--color-bg-tertiary);
+        color: var(--color-text-primary);
+    }
 
-  &:focus-visible { @include focus-ring; }
+    &:focus-visible {
+        @include focus-ring;
+    }
 }
 
 // ── Steps Indicator ────────────────────────────────────────
 
 .steps {
-  display: flex;
-  align-items: center;
-  gap: $space-1;
-  padding: $space-3 $space-6;
-  border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+    padding: $space-3 $space-6;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .step {
-  display: flex;
-  align-items: center;
-  gap: $space-1-5;
-  padding: $space-1 $space-2;
-  border-radius: $radius-sm;
-  font-size: $font-size-xs;
-  color: var(--color-text-muted);
-  transition: all $transition-fast;
+    display: flex;
+    align-items: center;
+    gap: $space-1-5;
+    padding: $space-1 $space-2;
+    border-radius: $radius-sm;
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
+    transition: all $transition-fast;
 
-  &.stepActive {
-    color: var(--color-primary);
-    background: var(--color-primary-subtle);
-    font-weight: $font-weight-medium;
-  }
+    &.stepActive {
+        color: var(--color-primary);
+        background: var(--color-primary-subtle);
+        font-weight: $font-weight-medium;
+    }
 
-  &.stepDone {
-    color: var(--color-success);
-  }
+    &.stepDone {
+        color: var(--color-success);
+    }
 }
 
 .stepNumber {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: $radius-full;
-  border: 1.5px solid currentColor;
-  font-size: 10px;
-  font-weight: $font-weight-bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: $radius-full;
+    border: 1.5px solid currentColor;
+    font-size: 10px;
+    font-weight: $font-weight-bold;
 }
 
 .stepLabel {
-  @media (max-width: #{$breakpoint-sm - 1}) {
-    display: none;
-  }
+    @media (max-width: #{$breakpoint-sm - 1}) {
+        display: none;
+    }
 }
 
 // ── Body ───────────────────────────────────────────────────
 
 .body {
-  flex: 1;
-  overflow-y: auto;
-  padding: $space-6;
+    flex: 1;
+    overflow-y: auto;
+    padding: $space-6;
 }
 
 // ── Channel Grid ───────────────────────────────────────────
 
 .channelGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $space-3;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-3;
 
-  @media (max-width: #{$breakpoint-sm - 1}) {
-    grid-template-columns: 1fr;
-  }
+    @media (max-width: #{$breakpoint-sm - 1}) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .channelCard {
-  display: flex;
-  align-items: flex-start;
-  gap: $space-3;
-  padding: $space-4;
-  border: 2px solid var(--color-border);
-  border-radius: $radius-lg;
-  background: var(--color-bg-primary);
-  cursor: pointer;
-  text-align: left;
-  transition: all $transition-fast;
+    display: flex;
+    align-items: flex-start;
+    gap: $space-3;
+    padding: $space-4;
+    border: 2px solid var(--color-border);
+    border-radius: $radius-lg;
+    background: var(--color-bg-primary);
+    cursor: pointer;
+    text-align: left;
+    transition: all $transition-fast;
 
-  &:hover {
-    border-color: var(--color-primary);
-    background: var(--color-bg-secondary);
-  }
+    &:hover {
+        border-color: var(--color-primary);
+        background: var(--color-bg-secondary);
+    }
 
-  &.channelActive {
-    border-color: var(--color-primary);
-    background: var(--color-primary-subtle);
-  }
+    &.channelActive {
+        border-color: var(--color-primary);
+        background: var(--color-primary-subtle);
+    }
 
-  &:focus-visible { @include focus-ring; }
+    &:focus-visible {
+        @include focus-ring;
+    }
 }
 
 .channelIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: $radius-md;
-  background: var(--color-bg-tertiary);
-  flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-md;
+    background: var(--color-bg-tertiary);
+    flex-shrink: 0;
 
-  svg {
-    width: 20px;
-    height: 20px;
-    color: var(--color-text-secondary);
-  }
+    svg {
+        width: 20px;
+        height: 20px;
+        color: var(--color-text-secondary);
+    }
 }
 
 .channelInfo {
-  flex: 1;
-  min-width: 0;
+    flex: 1;
+    min-width: 0;
 }
 
 .channelLabel {
-  display: block;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: var(--color-text-primary);
-  margin-bottom: $space-0-5;
+    display: block;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: var(--color-text-primary);
+    margin-bottom: $space-0-5;
 }
 
 .channelDesc {
-  display: block;
-  font-size: $font-size-xs;
-  color: var(--color-text-muted);
-  line-height: $line-height-base;
+    display: block;
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
+    line-height: $line-height-base;
 }
 
 // ── Template List ──────────────────────────────────────────
 
 .templateList {
-  display: flex;
-  flex-direction: column;
-  gap: $space-2;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
 }
 
 .templateCard {
-  display: flex;
-  flex-direction: column;
-  gap: $space-1;
-  padding: $space-3 $space-4;
-  border: 1px solid var(--color-border);
-  border-radius: $radius-md;
-  background: var(--color-bg-primary);
-  cursor: pointer;
-  text-align: left;
-  transition: all $transition-fast;
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+    padding: $space-3 $space-4;
+    border: 1px solid var(--color-border);
+    border-radius: $radius-md;
+    background: var(--color-bg-primary);
+    cursor: pointer;
+    text-align: left;
+    transition: all $transition-fast;
 
-  &:hover {
-    border-color: var(--color-primary);
-    background: var(--color-bg-secondary);
-  }
+    &:hover {
+        border-color: var(--color-primary);
+        background: var(--color-bg-secondary);
+    }
 
-  &.templateActive {
-    border-color: var(--color-primary);
-    background: var(--color-primary-subtle);
-  }
+    &.templateActive {
+        border-color: var(--color-primary);
+        background: var(--color-primary-subtle);
+    }
 
-  &:focus-visible { @include focus-ring; }
+    &:focus-visible {
+        @include focus-ring;
+    }
 }
 
 .templateName {
-  display: flex;
-  align-items: center;
-  gap: $space-2;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: var(--color-text-primary);
 }
 
 .defaultBadge {
-  display: inline-flex;
-  padding: $space-0-5 $space-1-5;
-  font-size: 10px;
-  font-weight: $font-weight-semibold;
-  border-radius: $radius-sm;
-  background: var(--color-success-subtle);
-  color: var(--color-success);
-  text-transform: uppercase;
+    display: inline-flex;
+    padding: $space-0-5 $space-1-5;
+    font-size: 10px;
+    font-weight: $font-weight-semibold;
+    border-radius: $radius-sm;
+    background: var(--color-success-subtle);
+    color: var(--color-success);
+    text-transform: uppercase;
 }
 
 .templateBody {
-  font-size: $font-size-xs;
-  color: var(--color-text-muted);
-  line-height: $line-height-base;
-  @include line-clamp(2);
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
+    line-height: $line-height-base;
+    @include line-clamp(2);
 }
 
 .emptyTemplates,
 .allTemplatesNote {
-  padding: $space-6;
-  text-align: center;
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
+    padding: $space-6;
+    text-align: center;
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
 }
 
 .allTemplatesNote {
-  text-align: left;
-  padding: $space-2 0;
-  display: flex;
-  flex-direction: column;
-  gap: $space-2;
+    text-align: left;
+    padding: $space-2 0;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
 }
 
 .loading {
-  padding: $space-6;
-  text-align: center;
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
+    padding: $space-6;
+    text-align: center;
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
 }
 
 // ── Preview ────────────────────────────────────────────────
 
 .previewSection {
-  display: flex;
-  flex-direction: column;
-  gap: $space-4;
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
 }
 
 .previewMeta {
-  border: 1px solid var(--color-border);
-  border-radius: $radius-md;
-  overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: $radius-md;
+    overflow: hidden;
 }
 
 .previewRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: $space-2 $space-3;
-  font-size: $font-size-sm;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $space-2 $space-3;
+    font-size: $font-size-sm;
 
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--color-border);
-  }
+    &:not(:last-child) {
+        border-bottom: 1px solid var(--color-border);
+    }
 
-  &:nth-child(even) {
-    background: var(--color-bg-secondary);
-  }
+    &:nth-child(even) {
+        background: var(--color-bg-secondary);
+    }
 }
 
 .previewLabel {
-  color: var(--color-text-muted);
+    color: var(--color-text-muted);
 }
 
 .previewValue {
-  color: var(--color-text-primary);
-  font-weight: $font-weight-medium;
-  text-align: right;
-  @include truncate;
-  max-width: 300px;
+    color: var(--color-text-primary);
+    font-weight: $font-weight-medium;
+    text-align: right;
+    @include truncate;
+    max-width: 300px;
 }
 
 .previewBox {
-  border: 1px solid var(--color-border);
-  border-radius: $radius-lg;
-  overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: $radius-lg;
+    overflow: hidden;
 }
 
 .previewBoxHeader {
-  padding: $space-3 $space-4;
-  background: var(--color-bg-secondary);
-  border-bottom: 1px solid var(--color-border);
-  font-size: $font-size-xs;
-  font-weight: $font-weight-semibold;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+    padding: $space-3 $space-4;
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border);
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 // Tabs shown when multiple recipients are selected
 .previewTabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $space-1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-1;
 }
 
 .previewTab {
-  padding: $space-0-5 $space-2;
-  border-radius: $radius-md;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  color: var(--color-text-muted);
-  background: transparent;
-  border: 1px solid var(--color-border);
-  cursor: pointer;
-  transition: color $transition-fast, background $transition-fast, border-color $transition-fast;
-  text-transform: none;
-  letter-spacing: 0;
+    padding: $space-0-5 $space-2;
+    border-radius: $radius-md;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: var(--color-text-muted);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition:
+        color $transition-fast,
+        background $transition-fast,
+        border-color $transition-fast;
+    text-transform: none;
+    letter-spacing: 0;
 
-  &:hover {
-    color: var(--color-text-primary);
-    background: var(--color-bg-tertiary);
-  }
+    &:hover {
+        color: var(--color-text-primary);
+        background: var(--color-bg-tertiary);
+    }
 }
 
 .previewTabActive {
-  color: var(--color-primary);
-  background: var(--color-primary-subtle);
-  border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-primary-subtle);
+    border-color: var(--color-primary);
 }
 
 .previewBoxBody {
-  padding: $space-4;
-  font-size: $font-size-sm;
-  line-height: $line-height-relaxed;
-  color: var(--color-text-primary);
+    padding: $space-4;
+    font-size: $font-size-sm;
+    line-height: $line-height-relaxed;
+    color: var(--color-text-primary);
 
-  p { margin-bottom: $space-0-5; }
+    p {
+        margin-bottom: $space-0-5;
+    }
 }
 
 // ── Cooldown Warning ───────────────────────────────────────
 
 .cooldownNote {
-  color: var(--color-text-muted);
-  font-size: $font-size-xs;
+    color: var(--color-text-muted);
+    font-size: $font-size-xs;
 }
 
 .cooldownWarning {
-  padding: $space-3;
-  margin-top: $space-3;
-  background: var(--color-danger-subtle);
-  border-radius: $radius-md;
-  font-size: $font-size-sm;
-  color: var(--color-text-primary);
+    padding: $space-3;
+    margin-top: $space-3;
+    background: var(--color-danger-subtle);
+    border-radius: $radius-md;
+    font-size: $font-size-sm;
+    color: var(--color-text-primary);
 
-  strong { font-weight: $font-weight-semibold; }
+    strong {
+        font-weight: $font-weight-semibold;
+    }
 }
 
 // ── Sending / Result ───────────────────────────────────────
 
 .sendingState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $space-4;
-  padding: $space-12;
-  text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $space-4;
+    padding: $space-12;
+    text-align: center;
 
-  p {
-    font-size: $font-size-sm;
-    color: var(--color-text-muted);
-  }
+    p {
+        font-size: $font-size-sm;
+        color: var(--color-text-muted);
+    }
 }
 
 .spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .resultState {
-  display: flex;
-  flex-direction: column;
-  gap: $space-4;
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
 }
 
 .resultSummary {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: $space-8;
-  padding: $space-6;
-  background: var(--color-success-subtle);
-  border-radius: $radius-lg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-8;
+    padding: $space-6;
+    background: var(--color-success-subtle);
+    border-radius: $radius-lg;
 
-  &.hasFailures {
-    background: var(--color-warning-subtle, var(--color-bg-tertiary));
-  }
+    &.hasFailures {
+        background: var(--color-warning-subtle, var(--color-bg-tertiary));
+    }
 }
 
 .resultStat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $space-1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $space-1;
 }
 
 .resultNumber {
-  font-size: $font-size-3xl;
-  font-weight: $font-weight-bold;
-  color: var(--color-success);
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: var(--color-success);
 }
 
 .failedNumber {
-  color: var(--color-danger);
+    color: var(--color-danger);
 }
 
 .resultLabel {
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
 }
 
 .resultList {
-  display: flex;
-  flex-direction: column;
-  gap: $space-1-5;
+    display: flex;
+    flex-direction: column;
+    gap: $space-1-5;
 }
 
 .resultItem {
-  display: flex;
-  align-items: center;
-  gap: $space-3;
-  padding: $space-2 $space-3;
-  border-radius: $radius-md;
-  font-size: $font-size-sm;
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-2 $space-3;
+    border-radius: $radius-md;
+    font-size: $font-size-sm;
 
-  &.resultSuccess {
-    background: var(--color-success-subtle);
-  }
+    &.resultSuccess {
+        background: var(--color-success-subtle);
+    }
 
-  &.resultFailed {
-    background: var(--color-danger-subtle);
-  }
+    &.resultFailed {
+        background: var(--color-danger-subtle);
+    }
 }
 
 .resultLogin {
-  font-weight: $font-weight-medium;
-  color: var(--color-text-primary);
+    font-weight: $font-weight-medium;
+    color: var(--color-text-primary);
 }
 
 .resultStatus {
-  color: var(--color-text-secondary);
-  flex: 1;
+    color: var(--color-text-secondary);
+    flex: 1;
 }
 
 .deepLink {
-  font-size: $font-size-xs;
-  color: var(--color-primary);
-  text-decoration: underline;
+    font-size: $font-size-xs;
+    color: var(--color-primary);
+    text-decoration: underline;
 
-  &:hover { color: var(--color-primary-hover); }
+    &:hover {
+        color: var(--color-primary-hover);
+    }
 }
 
 .errorResult {
-  padding: $space-6;
-  text-align: center;
-  color: var(--color-danger);
-  font-size: $font-size-sm;
+    padding: $space-6;
+    text-align: center;
+    color: var(--color-danger);
+    font-size: $font-size-sm;
 }
 
 // ── Footer ─────────────────────────────────────────────────
 
 .footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: $space-3;
-  padding: $space-4 $space-6;
-  border-top: 1px solid var(--color-border);
-  background: var(--color-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $space-3;
+    padding: $space-4 $space-6;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
 }
 
 .secondaryButton {
-  padding: $space-2 $space-4;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: var(--color-text-secondary);
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: $radius-md;
-  cursor: pointer;
-  transition: all $transition-fast;
+    padding: $space-2 $space-4;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: all $transition-fast;
 
-  &:hover {
-    background: var(--color-bg-tertiary);
-    color: var(--color-text-primary);
-  }
+    &:hover {
+        background: var(--color-bg-tertiary);
+        color: var(--color-text-primary);
+    }
 
-  &:focus-visible { @include focus-ring; }
+    &:focus-visible {
+        @include focus-ring;
+    }
 }
 
 .primaryButton {
-  display: inline-flex;
-  align-items: center;
-  gap: $space-2;
-  padding: $space-2 $space-5;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: white;
-  background: var(--color-primary);
-  border: 1px solid transparent;
-  border-radius: $radius-md;
-  cursor: pointer;
-  transition: all $transition-fast;
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-2 $space-5;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: white;
+    background: var(--color-primary);
+    border: 1px solid transparent;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: all $transition-fast;
 
-  svg {
-    width: 14px;
-    height: 14px;
-  }
+    svg {
+        width: 14px;
+        height: 14px;
+    }
 
-  &:hover {
-    background: var(--color-primary-hover);
-  }
+    &:hover {
+        background: var(--color-primary-hover);
+    }
 
-  &:focus-visible { @include focus-ring; }
+    &:focus-visible {
+        @include focus-ring;
+    }
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 }
 
 // ── Missing Email Resolution ───────────────────────────────
 
 .missingEmailSection {
-  display: flex;
-  flex-direction: column;
-  gap: $space-3;
-  padding: $space-4;
-  border: 1.5px dashed var(--color-warning, var(--color-border));
-  border-radius: $radius-lg;
-  background: var(--color-warning-subtle, var(--color-bg-tertiary));
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+    padding: $space-4;
+    border: 1.5px dashed var(--color-warning, var(--color-border));
+    border-radius: $radius-lg;
+    background: var(--color-warning-subtle, var(--color-bg-tertiary));
 }
 
 .missingEmailHeader {
-  display: flex;
-  align-items: flex-start;
-  gap: $space-3;
+    display: flex;
+    align-items: flex-start;
+    gap: $space-3;
 
-  svg {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    color: var(--color-warning-text, var(--color-text-secondary));
-    margin-top: 1px;
-  }
+    svg {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        color: var(--color-warning-text, var(--color-text-secondary));
+        margin-top: 1px;
+    }
 }
 
 .missingEmailTitle {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: var(--color-text-primary);
-  margin-bottom: $space-0-5;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: var(--color-text-primary);
+    margin-bottom: $space-0-5;
 }
 
 .missingEmailSubtitle {
-  font-size: $font-size-xs;
-  color: var(--color-text-muted);
-  line-height: 1.4;
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
+    line-height: 1.4;
 }
 
 .missingEmailList {
-  display: flex;
-  flex-direction: column;
-  gap: $space-2;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
 }
 
 .missingEmailRow {
-  display: flex;
-  align-items: center;
-  gap: $space-3;
-  padding: $space-2 $space-3;
-  border-radius: $radius-md;
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-2 $space-3;
+    border-radius: $radius-md;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
 
-  &.missingEmailRowError {
-    align-items: flex-start;
-    padding-top: $space-3;
-  }
+    &.missingEmailRowError {
+        align-items: flex-start;
+        padding-top: $space-3;
+    }
 }
 
 .missingEmailAvatar {
-  width: 36px;
-  height: 36px;
-  border-radius: $radius-full;
-  object-fit: cover;
-  flex-shrink: 0;
-  border: 1.5px solid var(--color-border);
+    width: 36px;
+    height: 36px;
+    border-radius: $radius-full;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1.5px solid var(--color-border);
 }
 
 .missingEmailInfo {
-  display: flex;
-  flex-direction: column;
-  gap: $space-0-5;
-  min-width: 80px;
-  flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $space-0-5;
+    min-width: 80px;
+    flex-shrink: 0;
 }
 
 .missingEmailLogin {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: var(--color-text-primary);
-  @include truncate;
-  max-width: 120px;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: var(--color-text-primary);
+    @include truncate;
+    max-width: 120px;
 }
 
 .missingEmailGithub {
-  font-size: $font-size-xs;
-  color: var(--color-text-muted);
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
 }
 
 .missingEmailInput {
-  flex: 1;
-  min-width: 0;
-  padding: $space-1-5 $space-3;
-  font-size: $font-size-sm;
-  color: var(--color-text-primary);
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: $radius-md;
-  outline: none;
-  transition: border-color $transition-fast;
+    flex: 1;
+    min-width: 0;
+    padding: $space-1-5 $space-3;
+    font-size: $font-size-sm;
+    color: var(--color-text-primary);
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-radius: $radius-md;
+    outline: none;
+    transition: border-color $transition-fast;
 
-  &::placeholder {
-    color: var(--color-text-muted);
-  }
+    &::placeholder {
+        color: var(--color-text-muted);
+    }
 
-  &:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px var(--color-primary-subtle);
-  }
+    &:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px var(--color-primary-subtle);
+    }
 }
 
 // ── Input wrapper — allows error text to sit below ─────────
 
 .missingEmailInputWrapper {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: $space-1;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
 }
 
 .inputError {
-  border-color: var(--color-danger) !important;
-
-  &:focus {
     border-color: var(--color-danger) !important;
-    box-shadow: 0 0 0 2px var(--color-danger-subtle) !important;
-  }
+
+    &:focus {
+        border-color: var(--color-danger) !important;
+        box-shadow: 0 0 0 2px var(--color-danger-subtle) !important;
+    }
 }
 
 .missingEmailSaveError {
-  font-size: $font-size-xs;
-  color: var(--color-danger);
-  line-height: $line-height-base;
-  padding-left: $space-1;
+    font-size: $font-size-xs;
+    color: var(--color-danger);
+    line-height: $line-height-base;
+    padding-left: $space-1;
 }
 
 // ── Button spinner (for Save & Retry loading state) ────────
 
 .buttonSpinner {
-  display: inline-block;
-  width: 13px;
-  height: 13px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  flex-shrink: 0;
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
 }

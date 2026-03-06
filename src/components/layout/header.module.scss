@@ -5,157 +5,157 @@
 // ─────────────────────────────────────────────────────────────
 
 .header {
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: $sidebar-width;
-  height: $header-height;
-  background: var(--color-bg-elevated);
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 $space-6;
-  z-index: $z-sticky;
-  transition: left $transition-base;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: $sidebar-width;
+    height: $header-height;
+    background: var(--color-bg-elevated);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 $space-6;
+    z-index: $z-sticky;
+    transition: left $transition-base;
 
-  &.sidebarCollapsed {
-    left: $sidebar-width-collapsed;
-  }
+    &.sidebarCollapsed {
+        left: $sidebar-width-collapsed;
+    }
 
-  @media (max-width: #{$breakpoint-md - 1}) {
-    left: 0;
-  }
+    @media (max-width: #{$breakpoint-md - 1}) {
+        left: 0;
+    }
 }
 
 // ── Left Section ───────────────────────────────────────────
 
 .left {
-  display: flex;
-  align-items: center;
-  gap: $space-3;
+    display: flex;
+    align-items: center;
+    gap: $space-3;
 }
 
 .menuButton {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: $radius-md;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-primary);
-  color: var(--color-text-secondary);
-  @include interactive;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: $radius-md;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+    color: var(--color-text-secondary);
+    @include interactive;
 
-  svg {
-    width: 20px;
-    height: 20px;
-  }
+    svg {
+        width: 20px;
+        height: 20px;
+    }
 
-  &:hover {
-    background: var(--color-bg-tertiary);
-  }
+    &:hover {
+        background: var(--color-bg-tertiary);
+    }
 
-  @media (max-width: #{$breakpoint-md - 1}) {
-    display: flex;
-  }
+    @media (max-width: #{$breakpoint-md - 1}) {
+        display: flex;
+    }
 }
 
 .collapseButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: $radius-md;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-primary);
-  color: var(--color-text-secondary);
-  @include interactive;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: $radius-md;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+    color: var(--color-text-secondary);
+    @include interactive;
 
-  svg {
-    width: 18px;
-    height: 18px;
-    transition: transform $transition-fast;
-  }
+    svg {
+        width: 18px;
+        height: 18px;
+        transition: transform $transition-fast;
+    }
 
-  &:hover {
-    background: var(--color-bg-tertiary);
-  }
+    &:hover {
+        background: var(--color-bg-tertiary);
+    }
 
-  &.collapsed svg {
-    transform: rotate(180deg);
-  }
+    &.collapsed svg {
+        transform: rotate(180deg);
+    }
 
-  @media (max-width: #{$breakpoint-md - 1}) {
-    display: none;
-  }
+    @media (max-width: #{$breakpoint-md - 1}) {
+        display: none;
+    }
 }
 
 .breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: $space-2;
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
 
-  @media (max-width: #{$breakpoint-sm - 1}) {
-    display: none;
-  }
+    @media (max-width: #{$breakpoint-sm - 1}) {
+        display: none;
+    }
 }
 
 .breadcrumbSep {
-  color: var(--color-text-muted);
+    color: var(--color-text-muted);
 
-  svg {
-    width: 14px;
-    height: 14px;
-  }
+    svg {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 .breadcrumbCurrent {
-  color: var(--color-text-primary);
-  font-weight: $font-weight-medium;
+    color: var(--color-text-primary);
+    font-weight: $font-weight-medium;
 }
 
 // ── Right Section ──────────────────────────────────────────
 
 .right {
-  display: flex;
-  align-items: center;
-  gap: $space-2;
+    display: flex;
+    align-items: center;
+    gap: $space-2;
 }
 
 .refreshButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: $radius-md;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-primary);
-  color: var(--color-text-secondary);
-  @include interactive;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: $radius-md;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+    color: var(--color-text-secondary);
+    @include interactive;
 
-  svg {
-    width: 18px;
-    height: 18px;
-  }
+    svg {
+        width: 18px;
+        height: 18px;
+    }
 
-  &:hover {
-    background: var(--color-bg-tertiary);
-    color: var(--color-text-primary);
-  }
+    &:hover {
+        background: var(--color-bg-tertiary);
+        color: var(--color-text-primary);
+    }
 
-  &.spinning svg {
-    animation: spin 1s linear infinite;
-  }
+    &.spinning svg {
+        animation: spin 1s linear infinite;
+    }
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+    to {
+        transform: rotate(360deg);
+    }
 }

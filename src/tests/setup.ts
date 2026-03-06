@@ -4,5 +4,5 @@ import { afterEach } from 'vitest';
 
 // Cleanup React Testing Library after each test
 afterEach(() => {
-  cleanup();
+    cleanup();
 });

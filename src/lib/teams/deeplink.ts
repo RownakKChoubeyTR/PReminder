@@ -16,8 +16,8 @@
  * @returns               - `msteams://` deep link URL
  */
 export function buildTeamsDMDeepLink(recipientEmail: string, message: string): string {
-  const encodedMessage = encodeURIComponent(message);
-  return `https://teams.microsoft.com/l/chat/0/0?users=${encodeURIComponent(recipientEmail)}&message=${encodedMessage}`;
+    const encodedMessage = encodeURIComponent(message);
+    return `https://teams.microsoft.com/l/chat/0/0?users=${encodeURIComponent(recipientEmail)}&message=${encodedMessage}`;
 }
 
 /**
@@ -28,14 +28,14 @@ export function buildTeamsDMDeepLink(recipientEmail: string, message: string): s
  * @param topic   - Optional chat topic / title
  */
 export function buildTeamsGroupChatLink(emails: string[], message: string, topic?: string): string {
-  const users = emails.map(encodeURIComponent).join(',');
-  const encodedMsg = encodeURIComponent(message);
+    const users = emails.map(encodeURIComponent).join(',');
+    const encodedMsg = encodeURIComponent(message);
 
-  let url = `https://teams.microsoft.com/l/chat/0/0?users=${users}&message=${encodedMsg}`;
+    let url = `https://teams.microsoft.com/l/chat/0/0?users=${users}&message=${encodedMsg}`;
 
-  if (topic) {
-    url += `&topicName=${encodeURIComponent(topic)}`;
-  }
+    if (topic) {
+        url += `&topicName=${encodeURIComponent(topic)}`;
+    }
 
-  return url;
+    return url;
 }

@@ -13,29 +13,23 @@ import { Sidebar } from './sidebar';
 // ─────────────────────────────────────────────────────────────
 
 interface AppShellProps {
-  children: ReactNode;
+    children: ReactNode;
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const { sidebarCollapsed } = useDashboardStore();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { sidebarCollapsed } = useDashboardStore();
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleOpenMobile = useCallback(() => setMobileMenuOpen(true), []);
-  const handleCloseMobile = useCallback(() => setMobileMenuOpen(false), []);
+    const handleOpenMobile = useCallback(() => setMobileMenuOpen(true), []);
+    const handleCloseMobile = useCallback(() => setMobileMenuOpen(false), []);
 
-  return (
-    <SessionProvider
-      refetchOnWindowFocus={false}
-      refetchInterval={30 * 60}
-      refetchWhenOffline={false}
-    >
-      <div className={styles.shell}>
-        <Sidebar mobileOpen={mobileMenuOpen} onCloseMobile={handleCloseMobile} />
-        <Header onMenuClick={handleOpenMobile} />
-        <main className={`${styles.main} ${sidebarCollapsed ? styles.sidebarCollapsed : ''}`}>
-          {children}
-        </main>
-      </div>
-    </SessionProvider>
-  );
+    return (
+        <SessionProvider refetchOnWindowFocus={false} refetchInterval={30 * 60} refetchWhenOffline={false}>
+            <div className={styles.shell}>
+                <Sidebar mobileOpen={mobileMenuOpen} onCloseMobile={handleCloseMobile} />
+                <Header onMenuClick={handleOpenMobile} />
+                <main className={`${styles.main} ${sidebarCollapsed ? styles.sidebarCollapsed : ''}`}>{children}</main>
+            </div>
+        </SessionProvider>
+    );
 }

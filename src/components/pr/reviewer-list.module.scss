@@ -5,104 +5,104 @@
 // ─────────────────────────────────────────────────────────────
 
 .list {
-  display: flex;
-  flex-direction: column;
-  gap: $space-2;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
 }
 
 .reviewer {
-  display: flex;
-  align-items: center;
-  gap: $space-3;
-  padding: $space-2 $space-3;
-  border-radius: $radius-md;
-  background: var(--color-bg-secondary);
-  transition: background-color $transition-fast;
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-2 $space-3;
+    border-radius: $radius-md;
+    background: var(--color-bg-secondary);
+    transition: background-color $transition-fast;
 
-  &:hover {
-    background: var(--color-bg-tertiary);
-  }
+    &:hover {
+        background: var(--color-bg-tertiary);
+    }
 
-  &.selected {
-    background: var(--color-primary-subtle);
-    border: 1px solid var(--color-primary);
-    padding: calc(#{$space-2} - 1px) calc(#{$space-3} - 1px);
-  }
+    &.selected {
+        background: var(--color-primary-subtle);
+        border: 1px solid var(--color-primary);
+        padding: calc(#{$space-2} - 1px) calc(#{$space-3} - 1px);
+    }
 }
 
 .avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: $radius-full;
-  flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: $radius-full;
+    flex-shrink: 0;
 }
 
 .info {
-  flex: 1;
-  min-width: 0;
+    flex: 1;
+    min-width: 0;
 }
 
 .login {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: var(--color-text-primary);
-  @include truncate;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: var(--color-text-primary);
+    @include truncate;
 }
 
 .email {
-  font-size: $font-size-xs;
-  color: var(--color-text-muted);
-  @include truncate;
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
+    @include truncate;
 }
 
 .reviewedAt {
-  font-size: $font-size-xs;
-  color: var(--color-text-muted);
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
 }
 
 // ── Select All ─────────────────────────────────────────────
 
 .selectAllRow {
-  display: flex;
-  align-items: center;
-  padding: $space-1-5 $space-3;
-  margin-bottom: $space-2;
-  border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    padding: $space-1-5 $space-3;
+    margin-bottom: $space-2;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .checkboxLabel {
-  display: flex;
-  align-items: center;
-  gap: $space-2;
-  font-size: $font-size-xs;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  user-select: none;
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    user-select: none;
 
-  &:hover {
-    color: var(--color-text-primary);
-  }
+    &:hover {
+        color: var(--color-text-primary);
+    }
 }
 
 .checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--color-primary);
-  cursor: pointer;
-  flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+    flex-shrink: 0;
 }
 
 // ── Loading ────────────────────────────────────────────────
 
 .skeleton {
-  height: 48px;
-  @include skeleton;
-  margin-bottom: $space-2;
+    height: 48px;
+    @include skeleton;
+    margin-bottom: $space-2;
 }
 
 .empty {
-  padding: $space-4;
-  text-align: center;
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
+    padding: $space-4;
+    text-align: center;
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
 }

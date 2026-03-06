@@ -5,377 +5,386 @@
 // ─────────────────────────────────────────────────────────────
 
 .page {
-  max-width: $max-content-width;
-  margin: 0 auto;
+    max-width: $max-content-width;
+    margin: 0 auto;
 }
 
 .pageTitle {
-  font-size: $font-size-2xl;
-  font-weight: $font-weight-bold;
-  color: var(--color-text-primary);
-  margin-bottom: $space-2;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: var(--color-text-primary);
+    margin-bottom: $space-2;
 }
 
 .pageDescription {
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
-  margin-bottom: $space-8;
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
+    margin-bottom: $space-8;
 }
 
 // ── Tabs ─────────────────────────────────────────────────
 
 .tabs {
-  display: flex;
-  gap: $space-1;
-  margin-bottom: $space-6;
-  border-bottom: 1px solid var(--color-border);
+    display: flex;
+    gap: $space-1;
+    margin-bottom: $space-6;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .tab {
-  padding: $space-2 $space-4;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: var(--color-text-muted);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: color $transition-fast, border-color $transition-fast;
+    padding: $space-2 $space-4;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: var(--color-text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition:
+        color $transition-fast,
+        border-color $transition-fast;
 
-  &:hover {
-    color: var(--color-text-primary);
-  }
+    &:hover {
+        color: var(--color-text-primary);
+    }
 
-  &:focus-visible {
-    @include focus-ring;
-  }
+    &:focus-visible {
+        @include focus-ring;
+    }
 }
 
 .tabActive {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
 }
 
 // ── Section ─────────────────────────────────────────────
 
 .section {
-  margin-bottom: $space-8;
+    margin-bottom: $space-8;
 }
 
 .sectionTitle {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  color: var(--color-text-primary);
-  margin-bottom: $space-1;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: var(--color-text-primary);
+    margin-bottom: $space-1;
 }
 
 .sectionDescription {
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
-  margin-bottom: $space-4;
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
+    margin-bottom: $space-4;
 }
 
 // ── Form ─────────────────────────────────────────────────
 
 .form {
-  display: flex;
-  gap: $space-3;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  margin-bottom: $space-4;
-  padding: $space-4;
-  background: var(--color-bg-secondary);
-  border-radius: $radius-lg;
-  border: 1px solid var(--color-border);
+    display: flex;
+    gap: $space-3;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: $space-4;
+    padding: $space-4;
+    background: var(--color-bg-secondary);
+    border-radius: $radius-lg;
+    border: 1px solid var(--color-border);
 }
 
 .field {
-  display: flex;
-  flex-direction: column;
-  gap: $space-1;
-  flex: 1;
-  min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+    flex: 1;
+    min-width: 160px;
 }
 
 .label {
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .input {
-  padding: $space-2 $space-3;
-  font-size: $font-size-sm;
-  color: var(--color-text-primary);
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: $radius-md;
-  transition: border-color $transition-fast;
+    padding: $space-2 $space-3;
+    font-size: $font-size-sm;
+    color: var(--color-text-primary);
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-radius: $radius-md;
+    transition: border-color $transition-fast;
 
-  &::placeholder {
-    color: var(--color-text-muted);
-  }
+    &::placeholder {
+        color: var(--color-text-muted);
+    }
 
-  &:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px var(--color-primary-alpha);
-  }
+    &:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px var(--color-primary-alpha);
+    }
 }
 
 .select {
-  @extend .input;
-  cursor: pointer;
+    @extend .input;
+    cursor: pointer;
 }
 
 .addButton {
-  @include interactive;
-  padding: $space-2 $space-4;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: white;
-  background: var(--color-primary);
-  border: none;
-  border-radius: $radius-md;
-  white-space: nowrap;
+    @include interactive;
+    padding: $space-2 $space-4;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: white;
+    background: var(--color-primary);
+    border: none;
+    border-radius: $radius-md;
+    white-space: nowrap;
 
-  &:hover:not(:disabled) {
-    opacity: 0.9;
-  }
+    &:hover:not(:disabled) {
+        opacity: 0.9;
+    }
 }
 
 // ── Table ────────────────────────────────────────────────
 
 .table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: $font-size-sm;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: $font-size-sm;
 }
 
 .table th {
-  padding: $space-2 $space-3;
-  font-weight: $font-weight-medium;
-  color: var(--color-text-muted);
-  text-align: left;
-  border-bottom: 1px solid var(--color-border);
-  font-size: $font-size-xs;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+    padding: $space-2 $space-3;
+    font-weight: $font-weight-medium;
+    color: var(--color-text-muted);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+    font-size: $font-size-xs;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .table td {
-  padding: $space-2 $space-3;
-  color: var(--color-text-primary);
-  border-bottom: 1px solid var(--color-border);
-  vertical-align: middle;
+    padding: $space-2 $space-3;
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
 }
 
 .table tr:last-child td {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .actionsCell {
-  display: flex;
-  gap: $space-2;
-  align-items: center;
+    display: flex;
+    gap: $space-2;
+    align-items: center;
 }
 
 .iconButton {
-  @include interactive;
-  padding: $space-1;
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  border-radius: $radius-sm;
+    @include interactive;
+    padding: $space-1;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    border-radius: $radius-sm;
 
-  &:hover:not(:disabled) {
-    color: var(--color-text-primary);
-    background: var(--color-bg-secondary);
-  }
+    &:hover:not(:disabled) {
+        color: var(--color-text-primary);
+        background: var(--color-bg-secondary);
+    }
 
-  svg {
-    width: 16px;
-    height: 16px;
-  }
+    svg {
+        width: 16px;
+        height: 16px;
+    }
 }
 
 .deleteButton {
-  @extend .iconButton;
+    @extend .iconButton;
 
-  &:hover:not(:disabled) {
-    color: var(--color-error);
-  }
+    &:hover:not(:disabled) {
+        color: var(--color-error);
+    }
 }
 
 .editButton {
-  @extend .iconButton;
+    @extend .iconButton;
 
-  &:hover:not(:disabled) {
-    color: var(--color-primary);
-  }
+    &:hover:not(:disabled) {
+        color: var(--color-primary);
+    }
 }
 
 .testButton {
-  @extend .iconButton;
+    @extend .iconButton;
 
-  &:hover:not(:disabled) {
-    color: var(--color-primary);
-  }
+    &:hover:not(:disabled) {
+        color: var(--color-primary);
+    }
 }
 
 // ── Inline edit row ──────────────────────────────────────
 
 .editRow td {
-  background: var(--color-bg-secondary);
-  padding: $space-2 $space-3;
+    background: var(--color-bg-secondary);
+    padding: $space-2 $space-3;
 }
 
 .inlineEditForm {
-  display: flex;
-  gap: $space-2;
-  align-items: center;
+    display: flex;
+    gap: $space-2;
+    align-items: center;
 
-  input {
-    flex: 1;
-    min-width: 0;
-  }
+    input {
+        flex: 1;
+        min-width: 0;
+    }
 }
 
 .saveButton {
-  @include interactive;
-  padding: $space-1 $space-3;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  color: white;
-  background: var(--color-primary);
-  border: none;
-  border-radius: $radius-md;
-  white-space: nowrap;
+    @include interactive;
+    padding: $space-1 $space-3;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: white;
+    background: var(--color-primary);
+    border: none;
+    border-radius: $radius-md;
+    white-space: nowrap;
 
-  &:hover:not(:disabled) { opacity: 0.9; }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
+    &:hover:not(:disabled) {
+        opacity: 0.9;
+    }
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 }
 
 .cancelButton {
-  @include interactive;
-  padding: $space-1 $space-3;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  color: var(--color-text-primary);
-  background: var(--color-bg-tertiary);
-  border: 1px solid var(--color-border);
-  border-radius: $radius-md;
-  white-space: nowrap;
+    @include interactive;
+    padding: $space-1 $space-3;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: var(--color-text-primary);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: $radius-md;
+    white-space: nowrap;
 
-  &:hover { background: var(--color-bg-secondary); }
+    &:hover {
+        background: var(--color-bg-secondary);
+    }
 }
 
 // ── Timestamp ────────────────────────────────────────────
 
 .timestamp {
-  font-size: $font-size-xs;
-  color: var(--color-text-muted);
-  white-space: nowrap;
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
+    white-space: nowrap;
 }
 
 // ── All types taken note ─────────────────────────────────
 
 .allTypesTakenNote {
-  font-size: $font-size-sm;
-  color: var(--color-text-muted);
-  padding: $space-3 $space-4;
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: $radius-md;
-  margin-bottom: $space-4;
+    font-size: $font-size-sm;
+    color: var(--color-text-muted);
+    padding: $space-3 $space-4;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: $radius-md;
+    margin-bottom: $space-4;
 }
 
 // ── Status ──────────────────────────────────────────────
 
 .badge {
-  display: inline-flex;
-  align-items: center;
-  padding: $space-0-5 $space-2;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  border-radius: $radius-full;
+    display: inline-flex;
+    align-items: center;
+    padding: $space-0-5 $space-2;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    border-radius: $radius-full;
 }
 
 .badgeActive {
-  color: var(--color-success);
-  background: var(--color-success-alpha, rgba(16, 185, 129, 0.1));
+    color: var(--color-success);
+    background: var(--color-success-alpha, rgba(16, 185, 129, 0.1));
 }
 
 .badgeInactive {
-  color: var(--color-text-muted);
-  background: var(--color-bg-secondary);
+    color: var(--color-text-muted);
+    background: var(--color-bg-secondary);
 }
 
 .sourceBadge {
-  @extend .badge;
-  color: var(--color-text-muted);
-  background: var(--color-bg-secondary);
+    @extend .badge;
+    color: var(--color-text-muted);
+    background: var(--color-bg-secondary);
 }
 
 // ── Empty ───────────────────────────────────────────────
 
 .empty {
-  padding: $space-8;
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: $font-size-sm;
+    padding: $space-8;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: $font-size-sm;
 }
 
 // ── Feedback ────────────────────────────────────────────
 
 .error {
-  padding: $space-2 $space-3;
-  font-size: $font-size-sm;
-  color: var(--color-error);
-  background: var(--color-error-alpha, rgba(239, 68, 68, 0.1));
-  border-radius: $radius-md;
-  margin-bottom: $space-4;
+    padding: $space-2 $space-3;
+    font-size: $font-size-sm;
+    color: var(--color-error);
+    background: var(--color-error-alpha, rgba(239, 68, 68, 0.1));
+    border-radius: $radius-md;
+    margin-bottom: $space-4;
 }
 
 .success {
-  padding: $space-2 $space-3;
-  font-size: $font-size-sm;
-  color: var(--color-success);
-  background: var(--color-success-alpha, rgba(16, 185, 129, 0.1));
-  border-radius: $radius-md;
-  margin-bottom: $space-4;
+    padding: $space-2 $space-3;
+    font-size: $font-size-sm;
+    color: var(--color-success);
+    background: var(--color-success-alpha, rgba(16, 185, 129, 0.1));
+    border-radius: $radius-md;
+    margin-bottom: $space-4;
 }
 
 .toggleSwitch {
-  position: relative;
-  width: 36px;
-  height: 20px;
-  background: var(--color-bg-tertiary, var(--color-bg-secondary));
-  border-radius: $radius-full;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: background-color $transition-fast;
+    position: relative;
+    width: 36px;
+    height: 20px;
+    background: var(--color-bg-tertiary, var(--color-bg-secondary));
+    border-radius: $radius-full;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background-color $transition-fast;
 
-  &::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: white;
-    transition: transform $transition-fast;
-  }
+    &::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: white;
+        transition: transform $transition-fast;
+    }
 }
 
 .toggleActive {
-  background: var(--color-primary);
+    background: var(--color-primary);
 
-  &::after {
-    transform: translateX(16px);
-  }
+    &::after {
+        transform: translateX(16px);
+    }
 }
