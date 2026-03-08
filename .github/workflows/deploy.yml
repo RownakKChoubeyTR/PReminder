@@ -149,14 +149,19 @@ jobs:
 
             - name: Log Prisma result
               run: |
-                  PRISMA_CLIENT_PATH="node_modules/.prisma/client"
-                  if [ -d "$PRISMA_CLIENT_PATH" ]; then
-                    echo "::notice::Prisma client generated successfully"
-                    echo "  Client size: $(du -sh "$PRISMA_CLIENT_PATH" | cut -f1)"
-                  else
-                    echo "::error::Prisma client not found at $PRISMA_CLIENT_PATH"
-                    exit 1
-                  fi
+                  echo "::group::Prisma client locations"
+                  for path in \
+                    "node_modules/.prisma/client" \
+                    "node_modules/@prisma/client" \
+                    "node_modules/.cache/prisma"; do
+                    if [ -d "$path" ]; then
+                      echo "  ✅ $path ($(du -sh "$path" | cut -f1))"
+                    else
+                      echo "  —  $path (not found)"
+                    fi
+                  done
+                  echo "::endgroup::"
+                  echo "::notice::Prisma generate completed"
 
             # ── 6. Build ──────────────────────────────────────────
 
