@@ -6,16 +6,17 @@
 #
 # Flow:
 #   CI passes on main → this workflow runs → build standalone →
-#   zip → deploy to Azure App Service
+#   zip → configure App Service → deploy
 #
 # Secrets required (set in repo Settings → Secrets → Actions):
-#   AZURE_APP_NAME                        — App Service name ("tr-preminder")
-#   AZUREAPPSERVICE_CLIENTID_*            — Created automatically by Deployment Center
-#   AZUREAPPSERVICE_TENANTID_*            — Created automatically by Deployment Center
-#   AZUREAPPSERVICE_SUBSCRIPTIONID_*      — Created automatically by Deployment Center
+#   AZUREAPPSERVICE_CLIENTID_*   — Created automatically by Deployment Center
+#   AZUREAPPSERVICE_TENANTID_*   — Created automatically by Deployment Center
+#   AZUREAPPSERVICE_SUBSCRIPTIONID_* — Created automatically by Deployment Center
 #
-# App Service startup command (set once in Azure Portal):
-#   node server.js
+# App Service settings managed by this workflow (no Portal action needed):
+#   ENABLE_ORYX_BUILD=false      — prevents Oryx from re-building our pre-built package
+#   WEBSITES_PORT=3000           — tells Azure to route to the port Next.js listens on
+#   startup command: node server.js
 # ─────────────────────────────────────────────────────────────
 
 name: Deploy
@@ -100,17 +101,15 @@ jobs:
                   DB_PASSWORD: placeholder
                   DB_NAME: placeholder
 
-            # Standalone output layout expected by App Service:
-            #   .next/standalone/          ← self-contained server (server.js)
-            #   .next/standalone/.next/static/  ← JS/CSS chunks
-            #   .next/standalone/public/        ← static public assets
+            # Standalone output layout:
+            #   .next/standalone/               ← server.js + minimal node_modules
+            #   .next/standalone/.next/static/  ← JS/CSS chunks (copied from build)
+            #   .next/standalone/public/        ← static public assets (copied)
             - name: Package standalone for deployment
               run: |
                   cp -r .next/static .next/standalone/.next/static
                   cp -r public .next/standalone/public
                   cd .next/standalone
-                  # Add .oryxignore to tell Oryx this is a pre-built package.
-                  echo "node_modules" > .oryxignore
                   zip -r "$GITHUB_WORKSPACE/deploy.zip" . --quiet
                   echo "deploy.zip size: $(du -sh "$GITHUB_WORKSPACE/deploy.zip" | cut -f1)"
 
@@ -121,11 +120,42 @@ jobs:
                   tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_56FAA57AD13A41B0817A18F59B855661 }}
                   subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C5DBDD34999C4D27B0E40A7E492704CE }}
 
+            - name: Configure App Service
+              # Must run BEFORE the zip deploy so settings are active when Azure
+              # processes the upload.
+              #
+              #   ENABLE_ORYX_BUILD=false
+              #     Disables Oryx for zip deployments. (SCM_DO_BUILD_DURING_DEPLOYMENT
+              #     only covers Git/SCM pushes — zip deploys need this flag.)
+              #     Without it, Oryx detects package.json, runs npm install, creates
+              #     node_modules.tar.gz, and overwrites our standalone node_modules on
+              #     startup — breaking the server.
+              #
+              #   WEBSITES_PORT=3000
+              #     Next.js standalone server.js listens on process.env.PORT (default
+              #     3000). Azure App Service routes incoming traffic to port 8080 by
+              #     default. Without this setting Azure's health-check hits the wrong
+              #     port, marks the app as unresponsive, and keeps restarting it.
+              run: |
+                  az webapp config appsettings set \
+                    --resource-group preminder-rg \
+                    --name tr-preminder \
+                    --settings \
+                      ENABLE_ORYX_BUILD=false \
+                      SCM_DO_BUILD_DURING_DEPLOYMENT=false \
+                      WEBSITES_PORT=3000
+
+                  # Pin the startup command so Azure never auto-detects the wrong one.
+                  az webapp config set \
+                    --resource-group preminder-rg \
+                    --name tr-preminder \
+                    --startup-file "node server.js"
+
             - name: Deploy to Azure App Service
-              # az webapp deploy --clean wipes /home/site/wwwroot before extracting
-              # the zip. This prevents stale oryx-manifest.toml / node_modules.tar.gz
-              # from previous Oryx builds clobbering our standalone node_modules.
-              # --async skips waiting for startup health check (avoids 10min timeout).
+              # --clean wipes /home/site/wwwroot before extracting, preventing stale
+              # Oryx artefacts from a previous run clobbering the standalone output.
+              # --async submits without waiting for the full startup probe (avoids
+              # the CLI's default 10-minute polling timeout).
               run: |
                   az webapp deploy \
                     --resource-group preminder-rg \
