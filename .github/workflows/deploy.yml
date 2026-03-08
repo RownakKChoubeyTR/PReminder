@@ -38,6 +38,20 @@ jobs:
               env:
                   DOCKER_BUILD: 'true'
                   SKIP_ENV_VALIDATION: '1'
+                  # Dummy values so composeDatabaseUrl() doesn't throw at module-eval time.
+                  # composeDatabaseUrl() checks process.env directly (not env.ts/Zod),
+                  # so SKIP_ENV_VALIDATION alone is not enough.
+                  DB_HOST: build-placeholder
+                  DB_PORT: '5432'
+                  DB_USER: build-placeholder
+                  DB_PASSWORD: build-placeholder
+                  DB_NAME: build-placeholder
+                  NEXTAUTH_URL: 'https://tr-preminder.azurewebsites.net'
+                  NEXTAUTH_SECRET: 'build-placeholder-secret-minimum-32-chars'
+                  GITHUB_CLIENT_ID: build-placeholder
+                  GITHUB_CLIENT_SECRET: build-placeholder
+                  GITHUB_ORG: build-placeholder
+                  ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
               run: pnpm run build
 
             - name: Verify standalone output
