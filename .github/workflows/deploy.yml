@@ -329,7 +329,69 @@ jobs:
                       NEXTAUTH_URL="$APP_URL" \
                       WEBSITE_HEALTHCHECK_PATH=/api/health \
                     --output none
-                  echo "  ✅ App settings applied"
+                  echo "  ✅ Infrastructure settings applied"
+
+                  # ── DB placeholder injection ──────────────────────────────────────
+                  #
+                  # ROOT CAUSE of the 600 s "Starting the site..." crash loop
+                  # (confirmed from Azure startup logs — container runs but never
+                  # responds to HTTP):
+                  #
+                  #   prisma.ts line 31: const databaseUrl = composeDatabaseUrl()
+                  #
+                  # composeDatabaseUrl() (connection.ts:61-74) reads DB_HOST,
+                  # DB_PORT, DB_USER, DB_PASSWORD, DB_NAME DIRECTLY from
+                  # process.env and throws synchronously if any var is absent:
+                  #
+                  #   throw new Error('[DB] Missing required env vars: ...')
+                  #
+                  # This runs at MODULE SCOPE — the instant prisma.ts is first
+                  # imported. The throw propagates before server.js ever calls
+                  # listen(), so Azure's warmup probe receives zero response.
+                  # Azure restarts the container on each crash until the 230 s
+                  # container timeout (or 600 s deploy timeout) expires.
+                  #
+                  # Note: SKIP_ENV_VALIDATION=1 only bypasses the Zod layer in
+                  # env.ts — it has NO effect on this raw process.env read.
+                  #
+                  # FIX: inject non-empty placeholder strings for each DB var so
+                  # composeDatabaseUrl() returns a valid-looking URL instead of
+                  # throwing. Prisma will try to connect to "placeholder:5432",
+                  # fail with a DNS error, and that failure is caught by the
+                  # existing .catch() in prisma.ts — the process stays alive,
+                  # server.js binds to port 3000, the warmup probe returns 200.
+                  #
+                  # We only write placeholders when the var is absent or still
+                  # set to "placeholder" — real credentials are never overwritten.
+                  # ─────────────────────────────────────────────────────────────────
+                  echo ""
+                  echo "  Checking DB vars..."
+                  CURRENT_DB_HOST=$(az webapp config appsettings list \
+                    --resource-group "$RESOURCE_GROUP" \
+                    --name "$APP_NAME" \
+                    --query "[?name=='DB_HOST'].value | [0]" -o tsv 2>/dev/null || echo "")
+
+                  if [ -z "$CURRENT_DB_HOST" ] || [ "$CURRENT_DB_HOST" = "placeholder" ]; then
+                    echo "  DB_HOST is absent or still a placeholder — injecting boot-safe values"
+                    az webapp config appsettings set \
+                      --resource-group "$RESOURCE_GROUP" \
+                      --name "$APP_NAME" \
+                      --settings \
+                        DB_HOST=placeholder \
+                        DB_PORT=5432 \
+                        DB_USER=placeholder \
+                        DB_PASSWORD=placeholder \
+                        DB_NAME=placeholder \
+                      --output none
+                    echo "  ✅ DB placeholders set (app will start; DB queries fail until real values added)"
+                    echo ""
+                    echo "  ⚠️  ACTION REQUIRED: replace placeholder DB vars in"
+                    echo "      Azure Portal → App Service → Configuration → Application settings"
+                    echo "      Required: DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME"
+                    echo "      Optional: DB_SCHEMA, DB_SSL_MODE"
+                  else
+                    echo "  ✅ DB_HOST already set to a real value — skipping placeholder injection"
+                  fi
 
                   # Pin the startup command with an explicit PORT so both sides match:
                   #   PORT=3000  → Next.js standalone server.js listens on 3000
