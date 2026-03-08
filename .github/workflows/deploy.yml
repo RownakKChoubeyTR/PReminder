@@ -6,7 +6,7 @@
 #
 # Flow:
 #   CI passes on main → this workflow runs → build standalone →
-#   zip → configure App Service → deploy
+#   zip → configure App Service → deploy → verify
 #
 # Secrets required (set in repo Settings → Secrets → Actions):
 #   AZUREAPPSERVICE_CLIENTID_*   — Created automatically by Deployment Center
@@ -16,7 +16,9 @@
 # App Service settings managed by this workflow (no Portal action needed):
 #   ENABLE_ORYX_BUILD=false      — prevents Oryx from re-building our pre-built package
 #   WEBSITES_PORT=3000           — tells Azure to route to the port Next.js listens on
-#   startup command: node server.js
+#   SKIP_ENV_VALIDATION=1        — prevents Zod crash before real env vars are loaded
+#   NEXTAUTH_URL                 — canonical app URL for Auth.js callbacks
+#   startup command: PORT=3000 node server.js
 # ─────────────────────────────────────────────────────────────
 
 name: Deploy
@@ -42,6 +44,9 @@ permissions:
 env:
     NODE_VERSION: '20'
     PNPM_VERSION: '9'
+    RESOURCE_GROUP: preminder-rg
+    APP_NAME: tr-preminder
+    APP_URL: https://tr-preminder.azurewebsites.net
 
 jobs:
     deploy:
@@ -55,8 +60,34 @@ jobs:
             github.event.workflow_run.conclusion == 'success'
 
         steps:
+            # ── 0. Context ────────────────────────────────────────
+
+            - name: Log deploy context
+              run: |
+                  echo "::notice::Deployment pipeline started"
+                  echo "::group::Deploy context"
+                  echo "  Repository:  $GITHUB_REPOSITORY"
+                  echo "  Ref:         $GITHUB_REF"
+                  echo "  SHA:         $GITHUB_SHA"
+                  echo "  Actor:       $GITHUB_ACTOR"
+                  echo "  Run ID:      $GITHUB_RUN_ID"
+                  echo "  Trigger:     ${{ github.event_name }}"
+                  echo "  Target app:  ${{ env.APP_NAME }} (${{ env.APP_URL }})"
+                  echo "::endgroup::"
+
+            # ── 1. Checkout ───────────────────────────────────────
+
             - name: Checkout
               uses: actions/checkout@v4
+
+            - name: Log checkout result
+              run: |
+                  echo "::group::Checked-out tree"
+                  echo "  Files:  $(git ls-files | wc -l)"
+                  echo "  HEAD:   $(git log -1 --pretty='%h %s')"
+                  echo "::endgroup::"
+
+            # ── 2. Toolchain ──────────────────────────────────────
 
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
@@ -69,8 +100,20 @@ jobs:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: pnpm
 
+            - name: Log tool versions
+              run: |
+                  echo "::group::Tool versions"
+                  echo "  Node.js:   $(node --version)"
+                  echo "  pnpm:      $(pnpm --version)"
+                  echo "  Azure CLI: $(az version --query '"azure-cli"' -o tsv 2>/dev/null || az --version 2>&1 | head -1)"
+                  echo "  OS:        $(uname -a)"
+                  echo "::endgroup::"
+
+            # ── 3. Build cache ────────────────────────────────────
+
             # Reuse cached Next.js build chunks — speeds up deploy significantly.
             - name: Restore Next.js build cache
+              id: next-cache
               uses: actions/cache@v4
               with:
                   path: .next/cache
@@ -79,11 +122,43 @@ jobs:
                       nextjs-deploy-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
                       nextjs-deploy-${{ runner.os }}-
 
+            - name: Log cache result
+              run: |
+                  if [ "${{ steps.next-cache.outputs.cache-hit }}" = "true" ]; then
+                    echo "::notice::Build cache HIT — incremental build enabled"
+                  else
+                    echo "::notice::Build cache MISS — full build will run"
+                  fi
+
+            # ── 4. Install ────────────────────────────────────────
+
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
 
+            - name: Log install result
+              run: |
+                  echo "::group::Installed packages"
+                  echo "  node_modules size: $(du -sh node_modules 2>/dev/null | cut -f1)"
+                  echo "  Package count:     $(find node_modules -maxdepth 1 -mindepth 1 -type d | wc -l) top-level packages"
+                  echo "::endgroup::"
+
+            # ── 5. Prisma ─────────────────────────────────────────
+
             - name: Generate Prisma client
               run: pnpm db:generate
+
+            - name: Log Prisma result
+              run: |
+                  PRISMA_CLIENT_PATH="node_modules/.prisma/client"
+                  if [ -d "$PRISMA_CLIENT_PATH" ]; then
+                    echo "::notice::Prisma client generated successfully"
+                    echo "  Client size: $(du -sh "$PRISMA_CLIENT_PATH" | cut -f1)"
+                  else
+                    echo "::error::Prisma client not found at $PRISMA_CLIENT_PATH"
+                    exit 1
+                  fi
+
+            # ── 6. Build ──────────────────────────────────────────
 
             # DOCKER_BUILD=true activates output: 'standalone' in next.config.ts.
             # Standalone bundles a minimal Node.js server + only the required deps.
@@ -101,14 +176,41 @@ jobs:
                   DB_PASSWORD: placeholder
                   DB_NAME: placeholder
 
+            - name: Log build result
+              run: |
+                  echo "::group::Build output"
+                  if [ -f ".next/standalone/server.js" ]; then
+                    echo "  ✅ server.js present"
+                  else
+                    echo "  ❌ server.js MISSING — standalone build may have failed"
+                    exit 1
+                  fi
+                  echo "  .next/ size:            $(du -sh .next 2>/dev/null | cut -f1)"
+                  echo "  .next/standalone/ size: $(du -sh .next/standalone 2>/dev/null | cut -f1)"
+                  echo "  .next/static/ size:     $(du -sh .next/static 2>/dev/null | cut -f1)"
+                  echo "  server.js size:         $(wc -c < .next/standalone/server.js) bytes"
+                  echo "  node_modules packages:  $(find .next/standalone/node_modules -maxdepth 1 -mindepth 1 -type d | wc -l)"
+                  echo "  Routes built:           $(find .next/server/app -name '*.js' | wc -l)"
+                  echo "::endgroup::"
+
+            # ── 7. Package ────────────────────────────────────────
+
             # Standalone output layout:
             #   .next/standalone/               ← server.js + minimal node_modules
             #   .next/standalone/.next/static/  ← JS/CSS chunks (copied from build)
             #   .next/standalone/public/        ← static public assets (copied)
             - name: Package standalone for deployment
               run: |
+                  echo "::group::Packaging standalone build"
+
+                  echo "  [1/5] Copying .next/static → .next/standalone/.next/static"
                   cp -r .next/static .next/standalone/.next/static
+                  echo "        size: $(du -sh .next/standalone/.next/static | cut -f1)"
+
+                  echo "  [2/5] Copying public/ → .next/standalone/public/"
                   cp -r public .next/standalone/public
+                  echo "        size: $(du -sh .next/standalone/public | cut -f1)"
+
                   cd .next/standalone
 
                   # WHY node_modules.tar.gz exists in the zip:
@@ -133,14 +235,30 @@ jobs:
                   #
                   # After extraction the symlink ./node_modules → /node_modules gives
                   # server.js access to all deps including styled-jsx.
+
+                  echo "  [3/5] Archiving node_modules → node_modules.tar.gz (flat format for Oryx)"
                   tar -czf node_modules.tar.gz -C node_modules .
-                  rm -rf node_modules  # replaced by tar.gz; Oryx startup handles extraction
+                  echo "        tar.gz size: $(du -sh node_modules.tar.gz | cut -f1)"
+
+                  echo "  [4/5] Removing node_modules/ (replaced by tar.gz; Oryx startup handles extraction)"
+                  rm -rf node_modules
 
                   # Remove package.json so Oryx does not run a redundant npm install.
+                  echo "  [4/5] Removing package.json (prevents Oryx from running npm install)"
                   rm -f package.json
 
+                  echo "  [5/5] Creating deploy.zip"
                   zip -r "$GITHUB_WORKSPACE/deploy.zip" . --quiet
-                  echo "deploy.zip size: $(du -sh "$GITHUB_WORKSPACE/deploy.zip" | cut -f1)"
+                  ZIP_SIZE=$(du -sh "$GITHUB_WORKSPACE/deploy.zip" | cut -f1)
+                  echo "        deploy.zip size: $ZIP_SIZE"
+
+                  echo "::endgroup::"
+                  echo "::notice::Package ready — deploy.zip is $ZIP_SIZE"
+
+                  echo "  Contents of deploy.zip (top-level):"
+                  unzip -l "$GITHUB_WORKSPACE/deploy.zip" | awk '{print $NF}' | grep -v '/$' | sed 's|/.*||' | sort -u | head -20
+
+            # ── 8. Azure Login ────────────────────────────────────
 
             - name: Login to Azure
               uses: azure/login@v2
@@ -148,6 +266,15 @@ jobs:
                   client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_AE994DDFDABB4116AADE8D8F097C2193 }}
                   tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_56FAA57AD13A41B0817A18F59B855661 }}
                   subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C5DBDD34999C4D27B0E40A7E492704CE }}
+
+            - name: Log Azure identity
+              run: |
+                  echo "::group::Azure login details"
+                  az account show --query "{subscription:name, subscriptionId:id, tenantId:tenantId}" -o table
+                  echo "::endgroup::"
+                  echo "::notice::Azure login successful"
+
+            # ── 9. Configure App Service ──────────────────────────
 
             - name: Configure App Service
               # Must run BEFORE the zip deploy so settings are active when Azure
@@ -178,21 +305,26 @@ jobs:
               #     Auth.js requires this to be set to the canonical app URL.
               #     Without it the OAuth callback URL is constructed incorrectly.
               #
-              #   WEBSITES_HEALTH_CHECK_PATH=/api/health
+              #   WEBSITE_HEALTHCHECK_PATH=/api/health
               #     Tells Azure which path to probe for liveness checks.
               #     /api/health returns 200 without importing env.ts or auth.ts,
               #     so Azure correctly detects the app as healthy after startup.
               run: |
+                  echo "::group::Applying App Service settings"
+
+                  echo "  Setting application configuration..."
                   az webapp config appsettings set \
-                    --resource-group preminder-rg \
-                    --name tr-preminder \
+                    --resource-group "$RESOURCE_GROUP" \
+                    --name "$APP_NAME" \
                     --settings \
                       ENABLE_ORYX_BUILD=false \
                       SCM_DO_BUILD_DURING_DEPLOYMENT=false \
                       WEBSITES_PORT=3000 \
                       SKIP_ENV_VALIDATION=1 \
-                      NEXTAUTH_URL=https://tr-preminder.azurewebsites.net \
-                      WEBSITES_HEALTH_CHECK_PATH=/api/health
+                      NEXTAUTH_URL="$APP_URL" \
+                      WEBSITE_HEALTHCHECK_PATH=/api/health \
+                    --output none
+                  echo "  ✅ App settings applied"
 
                   # Pin the startup command with an explicit PORT so both sides match:
                   #   PORT=3000  → Next.js standalone server.js listens on 3000
@@ -201,10 +333,33 @@ jobs:
                   # Without PORT=3000 here, Azure injects PORT=8080 into the process env.
                   # server.js then listens on 8080 while Azure health-checks 3000 →
                   # no response → "Starting the site..." loops until timeout.
+                  echo "  Setting startup command..."
                   az webapp config set \
-                    --resource-group preminder-rg \
-                    --name tr-preminder \
-                    --startup-file "PORT=3000 node server.js"
+                    --resource-group "$RESOURCE_GROUP" \
+                    --name "$APP_NAME" \
+                    --startup-file "PORT=3000 node server.js" \
+                    --output none
+                  echo "  ✅ Startup command: PORT=3000 node server.js"
+
+                  echo "::endgroup::"
+
+                  echo "::group::Verifying current App Service configuration"
+                  echo "  App Settings (non-secret keys only):"
+                  az webapp config appsettings list \
+                    --resource-group "$RESOURCE_GROUP" \
+                    --name "$APP_NAME" \
+                    --query "[].{name:name}" \
+                    -o table 2>/dev/null || true
+                  echo ""
+                  echo "  Runtime configuration:"
+                  az webapp config show \
+                    --resource-group "$RESOURCE_GROUP" \
+                    --name "$APP_NAME" \
+                    --query "{linuxFxVersion:linuxFxVersion, appCommandLine:appCommandLine, http20Enabled:http20Enabled}" \
+                    -o table 2>/dev/null || true
+                  echo "::endgroup::"
+
+            # ── 10. Deploy ────────────────────────────────────────
 
             - name: Deploy to Azure App Service
               # --clean wipes /home/site/wwwroot before extracting, preventing stale
@@ -212,23 +367,170 @@ jobs:
               # --async submits without waiting for the full startup probe (avoids
               # the CLI's default 10-minute polling timeout).
               run: |
+                  echo "::group::Deploying zip to $APP_NAME"
+                  echo "  Source:    $GITHUB_WORKSPACE/deploy.zip"
+                  echo "  Target:    $APP_NAME ($RESOURCE_GROUP)"
+                  echo "  Submitted: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+                  echo ""
+
                   az webapp deploy \
-                    --resource-group preminder-rg \
-                    --name tr-preminder \
+                    --resource-group "$RESOURCE_GROUP" \
+                    --name "$APP_NAME" \
                     --src-path "$GITHUB_WORKSPACE/deploy.zip" \
                     --type zip \
                     --clean true \
                     --async true
 
+                  echo ""
+                  echo "  ✅ Deployment submitted — Azure is extracting and starting the app"
+                  echo "  🔗 App URL: $APP_URL"
+                  echo "  📋 Kudu:   https://$APP_NAME.scm.azurewebsites.net"
+                  echo "::endgroup::"
+
+            # ── 11. Health Check ──────────────────────────────────
+
+            - name: Wait for app to start and verify health
+              run: |
+                  echo "::group::Health check — $APP_URL/api/health"
+                  echo "  Waiting up to 120 s for the app to start..."
+                  HEALTH_URL="$APP_URL/api/health"
+                  MAX_WAIT=120
+                  INTERVAL=10
+                  ELAPSED=0
+                  STATUS=""
+
+                  while [ "$ELAPSED" -lt "$MAX_WAIT" ]; do
+                    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$HEALTH_URL" 2>/dev/null || echo "000")
+                    echo "  [${ELAPSED}s] GET $HEALTH_URL → HTTP $HTTP_CODE"
+
+                    if [ "$HTTP_CODE" = "200" ]; then
+                      STATUS="ok"
+                      break
+                    fi
+
+                    sleep "$INTERVAL"
+                    ELAPSED=$((ELAPSED + INTERVAL))
+                  done
+
+                  echo ""
+                  if [ "$STATUS" = "ok" ]; then
+                    echo "  ✅ App is healthy (HTTP 200 in ${ELAPSED}s)"
+                    echo "::endgroup::"
+                    echo "::notice::App started successfully in ${ELAPSED}s — $APP_URL"
+                  else
+                    echo "  ❌ App did not return 200 within ${MAX_WAIT}s"
+                    echo "  Last HTTP code: $HTTP_CODE"
+                    echo "::endgroup::"
+                    echo "::error::Health check failed — app is not responding. See 'Fetch startup logs' step below."
+                    exit 1
+                  fi
+
+            # ── 12. Failure Diagnostics ───────────────────────────
+
+            - name: Fetch startup logs on failure
+              if: failure()
+              run: |
+                  echo "::group::Azure App Service startup / crash logs"
+
+                  echo "  Downloading all available log files from Azure..."
+                  az webapp log download \
+                    --resource-group "$RESOURCE_GROUP" \
+                    --name "$APP_NAME" \
+                    --log-file /tmp/webapp-logs.zip 2>&1 || true
+
+                  if [ -f /tmp/webapp-logs.zip ]; then
+                    unzip -o /tmp/webapp-logs.zip -d /tmp/webapp-logs > /dev/null 2>&1 || true
+                    echo ""
+                    echo "  Log files retrieved:"
+                    find /tmp/webapp-logs -type f | sort
+
+                    echo ""
+                    echo "  ──────────────────────────────────────────────────"
+                    echo "  DOCKER / CONTAINER LOGS (most recent 300 lines):"
+                    echo "  ──────────────────────────────────────────────────"
+                    find /tmp/webapp-logs -name "*.log" \( -path "*/docker*" -o -path "*/application*" \) \
+                      | sort -r | head -5 \
+                      | xargs cat 2>/dev/null | tail -300 || true
+
+                    echo ""
+                    echo "  ──────────────────────────────────────────────────"
+                    echo "  ALL LOG FILES (last 100 lines each):"
+                    echo "  ──────────────────────────────────────────────────"
+                    find /tmp/webapp-logs -name "*.log" | sort -r | while read -r logfile; do
+                      echo ""
+                      echo "  === $logfile ==="
+                      tail -100 "$logfile" || true
+                    done
+                  else
+                    echo "  ⚠️  Log download returned no files — trying az webapp log show..."
+                    az webapp log show \
+                      --resource-group "$RESOURCE_GROUP" \
+                      --name "$APP_NAME" 2>&1 | tail -100 || true
+                  fi
+
+                  echo ""
+                  echo "  ──────────────────────────────────────────────────"
+                  echo "  CURRENT APP STATE:"
+                  echo "  ──────────────────────────────────────────────────"
+                  az webapp show \
+                    --resource-group "$RESOURCE_GROUP" \
+                    --name "$APP_NAME" \
+                    --query "{state:state, availabilityState:availabilityState, usageState:usageState, lastModified:lastModifiedTimeUtc}" \
+                    -o table 2>/dev/null || true
+
+                  echo ""
+                  echo "  ──────────────────────────────────────────────────"
+                  echo "  RECENT DEPLOYMENT HISTORY:"
+                  echo "  ──────────────────────────────────────────────────"
+                  az webapp deployment list-publishing-credentials \
+                    --resource-group "$RESOURCE_GROUP" \
+                    --name "$APP_NAME" \
+                    --query "{publishingUrl:scmUri}" -o table 2>/dev/null || true
+
+                  echo "::endgroup::"
+                  echo "::error::Deploy failed. Full logs printed above. Check the 'Fetch startup logs on failure' step."
+
+            # ── 13. Summary ───────────────────────────────────────
+
             - name: Write deploy summary
               if: always()
               run: |
-                  echo "## Deploy" >> "$GITHUB_STEP_SUMMARY"
-                  echo "" >> "$GITHUB_STEP_SUMMARY"
-                  if [ "${{ job.status }}" = "success" ]; then
-                    echo "✅ Deployed to Azure App Service \`tr-preminder\`" >> "$GITHUB_STEP_SUMMARY"
-                    echo "" >> "$GITHUB_STEP_SUMMARY"
-                    echo "App URL: https://tr-preminder.azurewebsites.net" >> "$GITHUB_STEP_SUMMARY"
-                  else
-                    echo "❌ Deploy failed — check the step logs above." >> "$GITHUB_STEP_SUMMARY"
-                  fi
+                  {
+                    echo "## Deploy — $(date -u '+%Y-%m-%d %H:%M UTC')"
+                    echo ""
+                    if [ "${{ job.status }}" = "success" ]; then
+                      echo "### ✅ Deployment succeeded"
+                      echo ""
+                      echo "| Field | Value |"
+                      echo "|-------|-------|"
+                      echo "| App | \`$APP_NAME\` |"
+                      echo "| URL | $APP_URL |"
+                      echo "| Commit | \`$GITHUB_SHA\` |"
+                      echo "| Actor | $GITHUB_ACTOR |"
+                      echo "| Trigger | ${{ github.event_name }} |"
+                      echo "| Run | [$GITHUB_RUN_ID]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) |"
+                      echo ""
+                      echo "### Settings applied"
+                      echo "| Setting | Value |"
+                      echo "|---------|-------|"
+                      echo "| \`ENABLE_ORYX_BUILD\` | \`false\` |"
+                      echo "| \`SCM_DO_BUILD_DURING_DEPLOYMENT\` | \`false\` |"
+                      echo "| \`WEBSITES_PORT\` | \`3000\` |"
+                      echo "| \`SKIP_ENV_VALIDATION\` | \`1\` |"
+                      echo "| \`NEXTAUTH_URL\` | \`$APP_URL\` |"
+                      echo "| \`WEBSITE_HEALTHCHECK_PATH\` | \`/api/health\` |"
+                      echo "| Startup command | \`PORT=3000 node server.js\` |"
+                    else
+                      echo "### ❌ Deployment failed"
+                      echo ""
+                      echo "| Field | Value |"
+                      echo "|-------|-------|"
+                      echo "| App | \`$APP_NAME\` |"
+                      echo "| Commit | \`$GITHUB_SHA\` |"
+                      echo "| Actor | $GITHUB_ACTOR |"
+                      echo "| Run | [$GITHUB_RUN_ID]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) |"
+                      echo ""
+                      echo "> **Next steps:** Check the **Fetch startup logs on failure** step above for the full crash log."
+                      echo "> Kudu logs: https://$APP_NAME.scm.azurewebsites.net/api/logs/docker"
+                    fi
+                  } >> "$GITHUB_STEP_SUMMARY"
