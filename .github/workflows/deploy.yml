@@ -218,6 +218,20 @@ jobs:
 
                   cd .next/standalone
 
+                  # Next.js may not always hoist styled-jsx to node_modules/styled-jsx
+                  # when using pnpm. Recover it from the pnpm store path if needed.
+                  if [ ! -d "node_modules/styled-jsx" ]; then
+                    echo "  [2.5/5] styled-jsx not hoisted; recovering from pnpm store"
+                    STYLED_JSX_STORE_PATH=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -path "*/node_modules/styled-jsx" | head -n 1 || true)
+                    if [ -n "$STYLED_JSX_STORE_PATH" ]; then
+                      mkdir -p node_modules/styled-jsx
+                      cp -R "$STYLED_JSX_STORE_PATH"/. node_modules/styled-jsx/
+                      echo "        recovered from: $STYLED_JSX_STORE_PATH"
+                    else
+                      echo "        ⚠️  styled-jsx not found in pnpm store path"
+                    fi
+                  fi
+
                   # Azure zip deploy does not reliably preserve pnpm symlink graphs.
                   # Flatten links to real files so runtime module resolution is stable.
                   echo "  [3/5] Flattening pnpm symlinks in node_modules"
@@ -235,7 +249,7 @@ jobs:
                     exit 1
                   fi
 
-                  if [ ! -f "node_modules/styled-jsx/package.json" ] && [ ! -f "node_modules/next/node_modules/styled-jsx/package.json" ]; then
+                  if [ ! -f "node_modules/styled-jsx/package.json" ] && [ ! -f "node_modules/next/node_modules/styled-jsx/package.json" ] && ! find node_modules/.pnpm -path "*/node_modules/styled-jsx/package.json" -print -quit >/dev/null 2>&1; then
                     echo "  ❌ Missing styled-jsx dependency in deploy artifact"
                     exit 1
                   fi
