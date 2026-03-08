@@ -88,40 +88,41 @@ jobs:
                   cp -r public .next/standalone/public
                   cd .next/standalone
 
-                  # ── Patch packages the Next.js 15 standalone tracer misses ──────────
-
-                  # 1. styled-jsx — required by next/dist/server/require-hook.js
-                  if [ ! -d "node_modules/styled-jsx" ]; then
-                    SRC=$(find "$GITHUB_WORKSPACE/node_modules" -type d -name "styled-jsx" | grep -v "/_del_" | head -n1 || true)
-                    [ -n "$SRC" ] && cp -r "$SRC" node_modules/styled-jsx && echo "  copied: styled-jsx"
-                  fi
-
-                  # 2. .prisma/client — Prisma generated runtime + engine binary.
-                  #    @prisma/client requires this at import time (synchronous).
-                  #    @vercel/nft never traces it because it is generated, not installed.
-                  #    Without it: PrismaClient import throws → server.js crashes before
-                  #    listen() → Azure warmup probe never gets 200 → ContainerTimeout.
-                  if [ ! -d "node_modules/.prisma/client" ]; then
-                    SRC=$(find "$GITHUB_WORKSPACE/node_modules" -type d -name "client" -path "*/.prisma/client" | head -n1 || true)
-                    if [ -n "$SRC" ]; then
-                      mkdir -p node_modules/.prisma
-                      cp -r "$SRC" node_modules/.prisma/client
-                      echo "  copied: .prisma/client ($(ls node_modules/.prisma/client/*.node 2>/dev/null | wc -l) engine binary)"
-                    else
-                      echo "  ERROR: .prisma/client not found — did pnpm db:generate succeed?"
-                      exit 1
-                    fi
-                  fi
-
-                  # Flatten pnpm virtual-store symlinks to real files.
-                  # Azure zip deploy does not preserve symlinks reliably.
+                  # Step 1: Flatten pnpm virtual-store symlinks to real files.
+                  # Must run BEFORE patching — cp -r copies pnpm symlinks as-is,
+                  # and rsync -aL then follows them relative to the new location
+                  # where they are broken, causing files to vanish after flatten.
                   rsync -aL node_modules/ node_modules_flat/
                   rm -rf node_modules && mv node_modules_flat node_modules
 
-                  # Verify critical packages survived flattening.
-                  [ -f "node_modules/next/package.json" ]           || { echo "❌ next missing"; exit 1; }
-                  [ -f "node_modules/styled-jsx/package.json" ]     || { echo "❌ styled-jsx missing"; exit 1; }
-                  [ -f "node_modules/.prisma/client/index.js" ]     || { echo "❌ .prisma/client missing"; exit 1; }
+                  # Step 2: Patch packages the Next.js 15 tracer misses.
+                  # Use cp -rL AFTER flatten — follows all symlinks to real files.
+
+                  # styled-jsx: required by next/dist/server/require-hook.js
+                  if [ ! -f "node_modules/styled-jsx/package.json" ]; then
+                    cp -rL "$GITHUB_WORKSPACE/node_modules/styled-jsx" node_modules/styled-jsx 2>/dev/null \
+                      || { SRC=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -path "*/node_modules/styled-jsx" | head -n1); [ -n "$SRC" ] && cp -rL "$SRC" node_modules/styled-jsx; }
+                    echo "  patched: styled-jsx"
+                  fi
+
+                  # .prisma/client: Prisma generated runtime + engine binary.
+                  # @prisma/client requires this synchronously at import time.
+                  # @vercel/nft never traces it (generated, not installed).
+                  if [ ! -f "node_modules/.prisma/client/index.js" ]; then
+                    SRC=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -path "*/.prisma/client" | head -n1 || true)
+                    if [ -n "$SRC" ]; then
+                      mkdir -p node_modules/.prisma
+                      cp -rL "$SRC" node_modules/.prisma/client
+                      echo "  patched: .prisma/client ($(ls node_modules/.prisma/client/*.node 2>/dev/null | wc -l) engine binary)"
+                    else
+                      echo "ERROR: .prisma/client not found — did pnpm db:generate succeed?"; exit 1
+                    fi
+                  fi
+
+                  # Verify all critical packages are present.
+                  [ -f "node_modules/next/package.json" ]         || { echo "❌ next missing"; exit 1; }
+                  [ -f "node_modules/styled-jsx/package.json" ]   || { echo "❌ styled-jsx missing"; exit 1; }
+                  [ -f "node_modules/.prisma/client/index.js" ]   || { echo "❌ .prisma/client missing"; exit 1; }
 
                   echo "  node_modules: $(find node_modules -maxdepth 1 -mindepth 1 -type d | wc -l) packages, $(du -sh node_modules | cut -f1)"
 
