@@ -124,8 +124,10 @@ jobs:
 
             - name: Resolve resource group
               run: |
-                  RG=$(az webapp show --name "$AZURE_WEBAPP_NAME" --query resourceGroup -o tsv)
+                  RG=$(az webapp list --query "[?name=='$AZURE_WEBAPP_NAME'].resourceGroup | [0]" -o tsv)
+                  [ -z "$RG" ] && { echo "ERROR: webapp $AZURE_WEBAPP_NAME not found"; exit 1; }
                   echo "AZURE_RESOURCE_GROUP=$RG" >> $GITHUB_ENV
+                  echo "Resource group: $RG"
 
             - name: Configure app settings
               run: |
