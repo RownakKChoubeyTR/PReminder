@@ -165,6 +165,23 @@ jobs:
               #     3000). Azure App Service routes incoming traffic to port 8080 by
               #     default. Without this setting Azure's health-check hits the wrong
               #     port, marks the app as unresponsive, and keeps restarting it.
+              #
+              #   SKIP_ENV_VALIDATION=1
+              #     Prevents @t3-oss/env-nextjs (Zod) from throwing at module load
+              #     time when required env vars are not yet set. Without this, the
+              #     server crashes immediately on startup before serving any request,
+              #     causing Azure's exponential-backoff restart loop (600 s hang).
+              #     Real env vars must still be present for the app to function —
+              #     this only suppresses the eager validation at boot.
+              #
+              #   NEXTAUTH_URL
+              #     Auth.js requires this to be set to the canonical app URL.
+              #     Without it the OAuth callback URL is constructed incorrectly.
+              #
+              #   WEBSITES_HEALTH_CHECK_PATH=/api/health
+              #     Tells Azure which path to probe for liveness checks.
+              #     /api/health returns 200 without importing env.ts or auth.ts,
+              #     so Azure correctly detects the app as healthy after startup.
               run: |
                   az webapp config appsettings set \
                     --resource-group preminder-rg \
@@ -172,7 +189,10 @@ jobs:
                     --settings \
                       ENABLE_ORYX_BUILD=false \
                       SCM_DO_BUILD_DURING_DEPLOYMENT=false \
-                      WEBSITES_PORT=3000
+                      WEBSITES_PORT=3000 \
+                      SKIP_ENV_VALIDATION=1 \
+                      NEXTAUTH_URL=https://tr-preminder.azurewebsites.net \
+                      WEBSITES_HEALTH_CHECK_PATH=/api/health
 
                   # Pin the startup command with an explicit PORT so both sides match:
                   #   PORT=3000  → Next.js standalone server.js listens on 3000

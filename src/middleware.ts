@@ -28,7 +28,7 @@ import { NextResponse } from 'next/server';
 // ── Route classification ─────────────────────────────────────
 
 /** Routes that bypass the middleware entirely (static assets, Auth.js). */
-const PASSTHROUGH_PREFIXES = ['/_next/', '/favicon.ico', '/sw.js', '/icons/', '/api/auth/'];
+const PASSTHROUGH_PREFIXES = ['/_next/', '/favicon.ico', '/sw.js', '/icons/', '/api/auth/', '/api/health'];
 
 /** Routes that are publicly accessible (shown to unauthenticated users). */
 const GUEST_ONLY_PATHS = new Set(['/', '/login']);
