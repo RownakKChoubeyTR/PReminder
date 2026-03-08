@@ -109,8 +109,8 @@ jobs:
                   cp -r .next/static .next/standalone/.next/static
                   cp -r public .next/standalone/public
                   cd .next/standalone
-                  zip -r ../../../deploy.zip . --quiet
-                  echo "deploy.zip size: $(du -sh ../../../deploy.zip | cut -f1)"
+                  zip -r "$GITHUB_WORKSPACE/deploy.zip" . --quiet
+                  echo "deploy.zip size: $(du -sh "$GITHUB_WORKSPACE/deploy.zip" | cut -f1)"
 
             - name: Login to Azure
               uses: azure/login@v2
