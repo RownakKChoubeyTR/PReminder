@@ -140,7 +140,19 @@ jobs:
                       WEBSITES_PORT=3000 \
                       HOSTNAME=0.0.0.0 \
                       NEXT_TELEMETRY_DISABLED=1 \
-                      SKIP_ENV_VALIDATION=1
+                      SKIP_ENV_VALIDATION=1 \
+                      DB_HOST=placeholder \
+                      DB_PORT=5432 \
+                      DB_USER=placeholder \
+                      DB_PASSWORD=placeholder \
+                      DB_NAME=placeholder \
+                      NEXTAUTH_URL=https://tr-preminder.azurewebsites.net \
+                      NEXTAUTH_SECRET=placeholder-secret-minimum-32-characters-long \
+                      AUTH_SECRET=placeholder-secret-minimum-32-characters-long \
+                      GITHUB_CLIENT_ID=placeholder \
+                      GITHUB_CLIENT_SECRET=placeholder \
+                      GITHUB_ORG=placeholder \
+                      ENCRYPTION_KEY=0000000000000000000000000000000000000000000000000000000000000000
 
                   az webapp config set \
                     --name "$AZURE_WEBAPP_NAME" \
