@@ -92,6 +92,13 @@ jobs:
                   DOCKER_BUILD: 'true'
                   SKIP_ENV_VALIDATION: '1'
                   NEXT_TELEMETRY_DISABLED: '1'
+                  # Placeholder DB vars — composeDatabaseUrl() throws at build time
+                  # if these are absent. Real values are injected via Azure App Settings.
+                  DB_HOST: placeholder
+                  DB_PORT: '5432'
+                  DB_USER: placeholder
+                  DB_PASSWORD: placeholder
+                  DB_NAME: placeholder
 
             # Standalone output layout expected by App Service:
             #   .next/standalone/          ← self-contained server (server.js)
