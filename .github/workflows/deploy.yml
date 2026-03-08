@@ -115,15 +115,20 @@ jobs:
             - name: Azure login
               uses: azure/login@v2
               with:
-                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
-                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+                  client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_AE994DDFDABB4116AADE8D8F097C2193 }}
+                  tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_56FAA57AD13A41B0817A18F59B855661 }}
+                  subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C5DBDD34999C4D27B0E40A7E492704CE }}
+
+            - name: Resolve resource group
+              run: |
+                  RG=$(az webapp show --name "$AZURE_WEBAPP_NAME" --query resourceGroup -o tsv)
+                  echo "AZURE_RESOURCE_GROUP=$RG" >> $GITHUB_ENV
 
             - name: Configure app settings
               run: |
                   az webapp config appsettings set \
                     --name "$AZURE_WEBAPP_NAME" \
-                    --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+                    --resource-group "$AZURE_RESOURCE_GROUP" \
                     --settings \
                       NODE_ENV=production \
                       PORT=3000 \
@@ -134,14 +139,14 @@ jobs:
 
                   az webapp config set \
                     --name "$AZURE_WEBAPP_NAME" \
-                    --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+                    --resource-group "$AZURE_RESOURCE_GROUP" \
                     --startup-file "node server.js"
 
             - name: Deploy
               run: |
                   az webapp deploy \
                     --name "$AZURE_WEBAPP_NAME" \
-                    --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+                    --resource-group "$AZURE_RESOURCE_GROUP" \
                     --src-path "$GITHUB_WORKSPACE/deploy.zip" \
                     --type zip \
                     --clean true \
@@ -164,7 +169,7 @@ jobs:
               run: |
                   az webapp log download \
                     --name "$AZURE_WEBAPP_NAME" \
-                    --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+                    --resource-group "$AZURE_RESOURCE_GROUP" \
                     --log-file azure-logs.zip 2>/dev/null || true
                   unzip -o azure-logs.zip -d azure-logs 2>/dev/null || true
                   find azure-logs -name "*.log" -exec tail -n 150 {} + 2>/dev/null || true
