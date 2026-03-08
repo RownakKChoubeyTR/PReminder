@@ -9,8 +9,12 @@
 #   zip → deploy to Azure App Service → run DB migrations
 #
 # Secrets required (set in repo Settings → Secrets → Actions):
-#   AZURE_APP_NAME        — App Service name (e.g. "preminder")
-#   AZURE_PUBLISH_PROFILE — Download from App Service → Get publish profile
+#   AZURE_APP_NAME    — App Service name (e.g. "tr-preminder")
+#   AZURE_CREDENTIALS — Service Principal JSON from:
+#                       az ad sp create-for-rbac --name "preminder-github-deploy"
+#                         --role contributor
+#                         --scopes /subscriptions/{id}/resourceGroups/preminder-rg
+#                         --json-auth
 #
 # App Service startup command (set once in Azure Portal):
 #   node server.js
@@ -102,11 +106,15 @@ jobs:
                   zip -r ../../../deploy.zip . --quiet
                   echo "deploy.zip size: $(du -sh ../../../deploy.zip | cut -f1)"
 
+            - name: Login to Azure
+              uses: azure/login@v2
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+
             - name: Deploy to Azure App Service
               uses: azure/webapps-deploy@v3
               with:
                   app-name: ${{ secrets.AZURE_APP_NAME }}
-                  publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
                   package: deploy.zip
 
             - name: Write deploy summary
