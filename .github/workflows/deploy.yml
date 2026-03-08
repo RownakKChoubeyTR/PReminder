@@ -208,97 +208,42 @@ jobs:
               run: |
                   echo "::group::Packaging standalone build"
 
-                  echo "  [1/6] Copying .next/static → .next/standalone/.next/static"
+                  echo "  [1/5] Copying .next/static → .next/standalone/.next/static"
                   cp -r .next/static .next/standalone/.next/static
                   echo "        size: $(du -sh .next/standalone/.next/static | cut -f1)"
 
-                  echo "  [2/6] Copying public/ → .next/standalone/public/"
+                  echo "  [2/5] Copying public/ → .next/standalone/public/"
                   cp -r public .next/standalone/public
                   echo "        size: $(du -sh .next/standalone/public | cut -f1)"
 
                   cd .next/standalone
 
-                  # ─── Patch packages missed by the Next.js 15 standalone trace ────────
-                  #
-                  # Next.js uses @vercel/nft (Node File Tracer) to find which files to
-                  # include in the standalone output. Some packages required at runtime
-                  # by next/dist/server/require-hook.js are NOT traced:
-                  #
-                  #   Error: Cannot find module 'styled-jsx/package.json'
-                  #   Require stack:
-                  #     /node_modules/next/dist/server/require-hook.js
-                  #     /node_modules/next/dist/server/next.js
-                  #     /home/site/wwwroot/server.js
-                  #
-                  # These are copied from the full install into standalone/node_modules
-                  # before we archive, so they survive into the deployed /node_modules.
-                  # ─────────────────────────────────────────────────────────────────────
-                  echo "  [3/6] Patching standalone node_modules (deps missed by nft trace)"
-                  MISSING=0
-                  for pkg in styled-jsx; do
-                    if [ ! -d "node_modules/$pkg" ]; then
-                      if [ -d "$GITHUB_WORKSPACE/node_modules/$pkg" ]; then
-                        cp -r "$GITHUB_WORKSPACE/node_modules/$pkg" "node_modules/$pkg"
-                        echo "        ✅ Copied missing package: $pkg ($(du -sh "node_modules/$pkg" | cut -f1))"
-                        MISSING=$((MISSING + 1))
-                      else
-                        echo "        ⚠️  $pkg not found in root node_modules — may crash at runtime"
-                      fi
-                    else
-                      echo "        ✅ $pkg already present in standalone"
-                    fi
-                  done
-                  if [ "$MISSING" -gt 0 ]; then
-                    echo "  Patched $MISSING missing package(s)"
+                  # Azure zip deploy does not reliably preserve pnpm symlink graphs.
+                  # Flatten links to real files so runtime module resolution is stable.
+                  echo "  [3/5] Flattening pnpm symlinks in node_modules"
+                  rm -rf node_modules_flat
+                  rsync -aL node_modules/ node_modules_flat/
+                  rm -rf node_modules
+                  mv node_modules_flat node_modules
+
+                  # Ensure no Oryx startup artifacts are shipped in the package.
+                  echo "  [4/5] Removing Oryx artifacts"
+                  rm -f oryx-manifest.toml node_modules.tar.gz
+
+                  if [ ! -f "node_modules/next/package.json" ]; then
+                    echo "  ❌ Missing node_modules/next/package.json in deploy artifact"
+                    exit 1
                   fi
 
-                  # ─── Oryx manifest ────────────────────────────────────────────────────
-                  #
-                  # Azure App Service (Oryx) has two startup paths:
-                  #
-                  #   A) oryx-manifest.toml present AND node_modules.tar.gz present:
-                  #        tar -xzf node_modules.tar.gz -C /node_modules
-                  #        mv -f node_modules _del_node_modules
-                  #        ln -sfn /node_modules ./node_modules
-                  #        → runs startup command with /node_modules symlinked
-                  #
-                  #   B) No manifest:
-                  #        → runs startup command with ./node_modules as-is
-                  #
-                  # Azure's /home is PERSISTENT STORAGE. oryx-manifest.toml created by
-                  # any previous Oryx build survives across deploys even when using
-                  # --clean true. We cannot reliably get path B.
-                  #
-                  # SOLUTION: always ship our own oryx-manifest.toml so we control what
-                  # Oryx reads. This guarantees path A is taken with OUR tar.gz.
-                  # ─────────────────────────────────────────────────────────────────────
-                  echo "  [4/6] Writing oryx-manifest.toml"
-                  cat > oryx-manifest.toml << 'TOML'
-                  OperationId = ""
-                  SourceDirectoryCommitId = ""
-                  PlatformName = "nodejs"
-                  PlatformVersion = "20.x.x"
-                  CompressedNodeModulesFile = "node_modules.tar.gz"
-                  TOML
-                  echo "        manifest written"
+                  if [ ! -f "node_modules/styled-jsx/package.json" ] && [ ! -f "node_modules/next/node_modules/styled-jsx/package.json" ]; then
+                    echo "  ❌ Missing styled-jsx dependency in deploy artifact"
+                    exit 1
+                  fi
 
-                  # ─── Tar packaging for Oryx path A ───────────────────────────────────
-                  #
-                  # Archive from INSIDE node_modules so contents extract flat into /node_modules:
-                  #   tar -xzf node_modules.tar.gz -C /node_modules
-                  #   → /node_modules/styled-jsx/package.json  ✓
-                  # rather than /node_modules/node_modules/styled-jsx/… (wrong).
-                  # ─────────────────────────────────────────────────────────────────────
-                  echo "  [5/6] Archiving node_modules → node_modules.tar.gz"
-                  tar -czf node_modules.tar.gz -C node_modules .
-                  echo "        tar.gz size: $(du -sh node_modules.tar.gz | cut -f1)"
-                  echo "        packages in tar: $(tar -tzf node_modules.tar.gz | grep -c '^[^/]*/package.json$' || true)"
-                  rm -rf node_modules
-
-                  # Remove package.json — prevents Oryx from running a redundant npm install.
+                  # Remove package.json to prevent any redundant install path.
                   rm -f package.json
 
-                  echo "  [6/6] Creating deploy.zip"
+                  echo "  [5/5] Creating deploy.zip"
                   zip -r "$GITHUB_WORKSPACE/deploy.zip" . --quiet
                   ZIP_SIZE=$(du -sh "$GITHUB_WORKSPACE/deploy.zip" | cut -f1)
                   echo "        deploy.zip size: $ZIP_SIZE"
