@@ -1,35 +1,17 @@
-name: Deploy
+name: Deploy to Azure App Service
 
 on:
-    workflow_run:
-        workflows: [CI]
-        types: [completed]
+    push:
         branches: [main]
     workflow_dispatch:
 
-concurrency:
-    group: deploy-production
-    cancel-in-progress: false
-
-permissions:
-    contents: read
-    id-token: write
-
 env:
+    AZURE_WEBAPP_NAME: tr-preminder
     NODE_VERSION: '20'
-    PNPM_VERSION: '9'
-    RESOURCE_GROUP: preminder-rg
-    APP_NAME: tr-preminder
-    APP_URL: https://tr-preminder.azurewebsites.net
 
 jobs:
     deploy:
-        name: Build & Deploy
         runs-on: ubuntu-latest
-        timeout-minutes: 20
-        if: >
-            github.event_name == 'workflow_dispatch' ||
-            github.event.workflow_run.conclusion == 'success'
 
         steps:
             - name: Checkout
@@ -38,220 +20,145 @@ jobs:
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
               with:
-                  version: ${{ env.PNPM_VERSION }}
+                  version: 9
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: ${{ env.NODE_VERSION }}
-                  cache: pnpm
-
-            - name: Restore Next.js build cache
-              id: next-cache
-              uses: actions/cache@v4
-              with:
-                  path: .next/cache
-                  key: nextjs-deploy-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**/*.{ts,tsx,scss}') }}
-                  restore-keys: |
-                      nextjs-deploy-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
-                      nextjs-deploy-${{ runner.os }}-
+                  cache: 'pnpm'
 
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
 
             - name: Generate Prisma client
-              run: pnpm db:generate
+              run: pnpm prisma generate
 
-            - name: Build (standalone)
-              run: pnpm build
+            - name: Build
               env:
                   DOCKER_BUILD: 'true'
                   SKIP_ENV_VALIDATION: '1'
-                  NEXT_TELEMETRY_DISABLED: '1'
-                  DB_HOST: placeholder
-                  DB_PORT: '5432'
-                  DB_USER: placeholder
-                  DB_PASSWORD: placeholder
-                  DB_NAME: placeholder
+              run: pnpm run build
 
-            - name: Verify build output
+            - name: Verify standalone output
               run: |
-                  [ -f ".next/standalone/server.js" ] || { echo "❌ server.js missing — standalone build failed"; exit 1; }
-                  echo "server.js: $(wc -c < .next/standalone/server.js) bytes"
-                  echo "standalone node_modules: $(find .next/standalone/node_modules -maxdepth 1 -mindepth 1 -type d | wc -l) packages"
+                  [ -f .next/standalone/server.js ]   || { echo "server.js missing from standalone"; exit 1; }
+                  [ -d .next/standalone/node_modules ] || { echo "node_modules missing from standalone"; exit 1; }
 
             - name: Package for deployment
               run: |
-                  echo "::group::Packaging"
-
                   cp -r .next/static .next/standalone/.next/static
                   cp -r public .next/standalone/public
                   cd .next/standalone
 
-                  # Step 1: Flatten pnpm virtual-store symlinks to real files.
-                  # Must run BEFORE patching — cp -r copies pnpm symlinks as-is,
-                  # and rsync -aL then follows them relative to the new location
-                  # where they are broken, causing files to vanish after flatten.
+                  # 1. Flatten pnpm virtual store symlinks (must happen before any patching)
                   rsync -aL node_modules/ node_modules_flat/
                   rm -rf node_modules && mv node_modules_flat node_modules
 
-                  # Step 2: Patch packages the Next.js 15 tracer misses.
-                  # Use cp -rL AFTER flatten — follows all symlinks to real files.
-
-                  # styled-jsx: required by next/dist/server/require-hook.js
+                  # 2. Patch styled-jsx — not traced by @vercel/nft but required by next/dist/server/require-hook.js
                   if [ ! -f "node_modules/styled-jsx/package.json" ]; then
-                    cp -rL "$GITHUB_WORKSPACE/node_modules/styled-jsx" node_modules/styled-jsx 2>/dev/null \
-                      || { SRC=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -path "*/node_modules/styled-jsx" | head -n1); [ -n "$SRC" ] && cp -rL "$SRC" node_modules/styled-jsx; }
-                    echo "  patched: styled-jsx"
+                    SRC=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -name "styled-jsx" -path "*/node_modules/styled-jsx" | head -n1)
+                    [ -n "$SRC" ] && cp -rL "$SRC" node_modules/styled-jsx || echo "WARNING: styled-jsx not found in pnpm store"
                   fi
 
-                  # .prisma/client: Prisma generated runtime + engine binary.
-                  # @prisma/client requires this synchronously at import time.
-                  # @vercel/nft never traces it (generated, not installed).
+                  # 3. Patch .prisma/client — generated at build time, never traced by @vercel/nft
                   if [ ! -f "node_modules/.prisma/client/index.js" ]; then
-                    SRC=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -path "*/.prisma/client" | head -n1 || true)
+                    # First try pnpm store
+                    SRC=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -name "client" -path "*/.prisma/client" | head -n1)
                     if [ -n "$SRC" ]; then
                       mkdir -p node_modules/.prisma
                       cp -rL "$SRC" node_modules/.prisma/client
-                      echo "  patched: .prisma/client ($(ls node_modules/.prisma/client/*.node 2>/dev/null | wc -l) engine binary)"
+                    # Fall back to root node_modules (where prisma generate writes)
+                    elif [ -d "$GITHUB_WORKSPACE/node_modules/.prisma/client" ]; then
+                      mkdir -p node_modules/.prisma
+                      cp -rL "$GITHUB_WORKSPACE/node_modules/.prisma/client" node_modules/.prisma/client
                     else
-                      echo "ERROR: .prisma/client not found — did pnpm db:generate succeed?"; exit 1
+                      echo "ERROR: .prisma/client not found"; exit 1
                     fi
                   fi
 
-                  # Verify all critical packages are present.
-                  [ -f "node_modules/next/package.json" ]         || { echo "❌ next missing"; exit 1; }
-                  [ -f "node_modules/styled-jsx/package.json" ]   || { echo "❌ styled-jsx missing"; exit 1; }
-                  [ -f "node_modules/.prisma/client/index.js" ]   || { echo "❌ .prisma/client missing"; exit 1; }
+                  # 4. Verify all critical packages are present
+                  [ -f "node_modules/next/package.json" ]          || { echo "next missing"; exit 1; }
+                  [ -f "node_modules/styled-jsx/package.json" ]    || { echo "styled-jsx missing"; exit 1; }
+                  [ -f "node_modules/.prisma/client/index.js" ]    || { echo ".prisma/client missing"; exit 1; }
+                  echo "Packages verified: next, styled-jsx, .prisma/client all present"
+                  echo "Prisma engine binaries: $(ls node_modules/.prisma/client/*.node 2>/dev/null | wc -l)"
 
-                  echo "  node_modules: $(find node_modules -maxdepth 1 -mindepth 1 -type d | wc -l) packages, $(du -sh node_modules | cut -f1)"
-
-                  # Azure App Service (Oryx) startup behavior:
-                  #   If oryx-manifest.toml exists in wwwroot (it persists in /home across
-                  #   deploys even with --clean true), Oryx always runs tar extraction:
-                  #     tar -xzf node_modules.tar.gz -C /node_modules
-                  #     mv -f node_modules _del_node_modules
-                  #     ln -sfn /node_modules ./node_modules
-                  #   If we don't ship node_modules.tar.gz, the tar fails silently, our
-                  #   node_modules dir gets renamed away, and server.js starts with an
-                  #   empty /node_modules — crash loop → "Starting the site..." hang.
-                  #   Fix: always ship both oryx-manifest.toml + node_modules.tar.gz.
+                  # 5. Package node_modules for Oryx extraction
                   tar -czf node_modules.tar.gz -C node_modules .
                   rm -rf node_modules
-                  echo "  node_modules.tar.gz: $(du -sh node_modules.tar.gz | cut -f1)"
 
+                  # 6. oryx-manifest.toml tells Oryx to extract node_modules.tar.gz before starting
                   printf 'OperationId = ""\nPlatformName = "nodejs"\nPlatformVersion = "20.x.x"\nCompressedNodeModulesFile = "node_modules.tar.gz"\n' > oryx-manifest.toml
 
+                  # 7. Remove package.json so Oryx does not attempt its own npm install
                   rm -f package.json
 
+                  # 8. Create deployment zip
                   zip -r "$GITHUB_WORKSPACE/deploy.zip" . --quiet
-                  echo "  deploy.zip: $(du -sh "$GITHUB_WORKSPACE/deploy.zip" | cut -f1)"
-                  echo "  Contents (top-level):"
-                  unzip -l "$GITHUB_WORKSPACE/deploy.zip" | awk '{print $NF}' | grep -v '/$' | sed 's|/.*||' | sort -u | head -15
-                  echo "::endgroup::"
+                  echo "deploy.zip size: $(du -sh "$GITHUB_WORKSPACE/deploy.zip" | cut -f1)"
 
-            - name: Login to Azure
+            - name: Azure login
               uses: azure/login@v2
               with:
-                  client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_AE994DDFDABB4116AADE8D8F097C2193 }}
-                  tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_56FAA57AD13A41B0817A18F59B855661 }}
-                  subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C5DBDD34999C4D27B0E40A7E492704CE }}
+                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-            - name: Configure App Service
+            - name: Configure app settings
               run: |
                   az webapp config appsettings set \
-                    --resource-group "$RESOURCE_GROUP" --name "$APP_NAME" \
+                    --name "$AZURE_WEBAPP_NAME" \
+                    --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
                     --settings \
-                      ENABLE_ORYX_BUILD=false \
-                      SCM_DO_BUILD_DURING_DEPLOYMENT=false \
+                      NODE_ENV=production \
+                      PORT=3000 \
                       WEBSITES_PORT=3000 \
-                      SKIP_ENV_VALIDATION=1 \
-                      NEXTAUTH_URL="$APP_URL" \
-                      WEBSITE_HEALTHCHECK_PATH=/api/health \
-                    --output none
-
-                  # composeDatabaseUrl() throws at module scope if any DB_* var is absent,
-                  # crashing server.js before it ever calls listen(). Inject placeholders
-                  # so the process stays alive. Real values must be set in Azure Portal.
-                  CURRENT_DB_HOST=$(az webapp config appsettings list \
-                    --resource-group "$RESOURCE_GROUP" --name "$APP_NAME" \
-                    --query "[?name=='DB_HOST'].value | [0]" -o tsv 2>/dev/null || echo "")
-                  if [ -z "$CURRENT_DB_HOST" ] || [ "$CURRENT_DB_HOST" = "placeholder" ]; then
-                    az webapp config appsettings set \
-                      --resource-group "$RESOURCE_GROUP" --name "$APP_NAME" \
-                      --settings DB_HOST=placeholder DB_PORT=5432 DB_USER=placeholder DB_PASSWORD=placeholder DB_NAME=placeholder \
-                      --output none
-                    echo "WARNING: DB vars are placeholders. Set real values in Azure Portal → App Service → Configuration."
-                  fi
+                      HOSTNAME=0.0.0.0 \
+                      NEXT_TELEMETRY_DISABLED=1 \
+                      SKIP_ENV_VALIDATION=1
 
                   az webapp config set \
-                    --resource-group "$RESOURCE_GROUP" --name "$APP_NAME" \
-                    --startup-file "PORT=3000 node server.js" \
-                    --output none
+                    --name "$AZURE_WEBAPP_NAME" \
+                    --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+                    --startup-file "node server.js"
 
-                  echo "Configuration applied. Startup: PORT=3000 node server.js"
-
-            - name: Deploy to Azure App Service
+            - name: Deploy
               run: |
                   az webapp deploy \
-                    --resource-group "$RESOURCE_GROUP" --name "$APP_NAME" \
+                    --name "$AZURE_WEBAPP_NAME" \
+                    --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
                     --src-path "$GITHUB_WORKSPACE/deploy.zip" \
-                    --type zip --clean true --async true
-                  echo "Deployment submitted → $APP_URL"
-                  echo "Live logs: https://$APP_NAME.scm.azurewebsites.net/api/logs/docker"
+                    --type zip \
+                    --clean true \
+                    --async true
 
-            - name: Wait for app to start
+            - name: Health check
               run: |
-                  echo "::group::Health check — $APP_URL/api/health"
-                  MAX_WAIT=180; INTERVAL=10; ELAPSED=0
-                  while [ "$ELAPSED" -lt "$MAX_WAIT" ]; do
-                    CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$APP_URL/api/health" 2>/dev/null || echo "000")
-                    echo "  [${ELAPSED}s] /api/health → HTTP $CODE"
-                    if [ "$CODE" = "200" ]; then
-                      echo "App is healthy (HTTP 200 in ${ELAPSED}s)"
-                      echo "::endgroup::"
-                      exit 0
-                    fi
-                    sleep "$INTERVAL"
-                    ELAPSED=$((ELAPSED + INTERVAL))
+                  URL="https://$AZURE_WEBAPP_NAME.azurewebsites.net/api/health"
+                  for i in $(seq 1 36); do
+                    STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL" || echo "000")
+                    echo "[$i/36] $URL -> HTTP $STATUS"
+                    [ "$STATUS" = "200" ] && echo "App is healthy" && exit 0
+                    sleep 5
                   done
-                  echo "Health check timed out after ${MAX_WAIT}s — last HTTP $CODE"
-                  echo "::endgroup::"
+                  echo "Health check timed out after 3 minutes"
                   exit 1
 
-            - name: Fetch startup logs on failure
+            - name: Fetch logs on failure
               if: failure()
               run: |
-                  echo "::group::Azure startup logs"
                   az webapp log download \
-                    --resource-group "$RESOURCE_GROUP" --name "$APP_NAME" \
-                    --log-file /tmp/logs.zip 2>&1 || true
-                  if [ -f /tmp/logs.zip ]; then
-                    unzip -o /tmp/logs.zip -d /tmp/logs > /dev/null 2>&1 || true
-                    echo "Log files:"
-                    find /tmp/logs -name "*.log" | sort
-                    echo ""
-                    find /tmp/logs -name "*.log" | sort -r | head -5 | while read -r f; do
-                      echo "=== $f (last 200 lines) ==="
-                      tail -200 "$f"
-                      echo ""
-                    done
-                  else
-                    az webapp log show --resource-group "$RESOURCE_GROUP" --name "$APP_NAME" 2>&1 | tail -150 || true
-                  fi
-                  echo "::endgroup::"
+                    --name "$AZURE_WEBAPP_NAME" \
+                    --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+                    --log-file azure-logs.zip 2>/dev/null || true
+                  unzip -o azure-logs.zip -d azure-logs 2>/dev/null || true
+                  find azure-logs -name "*.log" -exec tail -n 150 {} + 2>/dev/null || true
 
-            - name: Write deploy summary
+            - name: Summary
               if: always()
               run: |
-                  {
-                    echo "## Deploy — $(date -u '+%Y-%m-%d %H:%M UTC')"
-                    if [ "${{ job.status }}" = "success" ]; then
-                      echo "### Deployment succeeded"
-                      echo "**URL:** $APP_URL | **Commit:** \`$GITHUB_SHA\` | **Actor:** $GITHUB_ACTOR"
-                    else
-                      echo "### Deployment failed"
-                      echo "Check the **Fetch startup logs on failure** step for the crash log."
-                      echo "Kudu logs: https://$APP_NAME.scm.azurewebsites.net/api/logs/docker"
-                    fi
-                  } >> "$GITHUB_STEP_SUMMARY"
+                  echo "### Deployment" >> $GITHUB_STEP_SUMMARY
+                  echo "- URL: https://$AZURE_WEBAPP_NAME.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
+                  echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
