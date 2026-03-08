@@ -208,51 +208,45 @@ jobs:
               run: |
                   echo "::group::Packaging standalone build"
 
-                  echo "  [1/5] Copying .next/static → .next/standalone/.next/static"
+                  echo "  [1/4] Copying .next/static → .next/standalone/.next/static"
                   cp -r .next/static .next/standalone/.next/static
                   echo "        size: $(du -sh .next/standalone/.next/static | cut -f1)"
 
-                  echo "  [2/5] Copying public/ → .next/standalone/public/"
+                  echo "  [2/4] Copying public/ → .next/standalone/public/"
                   cp -r public .next/standalone/public
                   echo "        size: $(du -sh .next/standalone/public | cut -f1)"
 
                   cd .next/standalone
 
-                  # WHY node_modules.tar.gz exists in the zip:
+                  # WHY node_modules is shipped as a plain directory (NOT tar.gz):
                   #
-                  # Oryx regenerates oryx-manifest.toml on EVERY deploy (even with
-                  # ENABLE_ORYX_BUILD=false) and its startup script always does:
+                  # When no oryx-manifest.toml exists in wwwroot, Oryx takes the
+                  # simple startup path — confirmed from Azure Docker logs:
                   #
-                  #   tar -xzf node_modules.tar.gz -C /node_modules   # extract to /node_modules
-                  #   mv -f node_modules _del_node_modules             # rename our dir aside
-                  #   ln -sfn /node_modules ./node_modules             # symlink to extracted set
+                  #   Could not find build manifest file at '/home/site/wwwroot/oryx-manifest.toml'
+                  #   PATH="$PATH:/home/site/wwwroot" PORT=3000 node server.js
                   #
-                  # If we ship only a node_modules/ directory (no tar.gz), the startup
-                  # renames it aside and symlinks to an empty /node_modules — causing
-                  # "Cannot find module 'styled-jsx/package.json'" on every boot.
+                  # This path does NOT run any tar extraction. If we archive
+                  # node_modules into node_modules.tar.gz and delete the directory,
+                  # server.js launches with no node_modules present and crashes:
                   #
-                  # SOLUTION: pack our complete standalone node_modules into the exact
-                  # format Oryx expects. Archive from INSIDE the directory so the tar
-                  # contents extract flat:
-                  #   tar -xzf node_modules.tar.gz -C /node_modules
-                  #   → /node_modules/styled-jsx/…  ✓
-                  # rather than /node_modules/node_modules/styled-jsx/… (wrong).
+                  #   Error: Cannot find module 'next'
+                  #   Require stack: /home/site/wwwroot/server.js
                   #
-                  # After extraction the symlink ./node_modules → /node_modules gives
-                  # server.js access to all deps including styled-jsx.
+                  # FIX: ship node_modules as a plain directory so server.js finds
+                  # all dependencies immediately on startup. Oryx (with
+                  # ENABLE_ORYX_BUILD=false) will not touch node_modules at all.
+                  #
+                  # Remove package.json only — prevents Oryx from running npm install
+                  # if it does inspect the directory.
 
-                  echo "  [3/5] Archiving node_modules → node_modules.tar.gz (flat format for Oryx)"
-                  tar -czf node_modules.tar.gz -C node_modules .
-                  echo "        tar.gz size: $(du -sh node_modules.tar.gz | cut -f1)"
-
-                  echo "  [4/5] Removing node_modules/ (replaced by tar.gz; Oryx startup handles extraction)"
-                  rm -rf node_modules
-
-                  # Remove package.json so Oryx does not run a redundant npm install.
-                  echo "  [4/5] Removing package.json (prevents Oryx from running npm install)"
+                  echo "  [3/4] Removing package.json (prevents redundant Oryx npm install)"
                   rm -f package.json
 
-                  echo "  [5/5] Creating deploy.zip"
+                  echo "  node_modules present: $(find node_modules -maxdepth 1 -mindepth 1 -type d | wc -l) packages"
+                  echo "  node_modules size:    $(du -sh node_modules | cut -f1)"
+
+                  echo "  [4/4] Creating deploy.zip (node_modules shipped as directory)"
                   zip -r "$GITHUB_WORKSPACE/deploy.zip" . --quiet
                   ZIP_SIZE=$(du -sh "$GITHUB_WORKSPACE/deploy.zip" | cut -f1)
                   echo "        deploy.zip size: $ZIP_SIZE"
