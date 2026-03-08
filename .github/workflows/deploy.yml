@@ -184,12 +184,20 @@ jobs:
             - name: Fetch logs on failure
               if: failure()
               run: |
+                  echo "=== Live Docker log (last 200 lines) ==="
+                  az webapp log tail \
+                    --name "$AZURE_WEBAPP_NAME" \
+                    --resource-group "$AZURE_RESOURCE_GROUP" \
+                    --timeout 15 2>/dev/null || true
+
+                  echo "=== Downloading full log archive ==="
                   az webapp log download \
                     --name "$AZURE_WEBAPP_NAME" \
                     --resource-group "$AZURE_RESOURCE_GROUP" \
                     --log-file azure-logs.zip 2>/dev/null || true
                   unzip -o azure-logs.zip -d azure-logs 2>/dev/null || true
-                  find azure-logs -name "*.log" -exec tail -n 150 {} + 2>/dev/null || true
+                  echo "=== Docker container logs ==="
+                  find azure-logs -name "*docker*" -exec tail -n 200 {} + 2>/dev/null || true
 
             - name: Summary
               if: always()
