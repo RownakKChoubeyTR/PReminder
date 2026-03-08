@@ -111,12 +111,32 @@ jobs:
                   cp -r public .next/standalone/public
                   cd .next/standalone
 
-                  # Next.js copies the full project package.json here during the build.
-                  # Oryx finds it, reads the ~50 listed dependencies, and runs a full
-                  # npm install — adding 5-6 minutes to every deploy even when
-                  # ENABLE_ORYX_BUILD=false is set (race condition: the deploy API call
-                  # fires before the app-setting restart fully propagates).
-                  # server.js has no runtime dependency on this file; removing it is safe.
+                  # WHY node_modules.tar.gz exists in the zip:
+                  #
+                  # Oryx regenerates oryx-manifest.toml on EVERY deploy (even with
+                  # ENABLE_ORYX_BUILD=false) and its startup script always does:
+                  #
+                  #   tar -xzf node_modules.tar.gz -C /node_modules   # extract to /node_modules
+                  #   mv -f node_modules _del_node_modules             # rename our dir aside
+                  #   ln -sfn /node_modules ./node_modules             # symlink to extracted set
+                  #
+                  # If we ship only a node_modules/ directory (no tar.gz), the startup
+                  # renames it aside and symlinks to an empty /node_modules — causing
+                  # "Cannot find module 'styled-jsx/package.json'" on every boot.
+                  #
+                  # SOLUTION: pack our complete standalone node_modules into the exact
+                  # format Oryx expects. Archive from INSIDE the directory so the tar
+                  # contents extract flat:
+                  #   tar -xzf node_modules.tar.gz -C /node_modules
+                  #   → /node_modules/styled-jsx/…  ✓
+                  # rather than /node_modules/node_modules/styled-jsx/… (wrong).
+                  #
+                  # After extraction the symlink ./node_modules → /node_modules gives
+                  # server.js access to all deps including styled-jsx.
+                  tar -czf node_modules.tar.gz -C node_modules .
+                  rm -rf node_modules  # replaced by tar.gz; Oryx startup handles extraction
+
+                  # Remove package.json so Oryx does not run a redundant npm install.
                   rm -f package.json
 
                   zip -r "$GITHUB_WORKSPACE/deploy.zip" . --quiet
