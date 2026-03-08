@@ -154,11 +154,17 @@ jobs:
                       SCM_DO_BUILD_DURING_DEPLOYMENT=false \
                       WEBSITES_PORT=3000
 
-                  # Pin the startup command so Azure never auto-detects the wrong one.
+                  # Pin the startup command with an explicit PORT so both sides match:
+                  #   PORT=3000  → Next.js standalone server.js listens on 3000
+                  #   WEBSITES_PORT=3000 (above) → Azure routes health-checks to 3000
+                  #
+                  # Without PORT=3000 here, Azure injects PORT=8080 into the process env.
+                  # server.js then listens on 8080 while Azure health-checks 3000 →
+                  # no response → "Starting the site..." loops until timeout.
                   az webapp config set \
                     --resource-group preminder-rg \
                     --name tr-preminder \
-                    --startup-file "node server.js"
+                    --startup-file "PORT=3000 node server.js"
 
             - name: Deploy to Azure App Service
               # --clean wipes /home/site/wwwroot before extracting, preventing stale
