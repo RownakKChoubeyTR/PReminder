@@ -109,6 +109,8 @@ jobs:
                   cp -r .next/static .next/standalone/.next/static
                   cp -r public .next/standalone/public
                   cd .next/standalone
+                  # Add .oryxignore to tell Oryx this is a pre-built package.
+                  echo "node_modules" > .oryxignore
                   zip -r "$GITHUB_WORKSPACE/deploy.zip" . --quiet
                   echo "deploy.zip size: $(du -sh "$GITHUB_WORKSPACE/deploy.zip" | cut -f1)"
 
@@ -120,11 +122,18 @@ jobs:
                   subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C5DBDD34999C4D27B0E40A7E492704CE }}
 
             - name: Deploy to Azure App Service
-              uses: azure/webapps-deploy@v3
-              with:
-                  app-name: 'tr-preminder'
-                  slot-name: 'Production'
-                  package: deploy.zip
+              # az webapp deploy --clean wipes /home/site/wwwroot before extracting
+              # the zip. This prevents stale oryx-manifest.toml / node_modules.tar.gz
+              # from previous Oryx builds clobbering our standalone node_modules.
+              # --async skips waiting for startup health check (avoids 10min timeout).
+              run: |
+                  az webapp deploy \
+                    --resource-group preminder-rg \
+                    --name tr-preminder \
+                    --src-path "$GITHUB_WORKSPACE/deploy.zip" \
+                    --type zip \
+                    --clean true \
+                    --async true
 
             - name: Write deploy summary
               if: always()
