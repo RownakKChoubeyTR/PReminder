@@ -100,6 +100,9 @@ jobs:
 
             - name: Configure app settings
               run: |
+                  # Only set static infrastructure settings — never credentials or secrets.
+                  # DB_*, GITHUB_CLIENT_*, NEXTAUTH_SECRET, AUTH_SECRET, ENCRYPTION_KEY
+                  # must be set once in Azure Portal and are never touched here.
                   az webapp config appsettings set \
                     --name "$AZURE_WEBAPP_NAME" \
                     --resource-group "$AZURE_RESOURCE_GROUP" \
@@ -109,19 +112,7 @@ jobs:
                       WEBSITES_PORT=3000 \
                       HOSTNAME=0.0.0.0 \
                       NEXT_TELEMETRY_DISABLED=1 \
-                      SKIP_ENV_VALIDATION=1 \
-                      DB_HOST=placeholder \
-                      DB_PORT=5432 \
-                      DB_USER=placeholder \
-                      DB_PASSWORD=placeholder \
-                      DB_NAME=placeholder \
-                      NEXTAUTH_URL=https://tr-preminder.azurewebsites.net \
-                      NEXTAUTH_SECRET=placeholder-secret-minimum-32-characters-long \
-                      AUTH_SECRET=placeholder-secret-minimum-32-characters-long \
-                      GITHUB_CLIENT_ID=placeholder \
-                      GITHUB_CLIENT_SECRET=placeholder \
-                      GITHUB_ORG=placeholder \
-                      ENCRYPTION_KEY=0000000000000000000000000000000000000000000000000000000000000000
+                      NEXTAUTH_URL=https://$AZURE_WEBAPP_NAME.azurewebsites.net
 
                   az webapp config set \
                     --name "$AZURE_WEBAPP_NAME" \
