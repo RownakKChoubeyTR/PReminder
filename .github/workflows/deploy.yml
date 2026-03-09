@@ -65,8 +65,6 @@ jobs:
                   rm -rf node_modules
                   rsync -aL --exclude='.pnpm' --exclude='.modules.yaml' \
                     "$GITHUB_WORKSPACE/node_modules/" node_modules/
-                  rm -rf node_modules/.prisma
-                  cp -rL "$GITHUB_WORKSPACE/node_modules/.prisma" node_modules/
                   tar -czf node_modules.tar.gz -C node_modules .
                   rm -rf node_modules
                   printf 'OperationId = ""\nPlatformName = "nodejs"\nPlatformVersion = "20.x.x"\nCompressedNodeModulesFile = "node_modules.tar.gz"\n' > oryx-manifest.toml
