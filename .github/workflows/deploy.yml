@@ -60,11 +60,7 @@ jobs:
               run: |
                   cp -r .next/static .next/standalone/.next/static
                   cp -r public .next/standalone/public
-                  pnpm prisma generate
                   cd .next/standalone
-                  rm -rf node_modules
-                  rsync -aL --exclude='.pnpm' --exclude='.modules.yaml' \
-                    "$GITHUB_WORKSPACE/node_modules/" node_modules/
                   tar -czf node_modules.tar.gz -C node_modules .
                   rm -rf node_modules
                   printf 'OperationId = ""\nPlatformName = "nodejs"\nPlatformVersion = "20.x.x"\nCompressedNodeModulesFile = "node_modules.tar.gz"\n' > oryx-manifest.toml
