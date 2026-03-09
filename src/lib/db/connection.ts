@@ -59,6 +59,13 @@ export function composeDatabaseUrl(): string {
     const name = process.env.DB_NAME;
 
     if (!user || !password || !host || !port || !name) {
+        // During Next.js build (SKIP_ENV_VALIDATION=1) the DB vars are not
+        // available — no connection is made at build time, so return a
+        // placeholder that satisfies Prisma's URL parser without throwing.
+        if (process.env.SKIP_ENV_VALIDATION) {
+            return 'postgresql://build:build@localhost:5432/build';
+        }
+
         const missing = [
             !user && 'DB_USER',
             !password && 'DB_PASSWORD',
