@@ -72,10 +72,24 @@ jobs:
                   rsync -aL node_modules/ node_modules_flat/
                   rm -rf node_modules && mv node_modules_flat node_modules
 
-                  # 2. Patch styled-jsx — not traced by @vercel/nft but required by next/dist/server/require-hook.js
+                  # 2. Patch packages not traced by @vercel/nft (outputFileTracingIncludes handles
+                  #    this at build time; these cp's are a fallback if any are still missing)
+
                   if [ ! -f "node_modules/styled-jsx/package.json" ]; then
                     SRC=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -name "styled-jsx" -path "*/node_modules/styled-jsx" | head -n1)
-                    [ -n "$SRC" ] && cp -rL "$SRC" node_modules/styled-jsx || echo "WARNING: styled-jsx not found in pnpm store"
+                    [ -z "$SRC" ] && SRC="$GITHUB_WORKSPACE/node_modules/styled-jsx"
+                    [ -d "$SRC" ] && cp -rL "$SRC" node_modules/styled-jsx || echo "WARNING: styled-jsx not found"
+                  fi
+
+                  if [ ! -d "node_modules/@swc/helpers" ]; then
+                    SRC=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -name "helpers" -path "*/@swc/helpers" | head -n1)
+                    [ -z "$SRC" ] && SRC="$GITHUB_WORKSPACE/node_modules/@swc/helpers"
+                    if [ -d "$SRC" ]; then
+                      mkdir -p node_modules/@swc
+                      cp -rL "$SRC" node_modules/@swc/helpers
+                    else
+                      echo "WARNING: @swc/helpers not found"
+                    fi
                   fi
 
                   # 3. Patch .prisma/client — generated at build time, never traced by @vercel/nft
@@ -97,8 +111,9 @@ jobs:
                   # 4. Verify all critical packages are present
                   [ -f "node_modules/next/package.json" ]          || { echo "next missing"; exit 1; }
                   [ -f "node_modules/styled-jsx/package.json" ]    || { echo "styled-jsx missing"; exit 1; }
+                  [ -d "node_modules/@swc/helpers" ]               || { echo "@swc/helpers missing"; exit 1; }
                   [ -f "node_modules/.prisma/client/index.js" ]    || { echo ".prisma/client missing"; exit 1; }
-                  echo "Packages verified: next, styled-jsx, .prisma/client all present"
+                  echo "Packages verified: next, styled-jsx, @swc/helpers, .prisma/client all present"
                   echo "Prisma engine binaries: $(ls node_modules/.prisma/client/*.node 2>/dev/null | wc -l)"
 
                   # 5. Package node_modules for Oryx extraction

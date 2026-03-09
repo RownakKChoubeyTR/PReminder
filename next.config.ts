@@ -39,7 +39,16 @@ const nextConfig: NextConfig = {
         ]
     },
 
-    // Disable telemetry
+    // Force @vercel/nft to include packages it misses from standalone output.
+    // Without this, server.js crashes at startup with MODULE_NOT_FOUND for these.
+    outputFileTracingIncludes: {
+        '/**': [
+            './node_modules/@swc/helpers/**/*',
+            './node_modules/styled-jsx/**/*',
+            './node_modules/.prisma/client/**/*'
+        ]
+    },
+
     experimental: {
         serverSourceMaps: true
     }
