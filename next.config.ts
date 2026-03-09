@@ -43,7 +43,8 @@ const nextConfig: NextConfig = {
     // Without this, server.js crashes at startup with MODULE_NOT_FOUND for these.
     outputFileTracingIncludes: {
         '/**': [
-            './node_modules/@swc/helpers/**/*',
+            './node_modules/@next/**/*',
+            './node_modules/@swc/**/*',
             './node_modules/styled-jsx/**/*',
             './node_modules/.prisma/client/**/*'
         ]

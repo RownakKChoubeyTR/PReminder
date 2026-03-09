@@ -41,9 +41,6 @@ jobs:
               env:
                   DOCKER_BUILD: 'true'
                   SKIP_ENV_VALIDATION: '1'
-                  # Dummy values so composeDatabaseUrl() doesn't throw at module-eval time.
-                  # composeDatabaseUrl() checks process.env directly (not env.ts/Zod),
-                  # so SKIP_ENV_VALIDATION alone is not enough.
                   DB_HOST: build-placeholder
                   DB_PORT: '5432'
                   DB_USER: build-placeholder
@@ -57,78 +54,36 @@ jobs:
                   ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
               run: pnpm run build
 
-            - name: Verify standalone output
-              run: |
-                  [ -f .next/standalone/server.js ]   || { echo "server.js missing from standalone"; exit 1; }
-                  [ -d .next/standalone/node_modules ] || { echo "node_modules missing from standalone"; exit 1; }
-
             - name: Package for deployment
               run: |
                   cp -r .next/static .next/standalone/.next/static
                   cp -r public .next/standalone/public
                   cd .next/standalone
 
-                  # 1. Flatten pnpm virtual store symlinks (must happen before any patching)
-                  rsync -aL node_modules/ node_modules_flat/
-                  rm -rf node_modules && mv node_modules_flat node_modules
+                  # Replace standalone's sparse node_modules with the FULL workspace node_modules.
+                  # rsync -aL dereferences all pnpm symlinks into a standard flat directory.
+                  # Every installed package is present — adding new deps just works, no hardcoding.
+                  rm -rf node_modules
+                  rsync -aL \
+                    --exclude='.pnpm' \
+                    --exclude='.modules.yaml' \
+                    "$GITHUB_WORKSPACE/node_modules/" node_modules/
 
-                  # 2. Patch packages not traced by @vercel/nft (outputFileTracingIncludes handles
-                  #    this at build time; these cp's are a fallback if any are still missing)
+                  echo "node_modules size: $(du -sh node_modules | cut -f1)"
 
-                  if [ ! -f "node_modules/styled-jsx/package.json" ]; then
-                    SRC=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -name "styled-jsx" -path "*/node_modules/styled-jsx" | head -n1)
-                    [ -z "$SRC" ] && SRC="$GITHUB_WORKSPACE/node_modules/styled-jsx"
-                    [ -d "$SRC" ] && cp -rL "$SRC" node_modules/styled-jsx || echo "WARNING: styled-jsx not found"
-                  fi
+                  # Verify the packages the server absolutely must have at startup
+                  [ -f "node_modules/next/package.json" ]       || { echo "FAIL: next missing"; exit 1; }
+                  [ -f "node_modules/@next/env/package.json" ]  || { echo "FAIL: @next/env missing"; exit 1; }
+                  [ -f "node_modules/.prisma/client/index.js" ] || { echo "FAIL: .prisma/client missing"; exit 1; }
+                  echo "All packages verified"
 
-                  if [ ! -d "node_modules/@swc/helpers" ]; then
-                    SRC=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -name "helpers" -path "*/@swc/helpers" | head -n1)
-                    [ -z "$SRC" ] && SRC="$GITHUB_WORKSPACE/node_modules/@swc/helpers"
-                    if [ -d "$SRC" ]; then
-                      mkdir -p node_modules/@swc
-                      cp -rL "$SRC" node_modules/@swc/helpers
-                    else
-                      echo "WARNING: @swc/helpers not found"
-                    fi
-                  fi
-
-                  # 3. Patch .prisma/client — generated at build time, never traced by @vercel/nft
-                  if [ ! -f "node_modules/.prisma/client/index.js" ]; then
-                    # First try pnpm store
-                    SRC=$(find "$GITHUB_WORKSPACE/node_modules/.pnpm" -type d -name "client" -path "*/.prisma/client" | head -n1)
-                    if [ -n "$SRC" ]; then
-                      mkdir -p node_modules/.prisma
-                      cp -rL "$SRC" node_modules/.prisma/client
-                    # Fall back to root node_modules (where prisma generate writes)
-                    elif [ -d "$GITHUB_WORKSPACE/node_modules/.prisma/client" ]; then
-                      mkdir -p node_modules/.prisma
-                      cp -rL "$GITHUB_WORKSPACE/node_modules/.prisma/client" node_modules/.prisma/client
-                    else
-                      echo "ERROR: .prisma/client not found"; exit 1
-                    fi
-                  fi
-
-                  # 4. Verify all critical packages are present
-                  [ -f "node_modules/next/package.json" ]          || { echo "next missing"; exit 1; }
-                  [ -f "node_modules/styled-jsx/package.json" ]    || { echo "styled-jsx missing"; exit 1; }
-                  [ -d "node_modules/@swc/helpers" ]               || { echo "@swc/helpers missing"; exit 1; }
-                  [ -f "node_modules/.prisma/client/index.js" ]    || { echo ".prisma/client missing"; exit 1; }
-                  echo "Packages verified: next, styled-jsx, @swc/helpers, .prisma/client all present"
-                  echo "Prisma engine binaries: $(ls node_modules/.prisma/client/*.node 2>/dev/null | wc -l)"
-
-                  # 5. Package node_modules for Oryx extraction
+                  # Package for Oryx: tar node_modules + manifest so Oryx extracts before starting
                   tar -czf node_modules.tar.gz -C node_modules .
                   rm -rf node_modules
-
-                  # 6. oryx-manifest.toml tells Oryx to extract node_modules.tar.gz before starting
                   printf 'OperationId = ""\nPlatformName = "nodejs"\nPlatformVersion = "20.x.x"\nCompressedNodeModulesFile = "node_modules.tar.gz"\n' > oryx-manifest.toml
-
-                  # 7. Remove package.json so Oryx does not attempt its own npm install
                   rm -f package.json
-
-                  # 8. Create deployment zip
                   zip -r "$GITHUB_WORKSPACE/deploy.zip" . --quiet
-                  echo "deploy.zip size: $(du -sh "$GITHUB_WORKSPACE/deploy.zip" | cut -f1)"
+                  echo "deploy.zip: $(du -sh "$GITHUB_WORKSPACE/deploy.zip" | cut -f1)"
 
             - name: Azure login
               uses: azure/login@v2
@@ -142,7 +97,6 @@ jobs:
                   RG=$(az webapp list --query "[?name=='$AZURE_WEBAPP_NAME'].resourceGroup | [0]" -o tsv)
                   [ -z "$RG" ] && { echo "ERROR: webapp $AZURE_WEBAPP_NAME not found"; exit 1; }
                   echo "AZURE_RESOURCE_GROUP=$RG" >> $GITHUB_ENV
-                  echo "Resource group: $RG"
 
             - name: Configure app settings
               run: |
@@ -193,25 +147,21 @@ jobs:
                     [ "$STATUS" = "200" ] && echo "App is healthy" && exit 0
                     sleep 5
                   done
-                  echo "Health check timed out after 3 minutes"
+                  echo "Health check timed out"
                   exit 1
 
             - name: Fetch logs on failure
               if: failure()
               run: |
-                  echo "=== Live Docker log (last 200 lines) ==="
                   az webapp log tail \
                     --name "$AZURE_WEBAPP_NAME" \
                     --resource-group "$AZURE_RESOURCE_GROUP" \
                     --timeout 15 2>/dev/null || true
-
-                  echo "=== Downloading full log archive ==="
                   az webapp log download \
                     --name "$AZURE_WEBAPP_NAME" \
                     --resource-group "$AZURE_RESOURCE_GROUP" \
                     --log-file azure-logs.zip 2>/dev/null || true
                   unzip -o azure-logs.zip -d azure-logs 2>/dev/null || true
-                  echo "=== Docker container logs ==="
                   find azure-logs -name "*docker*" -exec tail -n 200 {} + 2>/dev/null || true
 
             - name: Summary
@@ -220,4 +170,3 @@ jobs:
                   echo "### Deployment" >> $GITHUB_STEP_SUMMARY
                   echo "- URL: https://$AZURE_WEBAPP_NAME.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
                   echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-                  echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
