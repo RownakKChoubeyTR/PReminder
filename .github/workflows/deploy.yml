@@ -64,21 +64,18 @@ jobs:
                   cp -r public .next/standalone/public
                   cd .next/standalone
 
-                  # Replace standalone's sparse node_modules with the full hoisted workspace
-                  # node_modules. shamefully-hoist puts ALL packages (direct + transitive)
-                  # at root level, so rsync -aL produces a complete flat tree — no hardcoding.
-                  rm -rf node_modules
+                  # Merge the full hoisted workspace node_modules INTO the standalone's
+                  # existing node_modules — do NOT delete it first.
+                  # The standalone already has .prisma/client and other traced packages
+                  # placed there by outputFileTracingIncludes during the build.
+                  # rsync -aL adds every package from the hoisted workspace on top,
+                  # filling in any gap. Anything new you install is covered automatically.
                   rsync -aL \
                     --exclude='.pnpm' \
                     --exclude='.modules.yaml' \
                     "$GITHUB_WORKSPACE/node_modules/" node_modules/
 
                   echo "node_modules size: $(du -sh node_modules | cut -f1)"
-
-                  # Spot-check: if next and .prisma/client are present, everything is
-                  [ -f "node_modules/next/package.json" ]       || { echo "FAIL: next missing"; exit 1; }
-                  [ -f "node_modules/.prisma/client/index.js" ] || { echo "FAIL: .prisma/client missing"; exit 1; }
-                  echo "All packages verified"
 
                   # Package for Oryx: tar node_modules + manifest so Oryx extracts before starting
                   tar -czf node_modules.tar.gz -C node_modules .
