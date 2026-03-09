@@ -41,7 +41,9 @@ jobs:
               env:
                   DOCKER_BUILD: 'true'
                   SKIP_ENV_VALIDATION: '1'
-              run: pnpm run build
+              run: |
+                  pnpm prisma generate
+                  pnpm run build
 
             - name: Package
               run: |
