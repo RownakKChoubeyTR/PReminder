@@ -4,6 +4,7 @@ import { env } from '@/lib/env';
 import { logger } from '@/lib/logger';
 import NextAuth from 'next-auth';
 import GitHub from 'next-auth/providers/github';
+import { Prisma, type TemplateType } from '@prisma/client';
 
 import type { JWT } from 'next-auth/jwt';
 
@@ -38,6 +39,78 @@ async function verifyGitHubToken(accessToken: string): Promise<boolean> {
     } catch {
         // Network error — don't invalidate the session; let the user retry.
         return true;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// New-user defaults
+// ─────────────────────────────────────────────────────────────
+
+const DEFAULT_TEMPLATES: Array<{
+    name: string;
+    type: TemplateType;
+    subject?: string;
+    body: string;
+    isDefault: boolean;
+}> = [
+    {
+        name: 'Friendly Reminder',
+        type: 'TEAMS_DM',
+        body: 'Hi {reviewer_name}, could you take a look at **{pr_title}** (#{pr_number} in {repo})? It has been waiting for your review. Thanks!',
+        isDefault: true
+    },
+    {
+        name: 'Friendly Reminder',
+        type: 'EMAIL',
+        subject: 'PR Review Reminder: {pr_title} (#{pr_number})',
+        body: 'Hi {reviewer_name},\n\nCould you please review the following pull request when you get a chance?\n\nPR: {pr_title} (#{pr_number})\nRepo: {repo}\n\nThanks!',
+        isDefault: true
+    }
+];
+
+/**
+ * Seed default templates and a placeholder Power Automate DM integration
+ * for users who have none. Safe to call on every sign-in — only creates
+ * records when the respective counts are zero.
+ */
+async function seedUserDefaults(userId: string): Promise<void> {
+    const [templateCount, integrationCount] = await Promise.all([
+        prisma.messageTemplate.count({ where: { userId } }),
+        prisma.integrationConfig.count({ where: { userId, type: 'POWER_AUTOMATE_DM' } })
+    ]);
+
+    const ops: Prisma.PrismaPromise<unknown>[] = [];
+
+    if (templateCount === 0) {
+        ops.push(
+            prisma.messageTemplate.createMany({
+                data: DEFAULT_TEMPLATES.map(t => ({ ...t, userId }))
+            })
+        );
+    }
+
+    if (integrationCount === 0) {
+        const flowUrl = env.POWER_AUTOMATE_FLOW_URL;
+        ops.push(
+            prisma.integrationConfig.create({
+                data: {
+                    userId,
+                    type: 'POWER_AUTOMATE_DM',
+                    label: 'Power Automate – Teams DM',
+                    encryptedValue: encrypt(flowUrl ?? 'https://make.powerautomate.com/your-flow-url-here'),
+                    // Active only when a real URL is configured via env
+                    isActive: !!flowUrl
+                }
+            })
+        );
+    }
+
+    if (ops.length > 0) {
+        await prisma.$transaction(ops);
+        logger.info(
+            `seeded defaults for user ${userId} (templates=${templateCount === 0}, integration=${integrationCount === 0})`,
+            'auth'
+        );
     }
 }
 
@@ -166,7 +239,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             const accessToken = account.access_token ?? '';
 
             try {
-                await prisma.user.upsert({
+                const user = await prisma.user.upsert({
                     where: { githubId },
                     create: {
                         githubId,
@@ -185,6 +258,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     }
                 });
                 logger.info(`sign-in: upserted user ${login} (githubId=${githubId})`, 'auth');
+                await seedUserDefaults(user.id);
             } catch (err) {
                 logger.error(`sign-in: failed to upsert user ${login}: ${err}`, 'auth');
             }
