@@ -98,6 +98,17 @@ jobs:
                     --resource-group "$AZURE_RESOURCE_GROUP" \
                     --startup-file "node server.js"
 
+            - name: Release deployment lock
+              run: |
+                  CREDS=$(az webapp deployment list-publishing-credentials \
+                    --name "$AZURE_WEBAPP_NAME" --resource-group "$AZURE_RESOURCE_GROUP" -o json)
+                  U=$(echo "$CREDS" | jq -r .publishingUserName)
+                  P=$(echo "$CREDS" | jq -r .publishingPassword)
+                  curl -sf -X DELETE \
+                    "https://$AZURE_WEBAPP_NAME.scm.azurewebsites.net/api/deployments/latest" \
+                    -u "$U:$P" 2>/dev/null || true
+                  sleep 5
+
             - name: Deploy
               run: |
                   az webapp deploy \
