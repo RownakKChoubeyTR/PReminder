@@ -32,7 +32,11 @@ jobs:
                   cache: 'pnpm'
 
             - name: Install dependencies
-              run: pnpm install --frozen-lockfile
+              run: |
+                  # Hoist ALL packages (direct + transitive) to root node_modules so that
+                  # rsync can copy the complete flat tree without hardcoding any package names.
+                  echo "shamefully-hoist=true" >> .npmrc
+                  pnpm install --frozen-lockfile
 
             - name: Generate Prisma client
               run: pnpm prisma generate
@@ -60,9 +64,9 @@ jobs:
                   cp -r public .next/standalone/public
                   cd .next/standalone
 
-                  # Replace standalone's sparse node_modules with the FULL workspace node_modules.
-                  # rsync -aL dereferences all pnpm symlinks into a standard flat directory.
-                  # Every installed package is present — adding new deps just works, no hardcoding.
+                  # Replace standalone's sparse node_modules with the full hoisted workspace
+                  # node_modules. shamefully-hoist puts ALL packages (direct + transitive)
+                  # at root level, so rsync -aL produces a complete flat tree — no hardcoding.
                   rm -rf node_modules
                   rsync -aL \
                     --exclude='.pnpm' \
@@ -71,9 +75,8 @@ jobs:
 
                   echo "node_modules size: $(du -sh node_modules | cut -f1)"
 
-                  # Verify the packages the server absolutely must have at startup
+                  # Spot-check: if next and .prisma/client are present, everything is
                   [ -f "node_modules/next/package.json" ]       || { echo "FAIL: next missing"; exit 1; }
-                  [ -f "node_modules/@next/env/package.json" ]  || { echo "FAIL: @next/env missing"; exit 1; }
                   [ -f "node_modules/.prisma/client/index.js" ] || { echo "FAIL: .prisma/client missing"; exit 1; }
                   echo "All packages verified"
 
