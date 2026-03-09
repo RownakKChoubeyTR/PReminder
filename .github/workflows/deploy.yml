@@ -95,7 +95,8 @@ jobs:
                       WEBSITES_PORT=3000 \
                       HOSTNAME=0.0.0.0 \
                       NEXT_TELEMETRY_DISABLED=1 \
-                      NEXTAUTH_URL=https://$AZURE_WEBAPP_NAME.azurewebsites.net
+                      NEXTAUTH_URL=https://$AZURE_WEBAPP_NAME.azurewebsites.net \
+                      AUTH_TRUST_HOST=true
                   az webapp config set \
                     --name "$AZURE_WEBAPP_NAME" \
                     --resource-group "$AZURE_RESOURCE_GROUP" \
