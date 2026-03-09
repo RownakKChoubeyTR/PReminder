@@ -56,14 +56,14 @@ const DEFAULT_TEMPLATES: Array<{
     {
         name: 'Friendly Reminder',
         type: 'TEAMS_DM',
-        body: 'Hi {reviewer_name}, could you take a look at **{pr_title}** (#{pr_number} in {repo})? It has been waiting for your review. Thanks!',
+        body: 'Hi {receiverName},\n\nCould you please review the following pull request when you get a chance?\n\nTitle: {prTitle}\nRepo: {repoName}\nLink: {prUrl}\n\nThanks!',
         isDefault: true
     },
     {
         name: 'Friendly Reminder',
         type: 'EMAIL',
-        subject: 'PR Review Reminder: {pr_title} (#{pr_number})',
-        body: 'Hi {reviewer_name},\n\nCould you please review the following pull request when you get a chance?\n\nPR: {pr_title} (#{pr_number})\nRepo: {repo}\n\nThanks!',
+        subject: 'PR Review Reminder: {prTitle} (#{prNumber})',
+        body: 'Hi {receiverName},\n\nCould you please review the following pull request when you get a chance?\n\nTitle: {prTitle}\nRepo: {repoName}\nLink: {prUrl}\n\nThanks!',
         isDefault: true
     }
 ];
