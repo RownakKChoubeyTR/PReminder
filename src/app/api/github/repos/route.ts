@@ -31,6 +31,13 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized', code: 'AUTH_REQUIRED' }, { status: 401 });
     }
 
+    if (session.error) {
+        return NextResponse.json(
+            { error: 'Session expired — please sign in again', code: session.error },
+            { status: 401 }
+        );
+    }
+
     const params = request.nextUrl.searchParams;
     const page = Math.max(1, Number(params.get('page') ?? 1));
     const perPage = Math.min(100, Math.max(1, Number(params.get('per_page') ?? 30)));

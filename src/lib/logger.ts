@@ -296,13 +296,21 @@ function emit(
         ...(stack ? { stack } : {})
     };
 
-    // Console — dev only
     if (IS_DEV) {
+        // Dev — pretty box format to console + file
         prettyConsole(entry);
+        writeToFile(entry, logFile);
+    } else {
+        // Production — structured JSON to stdout/stderr (captured by log stream services)
+        const line = JSON.stringify(entry);
+        if (level === 'ERROR') {
+            console.error(line);
+        } else if (level === 'WARN') {
+            console.warn(line);
+        } else {
+            console.log(line);
+        }
     }
-
-    // File — dev only (logs/ directory, filename controlled by logFile option)
-    writeToFile(entry, logFile);
 }
 
 // ── Factory ───────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 import { authenticateUser } from '@/lib/auth-utils';
 import { cacheKey, githubCache } from '@/lib/cache';
-import { isSamlError, listUserPRs, SAML_HELP_URL, SAML_NOTICE } from '@/lib/github/client';
+import { GitHubApiError, isSamlError, listUserPRs, SAML_HELP_URL, SAML_NOTICE } from '@/lib/github/client';
 import { createLogger } from '@/lib/logger';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -49,7 +49,16 @@ export async function GET(request: NextRequest) {
                 { status: 403 }
             );
         }
-        log.error('Failed to fetch my PRs', err, { login: user.githubLogin, page });
-        return NextResponse.json({ error: 'Failed to fetch your PRs', code: 'GITHUB_ERROR' }, { status: 500 });
+        const ghStatus = err instanceof GitHubApiError ? err.status : undefined;
+        log.error('Failed to fetch my PRs', err, { login: user.githubLogin, page, ghStatus });
+        return NextResponse.json(
+            {
+                error: 'Failed to fetch your PRs',
+                code: 'GITHUB_ERROR',
+                ...(ghStatus ? { ghStatus } : {}),
+                detail: err instanceof Error ? err.message : 'Unknown error'
+            },
+            { status: ghStatus === 401 ? 401 : 502 }
+        );
     }
 }

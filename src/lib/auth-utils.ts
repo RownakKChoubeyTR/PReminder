@@ -1,7 +1,9 @@
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
-import { logger } from '@/lib/logger';
+import { createLogger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
+
+const log = createLogger('auth-utils');
 
 // ─────────────────────────────────────────────────────────────
 // Auth Utilities — Resolve authenticated user from DB session
@@ -41,6 +43,17 @@ export async function authenticateUser(): Promise<AuthResult> {
         };
     }
 
+    // Token degraded — force re-authentication instead of calling GitHub with a stale token
+    if (session.error) {
+        log.error('Session degraded', new Error(session.error), { login: session.user.githubLogin });
+        return {
+            error: NextResponse.json(
+                { error: 'Session expired — please sign in again', code: session.error },
+                { status: 401 }
+            )
+        };
+    }
+
     const { githubLogin, githubId } = session.user;
     const accessToken = session.accessToken ?? '';
 
@@ -51,7 +64,7 @@ export async function authenticateUser(): Promise<AuthResult> {
     });
 
     if (!dbUser) {
-        logger.error(`DB user not found for session: githubId=${githubId}, login=${githubLogin}`, 'auth-utils');
+        log.error('DB user not found for session', undefined, { githubId, login: githubLogin });
         return {
             error: NextResponse.json({ error: 'User not found', code: 'USER_NOT_FOUND' }, { status: 404 })
         };
